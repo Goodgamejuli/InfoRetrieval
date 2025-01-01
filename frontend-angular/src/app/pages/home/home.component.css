@@ -1,0 +1,26 @@
+.home-container_side-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: black;
+    height: 100vh;
+}
+
+.home-container_playlist-container{
+    background-color: #191919;
+    height: 100vh;
+}
+
+.home-container_side-bar-item  {
+    width: 100%;
+    font-size: 18;
+    color: white;
+    margin: 10px;
+    padding-left: 18px;
+}
+
+.home-container_side-bar-item > a:hover {
+    cursor: pointer;
+    color: lightgray;
+}
