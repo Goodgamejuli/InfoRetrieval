@@ -17,5 +17,28 @@
             <a>Your Library</a>
         </div>
     </div>
-    <div class="home-container_playlist-container col-10"></div>
+    <div class="home-container_playlist-container col-10">
+        <app-top-nav></app-top-nav>
+
+        <div [style.padding]="'48px'" class="mt-5 container-fluid">
+            <h4 [style.color]="'white'" [style.padding]="'10px'">Songs</h4>
+            <div class="playlist_card_collections">
+                <app-song-card
+                    [playlistThumbnail]="thumbnail"
+                    [title]="test"
+                    [description]="test"></app-song-card>
+                <div id="song_card_item">
+                    <li *ngFor="let sc of songCards">
+                        <a>dadfasDDDDDDDDDDDDDDDDDDDDDDDD</a>
+                    </li>
+
+                    
+                </div>
+            </div>
+        </div>
+
+        <div [style.padding-top]="'50px'" class="mt-5 container">
+            <app-song-card [title]="test" [description]="test"></app-song-card>
+        </div>
+    </div>
 </div>

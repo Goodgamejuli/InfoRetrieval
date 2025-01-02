@@ -24,3 +24,23 @@
     cursor: pointer;
     color: lightgray;
 }
+
+.home-container_playlist-container {
+    padding: 0px;
+    background-color: #1e1e1e;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.playlist_card_collections {
+    display: flex;
+    gap: 20px;
+    max-width: 1500px;
+    overflow-x: auto;
+    height: 100vh;
+    position: absolute;
+}
+
+#song_card_item {
+    min-width: 185px;
+}

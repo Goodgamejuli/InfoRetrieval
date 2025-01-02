@@ -1,0 +1,41 @@
+.song-card {
+    height: 250px;
+    width: 210px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #202020;
+    border-radius: 12px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.song-card_title {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    word-spacing: 0.4px;
+    color: white;
+    margin-top: 18px;
+    text-transform: capitalize;
+    text-align: center;
+}
+
+.song-card_description {
+    margin: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    word-spacing: 0.4px;
+    color: grey;
+    margin-top: 18px;
+    text-align: center;
+}
+
+.song-card_thumbnail {
+    background-color: rgba(0, 0, 0, 0.24);
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 15px;
+    width: 120px;
+}
