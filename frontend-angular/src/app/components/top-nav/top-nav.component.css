@@ -36,3 +36,9 @@
     margin-left: -200px;
     font-size: 22px;
 }
+
+.top-nav_auth_login:hover {
+    cursor: pointer;
+    background-color: rgb(32, 32, 32);
+    color: rgb(9, 185, 9);
+}
