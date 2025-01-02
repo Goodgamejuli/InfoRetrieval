@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TopNavComponent } from "../../components/top-nav/top-nav.component";
 import { SongCardComponent } from "../../components/song-card/song-card.component";
+import { SearchBarService } from '../../services/searchbar.service';
 
 @Component({
   selector: 'app-home',
@@ -56,9 +57,20 @@ public songCards= [
       title: 's song',
       description: 'Test einer song description oder so',
     },
-  ]
+  ];
 
-  ngOnInit(): void {
-    
+  /**
+   *
+   */
+  constructor(private searchBarService: SearchBarService) {  }
+
+  ngOnInit(): void {  }
+
+  onNavigate(pageName: string) {
+    if(pageName === 'search')
+      this.searchBarService.isSearchVisible.next(true);
+    else
+    this.searchBarService.isSearchVisible.next(false);
   }
+
 }

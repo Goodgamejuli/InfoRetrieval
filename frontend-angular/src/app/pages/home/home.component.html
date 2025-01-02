@@ -5,15 +5,15 @@
             <img width="150" class="m-3 text-left" src="assets/spotify_light.png" alt="spotify light logo">
         </div>
         <!--Home Screen-->
-        <div class="home-container_side-bar-item">
+        <div class="home-container_side-bar-item" (click)="onNavigate('home')">
             <a>Home</a>
         </div>
         <!--Search-->
-        <div class="home-container_side-bar-item">
+        <div class="home-container_side-bar-item" (click)="onNavigate('search')">
             <a>Search</a>
         </div>
         <!--Own Library-->
-        <div class="home-container_side-bar-item">
+        <div class="home-container_side-bar-item" (click)="onNavigate('library')">
             <a>Your Library</a>
         </div>
     </div>

@@ -1,21 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { SearchBarService } from '../../services/searchbar.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-top-nav',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './top-nav.component.html',
   styleUrl: './top-nav.component.css'
 })
 export class TopNavComponent implements OnInit{
+  public isSearchFieldVisible: boolean = false;
 
-
-  constructor(private router: Router) {}
+  constructor(private router: Router, private searchBarService: SearchBarService) {}
   
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.searchBarService.isSearchVisible.subscribe(status => {
+      this.isSearchFieldVisible = status;
+    });
+  }
 
   onNavigateToLogin() {
-    console.log("Test");
     this.router.navigate(['/', 'login'])
   }
 }

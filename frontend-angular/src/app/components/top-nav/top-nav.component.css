@@ -32,8 +32,8 @@
 }
 
 .top-nav_title{
-    flex-basis: 750px;
-    margin-left: -200px;
+    flex-basis: 100x;
+    margin-left: -300px;
     font-size: 22px;
 }
 
@@ -41,4 +41,19 @@
     cursor: pointer;
     background-color: rgb(32, 32, 32);
     color: rgb(9, 185, 9);
+}
+
+input.search {
+    border: none;
+    width: 350px;
+    border-radius: 20px;
+    height: 35px;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+input.search::placeholder {
+    color: gray;
+    font-weight: 500;
 }

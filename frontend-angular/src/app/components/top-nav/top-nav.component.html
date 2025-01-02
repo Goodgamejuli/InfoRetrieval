@@ -1,5 +1,8 @@
 <div class="top-nav">
     <div class="top-nav_title">Focus</div>
+    <div class="top-nav_search" *ngIf="isSearchFieldVisible">
+        <input type="search" class="search" placeholder="What do you want to listen">
+    </div>
     <div class="top-nav_auth">
         <div class="top-nav_auth_sign-up">Sign up</div>
         <div class="top-nav_auth_login" (click)="onNavigateToLogin()">Login</div>
