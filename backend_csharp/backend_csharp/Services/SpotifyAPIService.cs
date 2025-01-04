@@ -66,8 +66,47 @@ namespace backend_csharp.Services
 
             List <FullAlbum> albumsOfArtist = await GetAlbumsOfArtist(artist);
 
-            if(albumsOfArtist == null Orde>)
+            if (albumsOfArtist == null || albumsOfArtist.Count == 0)
+                return null;
 
+            List <OpenSearchTrackDocument> allTracksOfArtist = new List <OpenSearchTrackDocument>();
+
+            foreach (FullAlbum album in albumsOfArtist)
+            {
+                await AddTracksOfAlbumToList(album, artist, allTracksOfArtist);
+            }
+
+            return allTracksOfArtist;
+        }
+
+        private async Task AddTracksOfAlbumToList(FullAlbum album, FullArtist artist, List <OpenSearchTrackDocument> tracks)
+        {
+            foreach (var track in album.Tracks.Items)
+            {
+                var lyric = await LyricsOvhService.Instance.GetLyricByArtistAndTitle(artist.Name, track.Name);
+                
+                if(string.IsNullOrEmpty(lyric))
+                    continue;
+
+                var osTrack = CreateOpenSearchTrack(track, album, artist, lyric);
+                tracks.Add(osTrack);
+            }
+        }
+
+        private OpenSearchTrackDocument CreateOpenSearchTrack(SimpleTrack track, FullAlbum album, FullArtist artist, string lyrics)
+        {
+            OpenSearchTrackDocument osTrack = new OpenSearchTrackDocument()
+            {
+                Id = track.Id,
+                AlbumTitle = album.Name,
+                ArtistName = artist.Name,
+                Lyrics = lyrics,
+                Title = track.Name,
+                ReleaseDate = album.ReleaseDate,
+                Genre = artist.Genres
+            };
+
+            return osTrack;
         }
 
         /// <summary>

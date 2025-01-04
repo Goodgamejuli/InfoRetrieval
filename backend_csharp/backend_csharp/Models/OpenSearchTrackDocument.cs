@@ -26,6 +26,6 @@ namespace backend_csharp.Models
         public string ArtistName { get; set; }
 
         [Keyword]
-        public string Genre { get; set; }
+        public List <string> Genre { get; set; }
     }
 }

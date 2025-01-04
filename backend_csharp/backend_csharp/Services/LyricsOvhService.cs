@@ -36,7 +36,7 @@
         {
             // CancelationToken, so that this api call breaks after the duration of 2 seconds 
             // Then there was no lyrics found for the given song, what is possible with the Api we use
-            using var cancellationTokenSource = new CancellationTokenSource(2000);
+            using var cancellationTokenSource = new CancellationTokenSource(200);
 
             title = OptimizeTitleStringForApiCall(title);
 
@@ -69,7 +69,11 @@
         /// <returns></returns>
         private string OptimizeTitleStringForApiCall(string title)
         {
-            return title.Substring(0, title.IndexOfAny(['-', '(']));
+            if (title.Contains("-")
+                || title.Contains("("))
+                title = title.Substring(0, title.IndexOfAny(['-', '(']));
+
+            return title;
         }
     }
 }
