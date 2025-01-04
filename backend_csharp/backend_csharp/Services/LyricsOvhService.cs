@@ -26,6 +26,12 @@
             _client.BaseAddress = _baseAddress;
         }
 
+        /// <summary>
+        /// Returns the lyric of a song by an artist. Therefore using the lyrics.ovh-Api
+        /// </summary>
+        /// <param name="artist">Name of the artist</param>
+        /// <param name="title">Name of the song</param>
+        /// <returns>lyrics of the song, empty string if no lyric was found</returns>
         public async Task <string> GetLyricByArtistAndTitle(string artist, string title)
         {
             // CancelationToken, so that this api call breaks after the duration of 2 seconds 

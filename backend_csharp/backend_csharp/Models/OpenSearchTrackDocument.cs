@@ -7,8 +7,8 @@ namespace backend_csharp.Models
 /// </summary>
     public class OpenSearchTrackDocument
     {
-        [Number(NumberType.Long)]
-        public long Id { get; set; }
+        [Text]
+        public string Id { get; set; }
 
         [Text]
         public string Title { get; set; }
