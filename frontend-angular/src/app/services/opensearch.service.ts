@@ -19,21 +19,28 @@ export class OpenSearchService {
     }
 
     public getSongTest() {
-        var songDto: SongDTO = {
+        var song: SongDTO = {
             album: "",
             artist: "",
             title: "",
             lyrics: "",
             release: "",
-            genre: []
+            genre: [], 
+            spotifyId: ""
         }
 
         this.http.get<SongDTO>(this.apiURL)
         .subscribe(data =>  {
-            songDto.title = data.title;
-            songDto.lyrics = data.lyrics;
+            song.title = data.title;
+            song.lyrics = data.lyrics;
+            song.album = data.album;
+            song.artist = data.artist;
+            song.genre = data.genre;
+            song.spotifyId = data.spotifyId;
+            song.release = data.release;
         });
 
-        this.Songs.push(songDto);
+        this.Songs.push(song);
+        console.log(song);
     }
 }

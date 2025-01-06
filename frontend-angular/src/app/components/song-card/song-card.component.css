@@ -1,6 +1,6 @@
 .song-card {
-    height: 250px;
-    width: 210px;
+    height: 450px;
+    width: 250px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -19,17 +19,28 @@
     margin-top: 18px;
     text-transform: capitalize;
     text-align: center;
+    height: 40px;
 }
 
-.song-card_description {
-    margin: 10px;
+.song-card_description-artist {
     font-size: 12px;
     font-weight: bold;
     letter-spacing: 0.3px;
     word-spacing: 0.4px;
     color: grey;
     margin-top: 18px;
-    text-align: center;
+    text-align: left;
+}
+
+.song-card_description-album {
+    font-size: 12px;
+    font-weight: normal;
+    letter-spacing: 0.3px;
+    word-spacing: 0.4px;
+    color: grey;
+    margin-top: 10px;
+    margin-bottom: 18px;
+    text-align: left;
 }
 
 .song-card_thumbnail {
@@ -37,5 +48,21 @@
     padding: 20px;
     border-radius: 12px;
     margin-top: 15px;
-    width: 120px;
+    width: 150px;
+    height: 150px;
+}
+
+.song-card_play-button {
+    background-color: #1ED760;
+    border-radius: 100px;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 18px;
+}
+
+.song-card_play-button:hover {
+    background-color: #7cd69c;
+    border-radius: 100px;
+    width: 50px;
+    height: 50px;
 }

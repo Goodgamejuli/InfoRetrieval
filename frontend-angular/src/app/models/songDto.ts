@@ -5,4 +5,5 @@ export interface SongDTO {
     release: string;
     artist: string;
     genre: string[];
+    spotifyId: string;
 }
