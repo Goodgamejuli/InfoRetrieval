@@ -9,16 +9,11 @@ import { CommonModule } from '@angular/common';
   templateUrl: './top-nav.component.html',
   styleUrl: './top-nav.component.css'
 })
-export class TopNavComponent implements OnInit{
+export class TopNavComponent{
   public isSearchFieldVisible: boolean = false;
 
   constructor(private router: Router, private searchBarService: SearchBarService) {}
-  
-  ngOnInit(): void {
-    this.searchBarService.isSearchVisible.subscribe(status => {
-      this.isSearchFieldVisible = status;
-    });
-  }
+
 
   onNavigateToLogin() {
     this.router.navigate(['/', 'login'])

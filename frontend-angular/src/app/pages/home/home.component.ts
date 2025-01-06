@@ -6,6 +6,7 @@ import { SearchBarService } from '../../services/searchbar.service';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { OpenSearchService } from '../../services/opensearch.service';
+import { SongDTO } from '../../models/songDto';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +17,6 @@ import { OpenSearchService } from '../../services/opensearch.service';
 export class HomeComponent implements OnInit{
 
   opensearchService = inject(OpenSearchService)
-  track: any;
 
 public songCards= [
     {
@@ -35,11 +35,7 @@ public songCards= [
     }
   ];
 
-  constructor(private searchBarService: SearchBarService) {
-    this.opensearchService.get().subscribe(osService => {
-      this.track = osService;
-    });
-    }
+  constructor(private searchBarService: SearchBarService) { }
 
   ngOnInit(): void {  }
 
@@ -48,5 +44,9 @@ public songCards= [
       this.searchBarService.isSearchVisible.next(true);
     else
     this.searchBarService.isSearchVisible.next(false);
+  }
+
+  onTestClick() {
+    this.opensearchService.getSongTest();
   }
 }

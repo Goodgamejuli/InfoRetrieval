@@ -44,3 +44,19 @@
 #song_card_item {
     min-width: 185px;
 }
+
+.button {
+    background-color: white;
+    padding: 13px;
+    border-radius: 40px;
+    color: black;
+    font-weight: bold;
+    width: 110px;
+    text-align: center;
+}
+
+.button:hover {
+    cursor: pointer;
+    background-color: rgb(32, 32, 32);
+    color: rgb(9, 185, 9);
+}

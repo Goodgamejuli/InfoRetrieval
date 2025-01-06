@@ -15,9 +15,6 @@ export class SongCardComponent {
   @Input() public id!: string | number;
   @Input() public link!: string;
 
-  /**
-   *
-   */
   constructor(private router: Router, private songDataService: SongDataService) { }
 
   onNavigateToSong() {

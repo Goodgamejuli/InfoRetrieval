@@ -1,5 +1,6 @@
 <div class="home-container row">
-    <h1>{{track.lyrics}}</h1>
+    
+
     <div class="home-container_side-bar col-2">
         <!--Logo-->
         <div class="home-container_side-bar-item">
@@ -17,7 +18,12 @@
         <div class="home-container_side-bar-item" (click)="onNavigate('library')">
             <a>Your Library</a>
         </div>
+
+        <div class="button" (click)="onTestClick()">
+            <h1>Click Mich!</h1> 
+        </div>
     </div>
+    
     <div class="home-container_playlist-container col-10">
         <app-top-nav></app-top-nav>
 
@@ -36,5 +42,9 @@
             </div>
         </div>
     </div>
+
+   
+
 </div>
 
+ 
