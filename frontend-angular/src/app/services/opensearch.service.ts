@@ -12,6 +12,8 @@ export class OpenSearchService {
     private http = inject(HttpClient);
     private apiURL = environment.apiURL + '/api/OpenSearch';
 
+    public Songs: SongDTO[] = [];
+
     public get(): Observable<any> {
         return this.http.get(this.apiURL);
     }
@@ -29,8 +31,9 @@ export class OpenSearchService {
         this.http.get<SongDTO>(this.apiURL)
         .subscribe(data =>  {
             songDto.title = data.title;
-            songDto.album = data.album;
+            songDto.lyrics = data.lyrics;
         });
-        console.log(songDto);
+
+        this.Songs.push(songDto);
     }
 }

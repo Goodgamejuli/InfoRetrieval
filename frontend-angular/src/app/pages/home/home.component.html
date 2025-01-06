@@ -22,6 +22,8 @@
         <div class="button" (click)="onTestClick()">
             <h1>Click Mich!</h1> 
         </div>
+
+        <img src="https://d3rt1990lpmkn.cloudfront.net/cover/d45aa25bbd45872c0b1e97223af57fe94588820a">
     </div>
     
     <div class="home-container_playlist-container col-10">
@@ -30,14 +32,9 @@
         <div [style.padding]="'48px'" class="mt-5 container-fluid">
             <h4 [style.color]="'white'" [style.padding]="'10px'">Songs</h4>
             <div class="playlist_card_collections" >
-                <div id="song_card_item" *ngFor="let sc of songCards">
+                <div id="song_card_item" *ngFor="let sc of opensearchService.Songs">
                     <app-song-card
-                    [playlistThumbnail]="sc.thumbnail"
-                    [title]="sc.title"
-                    [description]="sc.description"
-                    [id]="sc.song_id"
-                    [link]="sc.song_link"></app-song-card
-                    >
+                    [song]="sc"></app-song-card>
                 </div>
             </div>
         </div>

@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { SongDataService } from '../../services/song-data.service';
+import { SongDTO } from '../../models/songDto';
 
 @Component({
   selector: 'app-song-card',
@@ -14,6 +15,8 @@ export class SongCardComponent {
   @Input() public description!: string;
   @Input() public id!: string | number;
   @Input() public link!: string;
+
+  @Input() public song!: SongDTO;
 
   constructor(private router: Router, private songDataService: SongDataService) { }
 
