@@ -7,10 +7,11 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { OpenSearchService } from '../../services/opensearch.service';
 import { SongDTO } from '../../models/songDto';
+import { PlaybarComponent } from "../../components/playbar/playbar.component";
 
 @Component({
   selector: 'app-home',
-  imports: [TopNavComponent, SongCardComponent, CommonModule, RouterModule, HttpClientModule, AsyncPipe],
+  imports: [TopNavComponent, SongCardComponent, CommonModule, RouterModule, HttpClientModule, AsyncPipe, PlaybarComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
