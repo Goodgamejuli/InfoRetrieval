@@ -54,17 +54,17 @@ namespace backend_csharp.Services
             await _client.IndexAsync(song, i => i.Index(INDEXNAME));
         }
 
-        public async Task<SearchSongsResponse> Search(SearchSongRequest request, CancellationToken cancellationToken)
-        {
-            var parameters = request.ToSearchParameter();
-            var songsResponce = await SearchAsync(parameters, cancellationToken);
-            var songs = songsResponce.Documents;
-            var count = songsResponce.Total;
-            var response = new SearchSongsResponse(songs.Select(x => x.ToSongResponse()), request.PageNumber,
-                                                   request.PageSize, (int)count, (int)Math.Ceiling(count / (double)request.PageSize));
+        //public async Task<SearchSongsResponse> Search(SearchSongRequest request, CancellationToken cancellationToken)
+        //{
+        //    var parameters = request.ToSearchParameter();
+        //    var songsResponce = await SearchAsync(parameters, cancellationToken);
+        //    var songs = songsResponce.Documents;
+        //    var count = songsResponce.Total;
+        //    var response = new SearchSongsResponse(songs.Select(x => x.ToSongResponse()), request.PageNumber,
+        //                                           request.PageSize, (int)count, (int)Math.Ceiling(count / (double)request.PageSize));
 
-            return response;
-        }
+        //    return response;
+        //}
 
 
     }
