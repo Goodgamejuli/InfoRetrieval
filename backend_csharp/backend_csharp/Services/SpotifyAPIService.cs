@@ -57,7 +57,7 @@ namespace backend_csharp.Services
             return track;
         }
 
-        public async Task <List <OpenSearchTrackDocument>> GetAllTracksOfArtistAsOpenSearchDocument(string artistName)
+        public async Task <List <OpenSearchSongDocument>> GetAllTracksOfArtistAsOpenSearchDocument(string artistName)
         {
             var artist = await SearchForArtist(artistName);
 
@@ -69,7 +69,7 @@ namespace backend_csharp.Services
             if (albumsOfArtist == null || albumsOfArtist.Count == 0)
                 return null;
 
-            List <OpenSearchTrackDocument> allTracksOfArtist = new List <OpenSearchTrackDocument>();
+            List <OpenSearchSongDocument> allTracksOfArtist = new List <OpenSearchSongDocument>();
 
             foreach (FullAlbum album in albumsOfArtist)
             {
@@ -79,7 +79,7 @@ namespace backend_csharp.Services
             return allTracksOfArtist;
         }
 
-        private async Task AddTracksOfAlbumToList(FullAlbum album, FullArtist artist, List <OpenSearchTrackDocument> tracks)
+        private async Task AddTracksOfAlbumToList(FullAlbum album, FullArtist artist, List <OpenSearchSongDocument> tracks)
         {
             foreach (var track in album.Tracks.Items)
             {
@@ -93,9 +93,9 @@ namespace backend_csharp.Services
             }
         }
 
-        private OpenSearchTrackDocument CreateOpenSearchTrack(SimpleTrack track, FullAlbum album, FullArtist artist, string lyrics)
+        private OpenSearchSongDocument CreateOpenSearchTrack(SimpleTrack track, FullAlbum album, FullArtist artist, string lyrics)
         {
-            OpenSearchTrackDocument osTrack = new OpenSearchTrackDocument()
+            OpenSearchSongDocument osSong = new OpenSearchSongDocument()
             {
                 Id = track.Id,
                 AlbumTitle = album.Name,
@@ -106,7 +106,7 @@ namespace backend_csharp.Services
                 Genre = artist.Genres
             };
 
-            return osTrack;
+            return osSong;
         }
 
         /// <summary>

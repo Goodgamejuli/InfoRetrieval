@@ -23,7 +23,7 @@ namespace backend_csharp.Controllers
         }
 
         [HttpGet("tracksOfArtist")]
-        public async Task <ActionResult<List <OpenSearchTrackDocument>>> GetAllPossibleTracksOfAnArtist(string artistName)
+        public async Task <ActionResult<List <OpenSearchSongDocument>>> GetAllPossibleTracksOfAnArtist(string artistName)
         {
             var tracks = await SpotifyAPIService.Instance.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
 

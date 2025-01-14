@@ -5,7 +5,7 @@ namespace backend_csharp.Models
 /// <summary>
 /// This class defines the structure of a document of a track, that shall get saved in open search.
 /// </summary>
-    public class OpenSearchTrackDocument
+    public class OpenSearchSongDocument
     {
         [Text]
         public string Id { get; set; }

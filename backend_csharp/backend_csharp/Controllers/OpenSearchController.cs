@@ -9,9 +9,9 @@ namespace backend_csharp.Controllers
     public class OpenSearchController : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult <TrackDto>> TestGet()
+        public async Task<ActionResult <SongDto>> TestGet()
         {
-            var track = new TrackDto
+            var track = new SongDto
             {
                 Title = "test song", 
                 Lyrics = "lorem ipsum oder so",

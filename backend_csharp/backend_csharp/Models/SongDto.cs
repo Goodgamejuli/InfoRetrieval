@@ -3,7 +3,7 @@
 /// <summary>
 /// This is the data transfer object to send tracks to the frontend
 /// </summary>
-    public class TrackDto
+    public class SongDto
     {
         public string SpotifyId { get; set; }
 
