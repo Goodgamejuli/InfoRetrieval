@@ -71,10 +71,11 @@ namespace backend_csharp.Services
 
             List <OpenSearchSongDocument> allTracksOfArtist = new List <OpenSearchSongDocument>();
 
-            foreach (FullAlbum album in albumsOfArtist)
-            {
-                await AddTracksOfAlbumToList(album, artist, allTracksOfArtist);
-            }
+            await AddTracksOfAlbumToList(albumsOfArtist[0], artist, allTracksOfArtist);
+            //foreach (FullAlbum album in albumsOfArtist)
+            //{
+            //    await AddTracksOfAlbumToList(album, artist, allTracksOfArtist);
+            //}
 
             return allTracksOfArtist;
         }
@@ -103,7 +104,7 @@ namespace backend_csharp.Services
                 Lyrics = lyrics,
                 Title = track.Name,
                 ReleaseDate = album.ReleaseDate,
-                Genre = artist.Genres
+                //Genre = artist.Genres
             };
 
             return osSong;
