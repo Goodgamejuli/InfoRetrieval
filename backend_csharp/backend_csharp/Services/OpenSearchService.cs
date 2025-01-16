@@ -75,13 +75,26 @@ public class OpenSearchService
 
     public async Task <OpenSearchSongDocument> SearchForTopSongFittingName(string songName)
     {
-        var song = await _client.SearchAsync <OpenSearchSongDocument>(
+        var songs = await _client.SearchAsync <OpenSearchSongDocument>(
             x => x.Index(INDEXNAME).
                    Query(q => q.
                              Match(m => m.Field(field => field.Title).Query(songName))));
 
-        if (song.IsValid)
-            return song.Documents.First();
+        if (songs.IsValid)
+            return songs.Documents.First();
+
+        return null;
+    }
+
+    public async Task <IReadOnlyCollection <OpenSearchSongDocument>> SearchForSongsByLyrics(string lyrics)
+    {
+        var songs = await _client.SearchAsync<OpenSearchSongDocument>(
+            x => x.Index(INDEXNAME).
+                   Query(q => q.
+                             Match(m => m.Field(field => field.Lyrics).Query(lyrics))));
+
+        if (songs.IsValid)
+            return songs.Documents;
 
         return null;
     }

@@ -38,12 +38,23 @@ namespace backend_csharp.Controllers
             return Ok(songs);
         }
 
-        [HttpGet("{songName}")]
+        [HttpGet("FindSongsByName/{songName}")]
         public async Task <ActionResult <OpenSearchSongDocument>> FindSongByName(string songName)
         {
             var song = await OpenSearchService.Instance.SearchForTopSongFittingName(songName);
 
             return song;
+        }
+
+        [HttpGet("FindSongsByLyrics/{lyrics}")]
+        public async Task<ActionResult<IReadOnlyCollection<OpenSearchSongDocument>>> FindSongsByLyrics(string lyrics)
+        {
+            var songs = await OpenSearchService.Instance.SearchForSongsByLyrics(lyrics);
+
+            if(songs == null)
+                return BadRequest("Kein Song mit der Lyrics gefunden!");
+
+            return Ok(songs);
         }
 
         [HttpGet]

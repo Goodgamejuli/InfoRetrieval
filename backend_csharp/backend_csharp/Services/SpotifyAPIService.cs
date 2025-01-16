@@ -104,7 +104,7 @@ namespace backend_csharp.Services
                 Lyrics = lyrics,
                 Title = track.Name,
                 ReleaseDate = album.ReleaseDate,
-                //Genre = artist.Genres
+                Genre = artist.Genres
             };
 
             return osSong;
