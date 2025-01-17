@@ -8,9 +8,6 @@ namespace backend_csharp.Services;
 
 public static class MusicBrainzApiService
 {
-    private const string ClientId = "4fhurjmg7-w6KsLo3v7zWcZyTGunYOdo";
-    private const string ClientSecret = "5uUziSnDiL2TL5ixolfJYHgc10eOjdxX";
-
     #region Public Methods
 
     public static async Task <List <OpenSearchSongDocument>?> GetAllTracksOfArtistAsOpenSearchDocument(
@@ -19,108 +16,38 @@ public static class MusicBrainzApiService
         var query = new Query("InfoManagement", "0.0.1", "tiogiras@gmail.com");
 
         IArtist? artist = await query.QueryArtist(artistName);
-        
+
         if (artist == null)
             return null;
 
         IReadOnlyList <IWork>? tracks = await query.QueryAllTracks(artist);
+        IReadOnlyList <IRecording>? recordings = await query.QueryAllRecordings(artist);
 
-        foreach (IWork track in tracks)
-        {
-            Console.WriteLine(track.Title);
-            
-            if (track.Relationships != null)
-            {
-                foreach (var relationship in track.Relationships.Where(r => r.TargetType == EntityType.Recording))
-                {
-                    var recording = relationship.Target as IRecording;
-                    if (recording != null && recording.Releases != null)
-                    {
-                        foreach (var release in recording.Releases)
-                        {
-                            Console.WriteLine(release.Date);
-                        }
-                    }
-                }
-            }
-        }
-        
-        /*IReadOnlyList <IWork>? tracks = await query.QueryTracks(artist);
-        IReadOnlyList <IRecording>? recordings = await query.QueryRecordings(artist);*/
-
-        /*if (tracks == null || recordings == null)
-            return null;*/
-
-        /*List <OpenSearchSongDocument> output = [];
-
-        foreach (var track in tracks)
-        {
-            Console.WriteLine($"---------{track.Title}-----------");
-
-            //IRecording? recording = FindEarliestRecordingForTrack(track, recordings);
-
-            Console.WriteLine(track.Relationships?[0].Recording?.FirstReleaseDate);
-            
-            output.Add(CreateOpenSearchTrack(artist, track));
-        }*/
-
-        return null;
-    }
-
-    private static IRecording? FindEarliestRecordingForTrack(IWork track, IReadOnlyList<IRecording> recordings)
-    {
-        if (track.Relationships == null)
-            return null;
-        
-        Console.WriteLine($"Track contains {track.Relationships[0].Recording?.Relationships?[0].Release?.Date} relationships");
-
-        IEnumerable <IRecording> trackRecordings =
-            recordings.Where(recording => track.Relationships.Any(rel => rel.Recording.Id == recording.Id));
-        
-        if (!trackRecordings.Any())
+        if (tracks == null || recordings == null)
             return null;
 
-        Console.WriteLine($"Choosing from {trackRecordings.Count()} recordings");
-        
-        IRecording? output = trackRecordings.FirstOrDefault(rec => rec.Id.Equals(track.Relationships[0].Recording?.Id));
+        Dictionary <string, PartialDate> recordingDates = new();
 
-        for (var i = 1; i < track.Relationships.Count; i++)
+        foreach (IRecording recording in recordings)
         {
-            IRelationship relationship = track.Relationships[i];
-            IRecording? recording = trackRecordings.FirstOrDefault(rec => rec.Id.Equals(relationship.Recording?.Id));
-
-            switch (output)
-            {
-                case null when recording != null:
-                    output = recording;
-                
-                    continue;
-
-                case null:
-                    continue;
-            }
-
-            if (output.FirstReleaseDate == null && recording?.FirstReleaseDate != null)
-            {
-                output = recording;
-                
-                continue;
-            }
-            
-            if (output.FirstReleaseDate < recording?.FirstReleaseDate)
+            if (recording.FirstReleaseDate == null)
                 continue;
             
-            output = recording;
+            recordingDates.Add(recording.Id.ToString(), recording.FirstReleaseDate);
         }
+        
+        List <OpenSearchSongDocument> output = [];
+        
+        output.AddRange(tracks.Select(track => CreateOpenSearchTrack(artist, track, recordingDates)));
 
         return output;
     }
-
+    
     #endregion
 
     #region Private Methods
 
-    private static OpenSearchSongDocument CreateOpenSearchTrack(IArtist artist, IWork track/*, IRecording? recording*/)
+    private static OpenSearchSongDocument CreateOpenSearchTrack(IArtist artist, IWork track, Dictionary <string, PartialDate> recordings)
     {
         var osSong = new OpenSearchSongDocument
         {
@@ -129,13 +56,38 @@ public static class MusicBrainzApiService
             ArtistName = artist.Name ?? "Unknown Artist",
             Lyrics = "",
             Title = track.Title ?? "Unknown Title",
-            ReleaseDate = track.Relationships?.FirstOrDefault(rel => rel.Recording != null)?.Recording?.FirstReleaseDate?.ToString() ?? string.Empty,
+            ReleaseDate = GetFirstReleaseDateForTrack(track, recordings),
             Genre = track.Genres != null
                 ? track.Genres.Select(genre => genre.Name ?? "Unknown Genre").ToList()
                 : []
         };
 
         return osSong;
+    }
+
+    private static string GetFirstReleaseDateForTrack(IWork track, Dictionary <string, PartialDate> recordingDates)
+    {
+        if (track.Relationships == null)
+            return "";
+
+        Guid[] recordings = track.Relationships.Where(rel => rel.Recording != null).
+                                  Select(relationship => relationship.Recording!.Id).ToArray();
+
+        PartialDate? firstReleaseDate = null;
+
+        foreach (Guid recording in recordings)
+        {
+            if (!recordingDates.TryGetValue(recording.ToString(), out PartialDate? date))
+                continue;
+            
+            if (firstReleaseDate == null)
+                firstReleaseDate = date;
+            
+            if (firstReleaseDate > date)
+                firstReleaseDate = date;
+        }
+
+        return firstReleaseDate?.ToString() ?? "";
     }
 
     private static async Task <IArtist?> QueryArtist(this Query query, string artistName)
@@ -156,23 +108,50 @@ public static class MusicBrainzApiService
         do
         {
             if (offset > 0)
-                await Task.Delay(100);
+                Console.WriteLine($"...{offset}");
             
             works = await query.BrowseArtistWorksAsync(
                 artist.Id,
-                null,
+                100,
                 offset,
-                Include.RecordingRelationships | Include.ReleaseRelationships | Include.Genres);
+                Include.RecordingRelationships | Include.Genres);
             
             allTracks.AddRange(works.Results);
-            offset += 100;
+            offset += works.Results.Count;
         }
         while (works.Results.Count > 0);
         
-
         Console.WriteLine($"Queried {allTracks.Count} tracks");
         
         return allTracks.Count > 0 ? allTracks : null;
+    }
+    
+    private static async Task <IReadOnlyList <IRecording>?> QueryAllRecordings(this Query query, IArtist artist)
+    {
+        List <IRecording> allRecordings = [];
+        
+        var offset = 0;
+
+        IBrowseResults<IRecording> recordings;
+        
+        do
+        {
+            if (offset > 0)
+                Console.WriteLine($"...{offset}");
+            
+            recordings = await query.BrowseArtistRecordingsAsync(
+                artist.Id,
+                100,
+                offset, Include.ReleaseRelationships);
+            
+            allRecordings.AddRange(recordings.Results);
+            offset += recordings.Results.Count;
+        }
+        while (recordings.Results.Count > 0);
+        
+        Console.WriteLine($"Queried {allRecordings.Count} recordings");
+        
+        return allRecordings.Count > 0 ? allRecordings : null;
     }
 
     #endregion
