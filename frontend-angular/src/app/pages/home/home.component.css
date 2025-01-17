@@ -13,6 +13,14 @@
     
 }
 
+.static {
+    position: fixed;    /* Fixiert das Element am Viewport */
+    bottom: 100;          /* Abstand vom unteren Bildschirmrand */
+    left: 4;            
+    width: 88%;        
+    z-index: 9999;      
+  }
+
 .home-container_side-bar-item  {
     width: 100%;
     font-size: 18;

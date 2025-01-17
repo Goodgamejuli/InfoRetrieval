@@ -1,15 +1,29 @@
 <div class="top-nav">
-    <div class="top-nav_title">Info Management</div>
+    <div class="top-nav_title">Info Retrival</div>
+  
+    <!-- DropDown -->
     <div class="top-nav_search">
-        <input type="search" class="search" placeholder="What are you looking for?">
-    </div>
-    <div class="button" (click)="onTestClick()">
-        <h1>Song hinzufügen</h1> 
-    </div>
-    <div class="top-nav_auth">
+      <select class="search-category">
+        <option value="song" selected>Suchkategorie: Song</option>
+        <option value="artist">Suche nach Künstler</option>
+        <option value="album">Suche nach Album</option>
+        <option value="genre">Suche nach Genre</option>
+      </select>
+  
+      <input type="search" class="search" placeholder="What are you looking for?">
+  
+      <button class="search-button">Los!</button>
+
+      <div class="button" (click)="onTestClick()">
+        <h1>Der Bibliothek hinzufügen</h1> 
+      </div>
+    
+  
+    
+  
+        <div class="top-nav_auth">
         <div class="top-nav_auth_sign-up">Sign up</div>
         <div class="top-nav_auth_login" (click)="onNavigateToLogin()">Login</div>
-    </div>
-    
-
-</div>
+        </div>
+  </div>
+  
