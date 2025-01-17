@@ -27,7 +27,7 @@ public static class MusicBrainzApiService
             return null;
 
         Dictionary <string, PartialDate> recordingDates = new();
-
+        
         foreach (IRecording recording in recordings)
         {
             if (recording.FirstReleaseDate == null)
@@ -37,8 +37,22 @@ public static class MusicBrainzApiService
         }
         
         List <OpenSearchSongDocument> output = [];
-        
-        output.AddRange(tracks.Select(track => CreateOpenSearchTrack(artist, track, recordingDates)));
+
+        for (var i = 0; i < tracks.Count; i++)
+        {
+            try
+            {
+                Console.WriteLine($"Generating track {i}/{tracks.Count}");
+            
+                IWork track = tracks[i];
+            
+                output.Add(CreateOpenSearchTrack(query, artist, track, recordingDates));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Skipped entry caused by invalid mbid");
+            }
+        }
 
         return output;
     }
@@ -47,16 +61,18 @@ public static class MusicBrainzApiService
 
     #region Private Methods
 
-    private static OpenSearchSongDocument CreateOpenSearchTrack(IArtist artist, IWork track, Dictionary <string, PartialDate> recordings)
+    private static OpenSearchSongDocument CreateOpenSearchTrack(Query query, IArtist artist, IWork track, Dictionary <string, PartialDate> recordings)
     {
+        var releaseDate = GetFirstReleaseDateForTrack(track, recordings, out Guid releaseRecording);
+        
         var osSong = new OpenSearchSongDocument
         {
             Id = track.Id.ToString(),
-            AlbumTitle = "MISSING Album Title",
+            AlbumTitle = GetAlbumTitleOfRecording(query, releaseRecording),
             ArtistName = artist.Name ?? "Unknown Artist",
             Lyrics = "",
             Title = track.Title ?? "Unknown Title",
-            ReleaseDate = GetFirstReleaseDateForTrack(track, recordings),
+            ReleaseDate = releaseDate,
             Genre = track.Genres != null
                 ? track.Genres.Select(genre => genre.Name ?? "Unknown Genre").ToList()
                 : []
@@ -65,8 +81,19 @@ public static class MusicBrainzApiService
         return osSong;
     }
 
-    private static string GetFirstReleaseDateForTrack(IWork track, Dictionary <string, PartialDate> recordingDates)
+    private static string GetAlbumTitleOfRecording(Query query, Guid releaseRecording)
     {
+        IRecording recording = query.LookupRecording(releaseRecording, Include.Releases);
+
+        IRelease? release = recording.Releases?.FirstOrDefault(release => release.Date == recording.FirstReleaseDate);
+        
+        return release?.Title ?? "Unknown Album";
+    }
+
+    private static string GetFirstReleaseDateForTrack(IWork track, Dictionary <string, PartialDate> recordingDates, out Guid releaseRecording)
+    {
+        releaseRecording = Guid.Empty;
+        
         if (track.Relationships == null)
             return "";
 
@@ -79,12 +106,12 @@ public static class MusicBrainzApiService
         {
             if (!recordingDates.TryGetValue(recording.ToString(), out PartialDate? date))
                 continue;
-            
-            if (firstReleaseDate == null)
-                firstReleaseDate = date;
-            
-            if (firstReleaseDate > date)
-                firstReleaseDate = date;
+
+            if (firstReleaseDate != null && firstReleaseDate <= date)
+                continue;
+
+            firstReleaseDate = date;
+            releaseRecording = recording;
         }
 
         return firstReleaseDate?.ToString() ?? "";
@@ -138,11 +165,11 @@ public static class MusicBrainzApiService
         {
             if (offset > 0)
                 Console.WriteLine($"...{offset}");
-            
+
             recordings = await query.BrowseArtistRecordingsAsync(
                 artist.Id,
                 100,
-                offset, Include.ReleaseRelationships);
+                offset);
             
             allRecordings.AddRange(recordings.Results);
             offset += recordings.Results.Count;
