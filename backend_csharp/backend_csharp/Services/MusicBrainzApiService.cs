@@ -23,16 +23,28 @@ public static class MusicBrainzApiService
         if (artist == null)
             return null;
 
-        var releases = await query.QueryReleases(artist);
+        IReadOnlyList <IWork>? tracks = await query.QueryAllTracks(artist);
 
-        foreach (IRelease release in releases)
+        foreach (IWork track in tracks)
         {
-            var rels = release.Relationships;
+            Console.WriteLine(track.Title);
             
-            Console.WriteLine(releases);
-            Console.WriteLine("--------------------------");
+            if (track.Relationships != null)
+            {
+                foreach (var relationship in track.Relationships.Where(r => r.TargetType == EntityType.Recording))
+                {
+                    var recording = relationship.Target as IRecording;
+                    if (recording != null && recording.Releases != null)
+                    {
+                        foreach (var release in recording.Releases)
+                        {
+                            Console.WriteLine(release.Date);
+                        }
+                    }
+                }
+            }
         }
-
+        
         /*IReadOnlyList <IWork>? tracks = await query.QueryTracks(artist);
         IReadOnlyList <IRecording>? recordings = await query.QueryRecordings(artist);*/
 
@@ -134,38 +146,33 @@ public static class MusicBrainzApiService
         return artists.TotalResults == 0 ? null : artists.Results[0].Item;
     }
 
-    private static async Task <IReadOnlyList <IWork>?> QueryTracks(this Query query, IArtist artist)
+    private static async Task <IReadOnlyList <IWork>?> QueryAllTracks(this Query query, IArtist artist)
     {
-        // Queries all works (tracks) of the given artist the highest limit of queryable items is 100
-        IBrowseResults <IWork> tracks = await query.BrowseArtistWorksAsync(
-            artist.Id,
-            100,
-            null,
-            Include.RecordingRelationships | Include.Genres);
-
-        Console.WriteLine($"Queried {tracks.TotalResults} tracks");
+        List <IWork> allTracks = [];
         
-        return tracks.TotalResults == 0 ? null : tracks.Results;
-    }
-    
-    private static async Task <IReadOnlyList <IRecording>?> QueryRecordings(this Query query, IArtist artist)
-    {
-        // Queries all recordings (tracks) of the given artist the highest limit of queryable items is 100
-        IBrowseResults <IRecording> recordings = await query.BrowseArtistRecordingsAsync(artist.Id, null, null/*, Include.ReleaseRelationships*/);
+        var offset = 0;
 
-        Console.WriteLine($"Queried {recordings.Results.Count} recordings");
+        IBrowseResults<IWork> works;
+        do
+        {
+            if (offset > 0)
+                await Task.Delay(100);
+            
+            works = await query.BrowseArtistWorksAsync(
+                artist.Id,
+                null,
+                offset,
+                Include.RecordingRelationships | Include.ReleaseRelationships | Include.Genres);
+            
+            allTracks.AddRange(works.Results);
+            offset += 100;
+        }
+        while (works.Results.Count > 0);
         
-        return recordings.TotalResults == 0 ? null : recordings.Results;
-    }
-    
-    private static async Task <IReadOnlyList <IRelease>?> QueryReleases(this Query query, IArtist artist)
-    {
-        // Queries all recordings (tracks) of the given artist the highest limit of queryable items is 100
-        IBrowseResults <IRelease> releases = await query.BrowseArtistReleasesAsync(artist.Id, null, null, Include.RecordingRelationships | Include.WorkRelationships);
 
-        Console.WriteLine($"Queried {releases.Results.Count} recordings");
+        Console.WriteLine($"Queried {allTracks.Count} tracks");
         
-        return releases.TotalResults == 0 ? null : releases.Results;
+        return allTracks.Count > 0 ? allTracks : null;
     }
 
     #endregion
