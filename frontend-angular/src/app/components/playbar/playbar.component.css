@@ -25,3 +25,20 @@
       gap: 1rem;
     }
   }
+
+  .spotify-embed-container {
+    position: relative;
+    width: 100%;
+    min-height: 382px; /* 400px Abstand + 152px iframe-Höhe */
+    margin-top: 320px; /* 400px Abstand über iframe*/
+}
+
+/* Spotify-Iframe-Stile */
+.spotify-iframe {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 152px;
+    border: 0;
+}

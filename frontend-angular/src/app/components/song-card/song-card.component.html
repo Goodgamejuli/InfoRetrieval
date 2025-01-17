@@ -1,16 +1,21 @@
 <div class="song-card">
-    <div class="song-card_title">{{song.title}}</div>
+    <div class="song-card_title">{{song.title||'Titel nicht verfügbar'}}</div>
 
-    <hr width="100%;" color="#1ED760" size="5">
+    <hr class="description-separator">
     
     <div class="song-card_thumbnail">
         <img [src]="playlistThumbnail" width="80" alt="thumbnail">
     </div>
     
-    <div class="song-card_description-artist">{{song.artist}}</div>
-    <div class="song-card_description-album">{{song.album}}</div>
-
-    <hr width="100%;" color="#1ED760" size="5">
+    <div class="song-card_description">
+        <hr class="description-separator">
+        <div class="song-card_description-artist">{{song.artist || 'Künstler nicht verfügbar'}}</div>
+        <hr class="description-separator">
+        <div class="song-card_description-album">{{song.album || 'Album nicht verfügbar'}}</div>
+        <hr class="description-separator">
+        <div class="song-card_description-release">{{song.release || 'Veröffentlichung nicht verfügbar'}}</div>
+        <hr class="description-separator">
+    </div>
 
     <div class="song-card_play-button">
         

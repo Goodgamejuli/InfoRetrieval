@@ -47,7 +47,8 @@ public songCards= [
     this.searchBarService.isSearchVisible.next(false);
   }
 
+  /*
   onTestClick() {
     this.opensearchService.getSongTest();
-  }
+  }*/
 }

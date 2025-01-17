@@ -33,7 +33,7 @@
 
 .top-nav_title{
     flex-basis: 100x;
-    margin-left: -300px;
+    margin-left: -160px;
     font-size: 22px;
 }
 
@@ -56,4 +56,17 @@ input.search {
 input.search::placeholder {
     color: gray;
     font-weight: 500;
+}
+
+.button {
+    background-color: white;
+    padding: 13px;
+    font-size: 2px;
+    border-radius: 10px;
+    color: black;
+    font-weight: bold;
+    width: 60px;
+    height: 60px;
+    
+    text-align: center;
 }

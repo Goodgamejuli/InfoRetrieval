@@ -10,6 +10,7 @@
 .home-container_playlist-container{
     background-color: #191919;
     height: 100vh;
+    
 }
 
 .home-container_side-bar-item  {
@@ -29,7 +30,7 @@
     padding: 0px;
     background-color: #1e1e1e;
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: auto;    
 }
 
 .playlist_card_collections {
@@ -59,4 +60,9 @@
     cursor: pointer;
     background-color: rgb(32, 32, 32);
     color: rgb(9, 185, 9);
+}
+
+
+.spacer-400 {
+    margin-top: 500px;
 }
