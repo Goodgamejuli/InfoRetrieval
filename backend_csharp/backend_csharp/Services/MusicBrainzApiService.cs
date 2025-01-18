@@ -48,7 +48,7 @@ public static class MusicBrainzApiService
             
                 output.Add(CreateOpenSearchTrack(query, artist, track, recordingDates));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine("Skipped entry caused by invalid mbid");
             }

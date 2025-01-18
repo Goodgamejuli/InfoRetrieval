@@ -1,6 +1,5 @@
 ﻿using backend_csharp.Models;
 using backend_csharp.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend_csharp.Controllers
@@ -22,13 +21,29 @@ namespace backend_csharp.Controllers
             return Ok(response);
         }
 
-        [HttpPost("{artistName}")]
-        public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearch(string artistName)
+        [HttpPost("IndexArtistSongsInOpenSearch_Spotify/{artistName}")]
+        public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchSpotify(string artistName)
         {
-            var songs = await SpotifyAPIService.Instance.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
+            List <OpenSearchSongDocument> songs = await SpotifyAPIService.Instance.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
 
-            if (songs == null || songs.Count == 0)
-                return BadRequest("No Song was found for the given artist");
+            if (songs is not {Count: > 0})
+                return BadRequest("No song was found for the given artist");
+
+            foreach (OpenSearchSongDocument song in songs)
+            {
+                await OpenSearchService.Instance.IndexNewSong(song);
+            }
+
+            return Ok(songs);
+        }
+        
+        [HttpPost("IndexArtistSongsInOpenSearch_MusicBrainz/{artistName}")]
+        public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchMusicBrainz(string artistName)
+        {
+            List <OpenSearchSongDocument>? songs = await MusicBrainzApiService.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
+
+            if (songs is not {Count: > 0})
+                return BadRequest("No song was found for the given artist");
 
             foreach (OpenSearchSongDocument song in songs)
             {
