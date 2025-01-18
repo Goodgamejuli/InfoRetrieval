@@ -1,4 +1,6 @@
-﻿namespace backend_csharp.Models.Database
+﻿using System.Text.Json.Serialization;
+
+namespace backend_csharp.Models.Database
 {
     public class User
     {

@@ -1,4 +1,6 @@
-﻿namespace backend_csharp.Models.Database
+﻿using System.Text.Json.Serialization;
+
+namespace backend_csharp.Models.Database
 {
     /// <summary>
     /// This model defines a table in the database for a song. Here only additional data to each song is saved.
