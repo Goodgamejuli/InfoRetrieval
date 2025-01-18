@@ -45,8 +45,8 @@ public static class MusicBrainzApiService
                 Console.WriteLine($"Generating track {i}/{tracks.Count}");
             
                 IWork track = tracks[i];
-            
-                output.Add(CreateOpenSearchTrack(query, artist, track, recordingDates));
+                
+                output.Add(await CreateOpenSearchTrack(query, artist, track, recordingDates));
             }
             catch (Exception)
             {
@@ -61,13 +61,15 @@ public static class MusicBrainzApiService
 
     #region Private Methods
 
-    private static OpenSearchSongDocument CreateOpenSearchTrack(Query query, IArtist artist, IWork track, Dictionary <string, PartialDate> recordings)
+    private static async Task<OpenSearchSongDocument> CreateOpenSearchTrack(Query query, IArtist artist, IWork track, Dictionary <string, PartialDate> recordings)
     {
         var releaseDate = GetFirstReleaseDateForTrack(track, recordings, out Guid releaseRecording);
         
+        var spotifyId = await SpotifyAPIService.Instance.GetSpotifyIdOfSong(track.Title, artist.Name);
+        
         var osSong = new OpenSearchSongDocument
         {
-            Id = track.Id.ToString(),
+            Id = string.IsNullOrEmpty(spotifyId) ? $"mbid_{track.Id}" : spotifyId,
             AlbumTitle = GetAlbumTitleOfRecording(query, releaseRecording),
             ArtistName = artist.Name ?? "Unknown Artist",
             Lyrics = "",
