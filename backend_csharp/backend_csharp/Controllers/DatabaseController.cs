@@ -21,8 +21,8 @@ namespace backend_csharp.Controllers
 
         #region User Specific
 
-        [HttpPost("User")]
-        public async Task <ActionResult> AddNewUser([FromBody] SimpleUserDto user)
+        [HttpPost("Users")]
+        public async Task <ActionResult> AddNewUser([FromBody] SimpleUser user)
         {
             if (await _databaseService.InsertUserToDatabase(user))
                 return Ok($"User added!");
@@ -32,9 +32,22 @@ namespace backend_csharp.Controllers
 
         #endregion
 
+        #region LastListenSong Specific
+
+        [HttpPost("LastListenedSongs")]
+        public async Task<ActionResult> AddLastListenSong([FromBody] SimpleLastListenedSong lastListenedSong)
+        {
+            if (await _databaseService.InsertLastListenedSongIntoDatabase(lastListenedSong))
+                return Ok("Song Added");
+            else
+                return BadRequest("Song could not get added");
+        }
+
+        #endregion
+
         #region Database Song Specific
 
-        [HttpPost("DatabaseSong")]
+        [HttpPost("DatabaseSongs")]
         public async Task <ActionResult> AddDatabaseSong([FromBody] DatabaseSong song)
         {
             if (await _databaseService.InsertSongIntoDatabase(song))
@@ -43,7 +56,7 @@ namespace backend_csharp.Controllers
                 return BadRequest("Song could not get added");
         }
 
-        [HttpGet("DatabaseSong/{id}")]
+        [HttpGet("DatabaseSongs/{id}")]
         public async Task <ActionResult <DatabaseSong>> GetDatabaseSong(string id)
         {
             DatabaseSong song = await _databaseService.GetSongFromDatabase(id);

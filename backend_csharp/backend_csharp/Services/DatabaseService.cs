@@ -18,12 +18,34 @@ namespace backend_csharp.Services
 
         #region UserSpecific
 
-        public async Task <bool> InsertUserToDatabase(SimpleUserDto simpleUser)
+        public async Task <bool> InsertUserToDatabase(SimpleUser simpleUser)
         {
             try
             {
                 var user = simpleUser.ToUser();
                 await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+
+                return false;
+            }
+
+            return true;
+        }
+
+        #endregion
+
+        #region LastListenedSong Specific
+
+        public async Task <bool> InsertLastListenedSongIntoDatabase(SimpleLastListenedSong simpleLastListenedSong)
+        {
+            try
+            {
+                var lastListenedSong = simpleLastListenedSong.ToLastListenedSong();
+                await _context.LastListenedSongs.AddAsync(lastListenedSong);
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -60,6 +82,7 @@ namespace backend_csharp.Services
         public async Task <DatabaseSong> GetSongFromDatabase(string songId)
         {
             var song = await _context.DatabaseSongs
+                                     .Include(x => x.LastListenedSongs)
                                      .FirstOrDefaultAsync(x => x.Id.Equals(songId));
 
             return song;

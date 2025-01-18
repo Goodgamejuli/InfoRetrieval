@@ -3,7 +3,7 @@
 /// <summary>
 /// DTO for an User that just holds the id (nullable), name and password
 /// </summary>
-    public class SimpleUserDto
+    public class SimpleUser
     {
         public Guid? Id {get; set;} = null;
 

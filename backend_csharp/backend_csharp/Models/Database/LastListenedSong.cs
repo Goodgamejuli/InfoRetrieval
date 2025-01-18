@@ -1,4 +1,6 @@
-﻿namespace backend_csharp.Models.Database
+﻿using System.Text.Json.Serialization;
+
+namespace backend_csharp.Models.Database
 {
     /// <summary>
     /// This model is used to save the last songs a user has listened to.
@@ -10,7 +12,7 @@
         public string DatabaseSongId { get; set; } = null!;
 
         // Relationship
-        public User User { get; set;} = null!;
-        public DatabaseSong DatabaseSong { get; set; } = null!;
+        [JsonIgnore] public User User { get; set;} = null!;
+        [JsonIgnore] public DatabaseSong DatabaseSong { get; set; } = null!;
     }
 }

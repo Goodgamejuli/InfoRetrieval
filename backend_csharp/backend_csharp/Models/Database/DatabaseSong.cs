@@ -9,6 +9,7 @@ namespace backend_csharp.Models.Database
     /// </summary>
     public class DatabaseSong
     {
+        /// <summary> This id must be the same as the OpenSearchSongDocument-Id </summary>
         public string Id { get; set; }
 
         // Relationship
