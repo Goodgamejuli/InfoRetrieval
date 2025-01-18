@@ -53,6 +53,17 @@ namespace backend_csharp.Controllers
             return Ok(songs);
         }
 
+        [HttpGet("FindSong")]
+        public async Task <ActionResult <OpenSearchSongDocument>> FindSong(string query, string search)
+        {
+            OpenSearchSongDocument? song = await OpenSearchService.Instance.SearchForTopFittingSong(query, search);
+            
+            if (song == null)
+                return BadRequest("No song was found for the given query");
+
+            return Ok(song);
+        }
+        
         [HttpGet("FindSongsByName/{songName}")]
         public async Task <ActionResult <OpenSearchSongDocument>> FindSongByName(string songName)
         {
