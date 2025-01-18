@@ -1,4 +1,4 @@
-﻿using backend_csharp.Models;
+﻿using backend_csharp.Models.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
