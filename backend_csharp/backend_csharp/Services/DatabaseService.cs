@@ -69,10 +69,17 @@ namespace backend_csharp.Services
             if (user == null)
                 return null;
 
-            List <DatabaseSong> dbSongs = new List <DatabaseSong>();
+            // Order the results and only pick the wanted amount
+            List <LastListenedSong> dbSongs = user.LastListenedSongs
+                                                  .OrderBy(x => x.LastListenedTo)
+                                                  .Take(amount)
+                                                  .ToList();
+            
             List<SongDto> lastListenedSongs = new List<SongDto>();
 
-            foreach (LastListenedSong lastListenedSong in user.LastListenedSongs)
+
+
+            foreach (LastListenedSong lastListenedSong in dbSongs)
             {
                 if(lastListenedSong?.DatabaseSong == null)
                     continue;
