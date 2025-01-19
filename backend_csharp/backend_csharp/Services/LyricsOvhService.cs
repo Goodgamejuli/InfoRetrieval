@@ -55,7 +55,7 @@
             }
             catch
             {
-                Console.WriteLine("Task Cancelled!");
+                Console.WriteLine("Task cancelled due to lyrics issue!");
                 return "";
             }
         }

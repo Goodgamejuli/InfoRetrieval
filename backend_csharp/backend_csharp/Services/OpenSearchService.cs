@@ -1,52 +1,35 @@
 ﻿using backend_csharp.Models;
 using OpenSearch.Client;
 
-namespace backend_csharp.Services
-{
+namespace backend_csharp.Services;
 
 public class OpenSearchService
 {
-    #region Singleton
+    private const string Indexname = "songs_index";
 
-    private static OpenSearchService _instance;
+    private readonly OpenSearchClient _client;
 
-    public static OpenSearchService Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = new OpenSearchService();
-            }
-
-            return _instance;
-        }
-    }
-
-    #endregion
-
-    private OpenSearchClient _client;
-    private const string INDEXNAME = "songs_index";
-
-    public OpenSearchService()
+    private OpenSearchService()
     {
         var nodeAddress = new Uri("http://localhost:9200");
-        var config = new ConnectionSettings(nodeAddress).DefaultIndex("songs");
+        ConnectionSettings? config = new ConnectionSettings(nodeAddress).DefaultIndex("songs");
         _client = new OpenSearchClient(config);
     }
 
+    #region Public Methods
+
     /// <summary>
-    /// Crate the index for our songDocuments in OpenSearch
+    ///     Crate the index for our songDocuments in OpenSearch
     /// </summary>
     /// <returns></returns>
-    public async Task<string> CreateIndex()
+    public async Task <string> CreateIndex()
     {
-        await _client.Indices.DeleteAsync(INDEXNAME);
+        await _client.Indices.DeleteAsync(Indexname);
 
         try
         {
-            var response = await _client.Indices.CreateAsync(
-                INDEXNAME,
+            CreateIndexResponse? response = await _client.Indices.CreateAsync(
+                Indexname,
                 x => x.Map <OpenSearchSongDocument>(
                     xx
                         => xx.AutoMap()));
@@ -57,47 +40,78 @@ public class OpenSearchService
         {
             Console.WriteLine(e);
 
-            throw e;
+            throw;
         }
     }
 
     /// <summary>
-    /// Adds a song to OpenSearch
+    ///     Adds a song to OpenSearch
     /// </summary>
     /// <param name="song"></param>
     /// <returns></returns>
     public async Task IndexNewSong(OpenSearchSongDocument song)
     {
-        var response = await _client.IndexAsync(song, i => i.Index(INDEXNAME));
+        IndexResponse? response = await _client.IndexAsync(song, i => i.Index(Indexname));
 
         Console.WriteLine(response.DebugInformation);
     }
 
-    public async Task <OpenSearchSongDocument> SearchForTopSongFittingName(string songName)
+    // ReSharper disable once CognitiveComplexity
+    public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(string query, string search, int hitCount)
     {
-        var songs = await _client.SearchAsync <OpenSearchSongDocument>(
-            x => x.Index(INDEXNAME).
-                   Query(q => q.
-                             Match(m => m.Field(field => field.Title).Query(songName))));
+        var queries = query.Split(";");
 
-        if (songs.IsValid)
-            return songs.Documents.First();
+        var titleBoost = queries.Contains("title") ? 1.5 : -1.0;
+        var albumBoost = queries.Contains("album") ? 1.0 : -1.0;
+        var artistBoost = queries.Contains("artist") ? 1.0 : -1.0;
+        var lyricsBoost = queries.Contains("lyrics") ? 0.25 : -1.0;
 
-        return null;
+        ISearchResponse <OpenSearchSongDocument>? songs = await _client.SearchAsync <OpenSearchSongDocument>(
+            x => x.Index(Indexname).Size(hitCount).
+                   Query(
+                       q => q.Bool(
+                           b => b.Should(
+                               s => s.MultiMatch(
+                                   m => m.Fields(
+                                              f =>
+                                              {
+                                                  if (titleBoost > 0)
+                                                      f.Field(ff => ff.Title, titleBoost);
+
+                                                  if (albumBoost > 0)
+                                                      f.Field(ff => ff.AlbumTitle, albumBoost);
+
+                                                  if (artistBoost > 0)
+                                                      f.Field(ff => ff.ArtistName, artistBoost);
+
+                                                  if (lyricsBoost > 0)
+                                                      f.Field(ff => ff.Lyrics, lyricsBoost);
+
+                                                  return f;
+                                              }).
+                                          Query(search).
+                                          Fuzziness(Fuzziness.Auto))
+                           ))));
+
+        if (songs == null || songs.Documents.Count == 0)
+            return null;
+        
+        Console.WriteLine($"Found {songs.Documents!.Count} song(s)");
+
+        List <OpenSearchSongDocument> output = songs.Documents.ToList();
+
+        output.Sort();
+        
+        return output?.ToArray();
     }
 
-    public async Task <IReadOnlyCollection <OpenSearchSongDocument>> SearchForSongsByLyrics(string lyrics)
-    {
-        var songs = await _client.SearchAsync<OpenSearchSongDocument>(
-            x => x.Index(INDEXNAME).
-                   Query(q => q.
-                             Match(m => m.Field(field => field.Lyrics).Query(lyrics))));
+    #endregion
 
-        if (songs.IsValid)
-            return songs.Documents;
+    #region Singleton
 
-        return null;
-    }
-}
+    private static OpenSearchService? s_instance;
 
+    public static OpenSearchService Instance => s_instance ??= new OpenSearchService();
+
+    #endregion
 }
