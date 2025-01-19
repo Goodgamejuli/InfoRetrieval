@@ -41,7 +41,7 @@ namespace backend_csharp.Services
 
         #region LastListenedSong Specific
 
-        public async Task <bool> InsertLastListenedSongIntoDatabase(SimpleLastListenedSong simpleLastListenedSong)
+        public async Task <bool> AddLastListenSongForUser(SimpleLastListenedSong simpleLastListenedSong)
         {
             try
             {
@@ -59,9 +59,33 @@ namespace backend_csharp.Services
             return true;
         }
 
-        public async Task <List <SongDto>> GetLastListenedSongs(Guid userId)
+        public async Task <List <SongDto>> GetLastListenedSongsOfUser(Guid userId, int amount)
         {
-            return null;
+            var user = await _context.Users
+                                     .Include(x => x.LastListenedSongs)
+                                     .ThenInclude(x => x.DatabaseSong)
+                                     .FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user == null)
+                return null;
+
+            List <DatabaseSong> dbSongs = new List <DatabaseSong>();
+            List<SongDto> lastListenedSongs = new List<SongDto>();
+
+            foreach (LastListenedSong lastListenedSong in user.LastListenedSongs)
+            {
+                if(lastListenedSong?.DatabaseSong == null)
+                    continue;
+
+                var song = await OpenSearchService.Instance.FindSongById(lastListenedSong.DatabaseSong.Id);
+
+                if(song == null)
+                    continue;
+
+                lastListenedSongs.Add(song.ToSongDto());
+            }
+
+            return lastListenedSongs;
         }
 
         #endregion

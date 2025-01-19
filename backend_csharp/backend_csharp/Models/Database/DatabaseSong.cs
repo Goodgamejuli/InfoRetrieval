@@ -13,7 +13,7 @@ namespace backend_csharp.Models.Database
         public string Id { get; set; }
 
         // Relationship
-        public List <Playlist> Playlists { get; set; } = new List<Playlist>();
-        public ICollection <LastListenedSong> LastListenedSongs {get; set;} = new List <LastListenedSong>();
+        [JsonIgnore] public List <Playlist> Playlists { get; set; } = new List<Playlist>();
+        [JsonIgnore] public ICollection <LastListenedSong> LastListenedSongs {get; set;} = new List <LastListenedSong>();
     }
 }

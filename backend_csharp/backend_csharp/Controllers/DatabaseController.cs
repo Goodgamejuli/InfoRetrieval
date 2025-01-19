@@ -1,4 +1,5 @@
-﻿using backend_csharp.Models.Database;
+﻿using backend_csharp.Models;
+using backend_csharp.Models.Database;
 using backend_csharp.Models.Database.DTOs;
 using backend_csharp.Services;
 using Microsoft.AspNetCore.Http;
@@ -37,10 +38,21 @@ namespace backend_csharp.Controllers
         [HttpPost("LastListenedSongs")]
         public async Task<ActionResult> AddLastListenSong([FromBody] SimpleLastListenedSong lastListenedSong)
         {
-            if (await _databaseService.InsertLastListenedSongIntoDatabase(lastListenedSong))
+            if (await _databaseService.AddLastListenSongForUser(lastListenedSong))
                 return Ok("Song Added");
             else
                 return BadRequest("Song could not get added");
+        }
+
+        [HttpGet("LastListenedSongs")]
+        public async Task <ActionResult <List<SongDto>>> GetLastListenedSongsOfUser(Guid userId, int amount)
+        {
+            var songs = await _databaseService.GetLastListenedSongsOfUser(userId, amount);
+
+            if (songs == null)
+                return BadRequest("User was not found");
+
+            return Ok(songs);
         }
 
         #endregion

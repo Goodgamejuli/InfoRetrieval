@@ -1,4 +1,5 @@
-﻿using backend_csharp.Models.Database;
+﻿using backend_csharp.Models;
+using backend_csharp.Models.Database;
 using backend_csharp.Models.Database.DTOs;
 
 namespace backend_csharp.Helper
@@ -20,6 +21,20 @@ namespace backend_csharp.Helper
             return new LastListenedSong()
             {
                 Id = Guid.NewGuid(), UserId = simpleSong.UserId, DatabaseSongId = simpleSong.DatabaseSongId
+            };
+        }
+
+        public static SongDto ToSongDto(this OpenSearchSongDocument openSearchSongDocument)
+        {
+            return new SongDto()
+            {
+                Album = openSearchSongDocument.AlbumTitle,
+                Artist = openSearchSongDocument.ArtistName,
+                Genre = openSearchSongDocument.Genre,
+                Lyrics = openSearchSongDocument.Lyrics,
+                Release = openSearchSongDocument.ReleaseDate,
+                Id = openSearchSongDocument.Id,
+                Title = openSearchSongDocument.Title
             };
         }
     }
