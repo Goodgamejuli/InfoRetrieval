@@ -36,7 +36,7 @@
         {
             // CancelationToken, so that this api call breaks after the duration of 2 seconds 
             // Then there was no lyrics found for the given song, what is possible with the Api we use
-            using var cancellationTokenSource = new CancellationTokenSource(200);
+            using var cancellationTokenSource = new CancellationTokenSource(2000);
 
             title = OptimizeTitleStringForApiCall(title);
 
