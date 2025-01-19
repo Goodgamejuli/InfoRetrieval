@@ -67,7 +67,7 @@ public class OpenSearchService
         var lyricsBoost = queries.Contains("lyrics") ? 0.25 : -1.0;
 
         ISearchResponse <OpenSearchSongDocument>? songs = await _client.SearchAsync <OpenSearchSongDocument>(
-            x => x.Index(Indexname).
+            x => x.Index(Indexname).Size(hitCount).
                    Query(
                        q => q.Bool(
                            b => b.Should(
@@ -93,12 +93,16 @@ public class OpenSearchService
                                           Fuzziness(Fuzziness.Auto))
                            ))));
 
-        if (songs == null)
+        if (songs == null || songs.Documents.Count == 0)
             return null;
+        
+        Console.WriteLine($"Found {songs.Documents!.Count} song(s)");
 
-        var songCount = songs.Documents.Count;
+        List <OpenSearchSongDocument> output = songs.Documents.ToList();
 
-        return songCount == 0 ? null : songs.Documents.ToArray()[..(hitCount > songCount ? songCount : hitCount)];
+        output.Sort();
+        
+        return output?.ToArray();
     }
 
     #endregion
