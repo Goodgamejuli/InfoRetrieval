@@ -11,9 +11,9 @@ namespace backend_csharp.Controllers
     public class DatabaseController : ControllerBase
     {
         private readonly DatabaseService _databaseService;
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<DatabaseController> _logger;
 
-        public DatabaseController(ILogger<WeatherForecastController> logger, DatabaseService service)
+        public DatabaseController(ILogger<DatabaseController> logger, DatabaseService service)
         {
             _logger = logger;
             _databaseService = service;

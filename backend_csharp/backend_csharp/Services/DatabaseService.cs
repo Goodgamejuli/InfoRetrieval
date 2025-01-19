@@ -1,5 +1,6 @@
 ﻿using backend_csharp.Database;
 using backend_csharp.Helper;
+using backend_csharp.Models;
 using backend_csharp.Models.Database;
 using backend_csharp.Models.Database.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +57,11 @@ namespace backend_csharp.Services
             }
 
             return true;
+        }
+
+        public async Task <List <SongDto>> GetLastListenedSongs(Guid userId)
+        {
+            return null;
         }
 
         #endregion
