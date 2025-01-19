@@ -85,10 +85,12 @@ namespace backend_csharp.Services
         /// </summary>
         /// <param name="title">Title of the song</param>
         /// <param name="artist">Name of the artist</param>
-        /// <returns></returns>
-        public async Task<string> GetSpotifyIdOfSong(string title, string artist)
+        public async Task<string> GetSpotifyIdOfSong(string? title, string? artist)
         {
-            SearchRequest searchRequest = new SearchRequest(
+            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(artist))
+                return string.Empty;
+            
+            var searchRequest = new SearchRequest(
                 SearchRequest.Types.Track,
                 query: title
             );
@@ -104,12 +106,9 @@ namespace backend_csharp.Services
                                                              song.Artists.Any(simpleArtist => 
                                                                                   simpleArtist.Name.ToLower().Equals(artist.ToLower())));
             }
-            catch (Exception e) { }
+            catch (Exception) { }
 
-            if(song == null)
-                return $"No song with title {title} and artist {artist} was found!";
-
-            return song.Id;
+            return song == null ? string.Empty : song.Id;
         }
 
 

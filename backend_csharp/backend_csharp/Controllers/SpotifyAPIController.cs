@@ -36,7 +36,9 @@ namespace backend_csharp.Controllers
         [HttpGet("{title}/{artist}")]
         public async Task <ActionResult <string>> GetIdOfSong(string title, string artist)
         {
-            return Ok(await SpotifyAPIService.Instance.GetSpotifyIdOfSong(title, artist));
+            var id = await SpotifyAPIService.Instance.GetSpotifyIdOfSong(title, artist);
+            
+            return Ok(string.IsNullOrEmpty(id) ? $"No song with the title {title} of the artist {artist} was found!" : id);
         }
     }
 }
