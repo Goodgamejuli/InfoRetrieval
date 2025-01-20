@@ -38,9 +38,11 @@
         </div>
 
         <!--Playbar-->
+        @if (playbarService.songToPlayUrl != null) {
         <div class="playbar-container">
             <app-playbar></app-playbar>
         </div>
+    }
     </div>
 
     

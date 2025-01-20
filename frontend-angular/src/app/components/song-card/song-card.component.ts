@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { SongDataService } from '../../services/song-data.service';
 import { SongDTO } from '../../models/songDto';
+import { PlaybarService } from '../../services/playbar.service';
 
 @Component({
   selector: 'app-song-card',
@@ -10,20 +11,27 @@ import { SongDTO } from '../../models/songDto';
   styleUrl: './song-card.component.css'
 })
 export class SongCardComponent {
-  @Input() public playlistThumbnail!: string;
+  playbarService = inject(PlaybarService);
+
+  @Input() public cover!: string;
   @Input() public title!: string;
   @Input() public description!: string;
   @Input() public id!: string | number;
-  @Input() public link!: string;
 
   @Input() public song!: SongDTO;
 
   @Input() public coverUrl!: string;
+  @Input() public spotifyPlayUrl!: string;
 
   constructor(private router: Router, private songDataService: SongDataService) 
   {
     //TODO: delete and set via api-call
     this.coverUrl = "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228";
+    this.spotifyPlayUrl = "https://open.spotify.com/embed/track/4Zcz6saEkOII3PlXd9gN3o?utm_source=generator&autoplay=1"
+  }
+
+  playThisSong() {
+    this.playbarService.playSong(this.spotifyPlayUrl);
   }
 
   onNavigateToSong() {
@@ -33,10 +41,9 @@ export class SongCardComponent {
 
     this.router.navigateByUrl(`/song/${this.id}`, {
       state: {
-      thumbnail: this.playlistThumbnail,
+      thumbnail: this.cover,
       title: this.title,
       description: this.description,
-      link: this.link,
       id: this.id
       },
     });

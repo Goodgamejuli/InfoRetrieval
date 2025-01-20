@@ -9,6 +9,7 @@ import { OpenSearchService } from '../../services/opensearch.service';
 import { SongDTO } from '../../models/songDto';
 import { PlaybarComponent } from "../../components/playbar/playbar.component";
 import { SongCardContainerComponent } from "../../components/song-card-container/song-card-container.component";
+import { PlaybarService } from '../../services/playbar.service';
 
 @Component({
   selector: 'app-home',
@@ -17,8 +18,8 @@ import { SongCardContainerComponent } from "../../components/song-card-container
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit{
-
-  opensearchService = inject(OpenSearchService)
+  playbarService = inject(PlaybarService);
+  opensearchService = inject(OpenSearchService);
 
 public songCards= [
     {
