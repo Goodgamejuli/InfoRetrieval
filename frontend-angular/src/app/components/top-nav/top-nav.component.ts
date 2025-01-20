@@ -15,6 +15,16 @@ export class TopNavComponent {
   opensearchService = inject(OpenSearchService);
   public isSearchFieldVisible: boolean = false;
 
+  filterOptions = [
+    { label: 'Song', value: 'song' },
+    { label: 'Künstler', value: 'künstler' },
+    { label: 'Album', value: 'album' },
+    { label: 'Genre', value: 'genre' },
+  ];
+
+  // Die vom Benutzer ausgewählten Optionen
+  selectedFilterOptions: string[] = [];
+
   constructor(
     private router: Router,
     private searchBarService: SearchBarService
@@ -22,6 +32,22 @@ export class TopNavComponent {
 
   onNavigateToLogin() {
     this.router.navigate(['/', 'login']);
+  }
+
+  
+
+  // Methode zum Verarbeiten von Checkbox-Änderungen
+  onCheckboxChange(event: Event): void {
+    const checkbox = event.target as HTMLInputElement;
+    const value = checkbox.value;
+
+    if (checkbox.checked) {
+      // Option zur Liste hinzufügen
+      this.selectedFilterOptions.push(value);
+    } else {
+      // Option aus der Liste entfernen
+      this.selectedFilterOptions = this.selectedFilterOptions.filter((option) => option !== value);
+    }
   }
 
   onTestClick() {

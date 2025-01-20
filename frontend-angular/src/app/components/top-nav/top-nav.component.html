@@ -1,29 +1,45 @@
 <div class="top-nav">
     <div class="top-nav_title">Info Retrival</div>
   
-    <!-- DropDown -->
+    <!-- DropDown 
     <div class="top-nav_search">
       <select class="search-category">
         <option value="song" selected>Suchkategorie: Song</option>
         <option value="artist">Suche nach Künstler</option>
         <option value="album">Suche nach Album</option>
         <option value="genre">Suche nach Genre</option>
-      </select>
+      </select> -->
   
-      <input type="search" class="search" placeholder="What are you looking for?">
-  
-      <button class="search-button">Los!</button>
-
-      <div class="button" (click)="onTestClick()">
-        <h1>Der Bibliothek hinzufügen</h1> 
+      <div class="top-nav_search">
+        <!-- Suchleiste mit Button -->
+        <div class="search-container">
+          <input
+            type="search"
+            class="search"
+            placeholder="What are you looking for?"
+          />
+          <button class="search-button">Suchen!</button>
+        </div>
+      
+        <!-- Filteroptionen -->
+        <div class="filter-container">
+          <div *ngFor="let item of filterOptions">
+            <label>
+              <input
+                type="checkbox"
+                [value]="item.value"
+                (change)="onCheckboxChange($event)"
+              />
+              {{ item.label }}
+            </label>
+          </div>
+        </div>
       </div>
     
   
-    
-  
-        <div class="top-nav_auth">
+      <div class="top-nav_auth">
         <div class="top-nav_auth_sign-up">Sign up</div>
         <div class="top-nav_auth_login" (click)="onNavigateToLogin()">Login</div>
-        </div>
+      </div>
   </div>
   
