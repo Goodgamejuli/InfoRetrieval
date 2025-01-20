@@ -29,7 +29,7 @@ namespace backend_csharp.Migrations
 
                     b.HasIndex("SongsId");
 
-                    b.ToTable("DatabaseSongPlaylist");
+                    b.ToTable("DatabaseSongPlaylist", (string)null);
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.Album", b =>
@@ -51,7 +51,7 @@ namespace backend_csharp.Migrations
 
                     b.HasIndex("ArtistId");
 
-                    b.ToTable("Albums");
+                    b.ToTable("Albums", (string)null);
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.Artist", b =>
@@ -67,7 +67,7 @@ namespace backend_csharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Artists");
+                    b.ToTable("Artists", (string)null);
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.DatabaseSong", b =>
@@ -86,7 +86,7 @@ namespace backend_csharp.Migrations
 
                     b.HasIndex("AlbumId");
 
-                    b.ToTable("DatabaseSongs");
+                    b.ToTable("DatabaseSongs", (string)null);
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.LastListenedSong", b =>
@@ -111,7 +111,7 @@ namespace backend_csharp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("LastListenedSongs");
+                    b.ToTable("LastListenedSongs", (string)null);
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.Playlist", b =>
@@ -135,7 +135,7 @@ namespace backend_csharp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Playlists");
+                    b.ToTable("Playlists", (string)null);
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.User", b =>
@@ -154,7 +154,7 @@ namespace backend_csharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseSongPlaylist", b =>
