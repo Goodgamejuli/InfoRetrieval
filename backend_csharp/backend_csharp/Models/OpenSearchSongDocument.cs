@@ -1,4 +1,5 @@
-﻿using OpenSearch.Client;
+﻿using backend_csharp.Models.Database;
+using OpenSearch.Client;
 
 namespace backend_csharp.Models
 {
@@ -28,6 +29,15 @@ namespace backend_csharp.Models
         [Keyword]
         public List <string> Genre { get; set; }
 
+        public string? GenerateSongEmbed()
+        {
+            if (Id.StartsWith("mbid_"))
+                return null;
+
+            return
+                $"<iframe style=\"border-radius:12px\" src=\"https://open.spotify.com/embed/track/{Id}?utm_source=generator\" width=\"100%\" height=\"352\" frameBorder=\"0\" allowfullscreen=\"\" allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" loading=\"lazy\"></iframe>";
+        }
+
         public int CompareTo(OpenSearchSongDocument? other)
         {
             // How should songs be sorted when displayed?
@@ -54,6 +64,15 @@ namespace backend_csharp.Models
                 return albumCompare;
             
             return string.Compare(Title, other.Title, StringComparison.Ordinal);
+        }
+
+        public DatabaseSong ToDbSong()
+        {
+            return new DatabaseSong
+            {
+                Id = Id,
+                Embed = GenerateSongEmbed()
+            };
         }
     }
 }

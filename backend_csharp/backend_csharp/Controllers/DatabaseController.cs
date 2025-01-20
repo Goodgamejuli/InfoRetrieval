@@ -11,9 +11,9 @@ namespace backend_csharp.Controllers
     public class DatabaseController : ControllerBase
     {
         private readonly DatabaseService _databaseService;
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<DatabaseController> _logger;
 
-        public DatabaseController(ILogger<WeatherForecastController> logger, DatabaseService service)
+        public DatabaseController(ILogger<DatabaseController> logger, DatabaseService service)
         {
             _logger = logger;
             _databaseService = service;
@@ -65,6 +65,21 @@ namespace backend_csharp.Controllers
                 return BadRequest($"No song was found with the id {id}");
 
             return Ok(song);
+        }
+
+        #endregion
+        
+        #region Database Song Data Specific
+
+        [HttpGet("SongData_Embed")]
+        public async Task <ActionResult <DatabaseSong>> GetEmbedOfSong(string id)
+        {
+            var embed = await _databaseService.GetEmbedOfSong(id);
+
+            if (embed == null)
+                return BadRequest("No embed was found for the provided id");
+
+            return Ok(embed);
         }
 
         #endregion

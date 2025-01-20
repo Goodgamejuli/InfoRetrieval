@@ -15,5 +15,6 @@ namespace backend_csharp.Models.Database
         // Relationship
         public List <Playlist> Playlists { get; set; } = new List<Playlist>();
         public ICollection <LastListenedSong> LastListenedSongs {get; set;} = new List <LastListenedSong>();
+        public string? Embed  { get; set; }
     }
 }

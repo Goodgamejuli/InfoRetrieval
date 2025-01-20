@@ -6,8 +6,10 @@ namespace backend_csharp.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class OpenSearchController : ControllerBase
+public class OpenSearchController(DatabaseController dbController) : ControllerBase
 {
+    private DatabaseController _dbController = dbController;
+
     #region Public Methods
 
     /// <summary>
@@ -48,7 +50,10 @@ public class OpenSearchController : ControllerBase
             return BadRequest("No song was found for the given artist");
 
         foreach (OpenSearchSongDocument song in songs)
+        {
             await OpenSearchService.Instance.IndexNewSong(song);
+            await _dbController.AddDatabaseSong(song.ToDbSong());
+        }
 
         return Ok(songs);
     }
@@ -61,10 +66,13 @@ public class OpenSearchController : ControllerBase
 
         if (songs is not {Count: > 0})
             return BadRequest("No song was found for the given artist");
-
+        
         foreach (OpenSearchSongDocument song in songs)
+        {
             await OpenSearchService.Instance.IndexNewSong(song);
-
+            await _dbController.AddDatabaseSong(song.ToDbSong());
+        }
+        
         return Ok(songs);
     }
 

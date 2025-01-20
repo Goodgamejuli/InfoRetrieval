@@ -128,7 +128,7 @@ namespace backend_csharp.Services
 
         private OpenSearchSongDocument CreateOpenSearchTrack(SimpleTrack track, FullAlbum album, FullArtist artist, string lyrics)
         {
-            OpenSearchSongDocument osSong = new OpenSearchSongDocument()
+            OpenSearchSongDocument osSong = new OpenSearchSongDocument
             {
                 Id = track.Id,
                 AlbumTitle = album.Name,

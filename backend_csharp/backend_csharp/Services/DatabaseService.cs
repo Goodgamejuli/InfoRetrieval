@@ -89,5 +89,12 @@ namespace backend_csharp.Services
         }
 
         #endregion
+
+        public async Task<object?> GetEmbedOfSong(string id)
+        {
+            DatabaseSong song = await GetSongFromDatabase(id);
+
+            return song.Embed;
+        }
     }
 }
