@@ -27,3 +27,58 @@
     font-size: 24px;
     font-weight: bold;
   }
+
+  /* Container für die Buttons */
+.buttons-container {
+  display: flex;
+  justify-content: center; /* Buttons zentrieren */
+  margin-top: 20px; /* Abstand oberhalb der Buttons */
+  gap: 15px; /* Abstand zwischen den Buttons */
+}
+
+/* Buttons */
+.buttons-container button {
+  background-color: #1ED760; /* Blau als Hintergrundfarbe */
+  color: white; /* Weißer Text */
+  border: none; /* Keine Umrandung */
+  border-radius: 5px; /* Abgerundete Ecken */
+  padding: 10px 20px; /* Innenabstand */
+  font-size: 16px; /* Schriftgröße */
+  display: flex;
+  align-items: center; /* Text und Icon zentrieren */
+  gap: 10px; /* Abstand zwischen Text und Icon */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover-Effekt */
+.buttons-container button:hover {
+  background-color: rgb(32, 32, 32);
+  color: rgb(9, 185, 9); /* Dunkleres Blau bei Hover */
+}
+
+/* Deaktivierter Zustand */
+.buttons-container button[disabled] {
+  background-color: #cccccc;
+}
+
+
+/* Pfeil-Icons */
+.arrow {
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+}
+
+/* Linker Pfeil */
+.arrow.left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+}
+
+/* Rechter Pfeil */
+.arrow.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}s

@@ -11,4 +11,27 @@ import { CommonModule } from '@angular/common';
 })
 export class SongCardContainerComponent {
   opensearchService = inject(OpenSearchService);
+
+  // Steuerungsvariablen
+  visibleCount: number = 4; // Anzahl der angezeigten Karten
+  step: number = 4; // Anzahl, die pro Klick hinzugefügt/entfernt wird
+
+  // Getter, um die sichtbaren Songs basierend auf visibleCount zu ermitteln
+  get visibleSongs() {
+    return this.opensearchService.Songs.slice(0, this.visibleCount);
+  }
+
+  // Mehr anzeigen
+  showMore() {
+    if (this.visibleCount < this.opensearchService.Songs.length) {
+      this.visibleCount += this.step;
+    }
+  }
+
+  // Weniger anzeigen
+  showLess() {
+    if (this.visibleCount > this.step) {
+      this.visibleCount -= this.step;
+    }
+  }
 }
