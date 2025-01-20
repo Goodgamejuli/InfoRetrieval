@@ -18,5 +18,7 @@
         public string Artist { get; set; }
 
         public List<string> Genre { get; set; }
+        
+        public string? Embed { get; set; }
     }
 }
