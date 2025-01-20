@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_csharp.Database;
 
@@ -10,9 +11,11 @@ using backend_csharp.Database;
 namespace backend_csharp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250119192351_updatePropertyLastListenedSongsOfUser")]
+    partial class updatePropertyLastListenedSongsOfUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -37,9 +40,6 @@ namespace backend_csharp.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Embed")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
                     b.ToTable("DatabaseSongs");
@@ -53,9 +53,6 @@ namespace backend_csharp.Migrations
 
                     b.Property<string>("DatabaseSongId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("LastListenedTo")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")

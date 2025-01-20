@@ -1,0 +1,17 @@
+<div class="song-cards-container">
+    <h4 [style.color]="'white'" [style.padding]="'10px'">Songs</h4>
+    <div class="playlist_card_collections" >
+        <div id="song_card_item" *ngFor="let sc of visibleSongs">
+            <app-song-card
+            [song]="sc"></app-song-card>
+        </div>
+    </div>
+    <div class="buttons-container">
+        <button (click)="showLess()" [disabled]="visibleCount <= step">
+          <i class="arrow left"></i> Weniger
+        </button>
+        <button (click)="showMore()" [disabled]="visibleCount >= opensearchService.Songs.length">
+          Mehr <i class="arrow right"></i>
+        </button>
+      </div>
+</div>

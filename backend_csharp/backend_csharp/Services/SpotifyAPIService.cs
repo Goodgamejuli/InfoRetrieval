@@ -81,7 +81,7 @@ namespace backend_csharp.Services
         }
 
         /// <summary>
-        /// Tries to find the given song and artist in the spotify-api to retrieve the specific SpotifyId
+        /// Tries to find the given song and artist in the spotify-api to retrieve the specific Id
         /// </summary>
         /// <param name="title">Title of the song</param>
         /// <param name="artist">Name of the artist</param>

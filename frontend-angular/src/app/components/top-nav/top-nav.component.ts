@@ -1,21 +1,63 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SearchBarService } from '../../services/searchbar.service';
 import { CommonModule } from '@angular/common';
+import { OpenSearchService } from '../../services/opensearch.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-top-nav',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './top-nav.component.html',
-  styleUrl: './top-nav.component.css'
+  styleUrls: ['./top-nav.component.css']
 })
-export class TopNavComponent{
+export class TopNavComponent {
+  opensearchService = inject(OpenSearchService);
   public isSearchFieldVisible: boolean = false;
 
-  constructor(private router: Router, private searchBarService: SearchBarService) {}
+  filterOptions = [
+    { label: 'Song', value: 'song' },
+    { label: 'Künstler', value: 'künstler' },
+    { label: 'Album', value: 'album' },
+    { label: 'Genre', value: 'genre' },
+  ];
 
+  searchValue: string = '';
+
+  // Die vom Benutzer ausgewählten Optionen
+  selectedFilterOptions: string[] = [];
+
+  constructor(
+    private router: Router,
+    private searchBarService: SearchBarService
+  ) {}
 
   onNavigateToLogin() {
-    this.router.navigate(['/', 'login'])
+    this.router.navigate(['/', 'login']);
+  }
+
+  
+
+  // Function to check if checkboxes-values are changing
+  onCheckboxChange(event: Event): void {
+    const checkbox = event.target as HTMLInputElement;
+    const value = checkbox.value;
+
+    if (checkbox.checked) {
+      this.selectedFilterOptions.push(value);
+    } else {
+      this.selectedFilterOptions = this.selectedFilterOptions.filter((option) => option !== value);
+    }
+  }
+
+  search() {
+    console.log("searchValue: ", this.searchValue);
+
+    this.opensearchService.getSongTest();
+  }
+
+  onTestClick() {
+    this.opensearchService.getSongTest();
   }
 }

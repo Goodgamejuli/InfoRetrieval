@@ -1,6 +1,6 @@
 .top-nav {
     width: 100%;
-    height: 75px;
+    height: 150px;
     background: #0F0F0F;
     position: fixed;
     top: 0;
@@ -13,6 +13,17 @@
     font-size: 18px;
 }
 
+.top-nav_title {
+    /* 1) Titel aus dem Flex-Flow nehmen */
+    position: absolute;
+    /* 2) An gewünschter Stelle platzieren */
+    left: 20px; /* Abstand vom linken Rand */
+    top: 50%;    /* Vertikal in der Mitte ausrichten */
+    transform: translateY(-50%);
+    font-size: 22px;
+}
+
+/* Auth-Buttons (Sign up, Login) */
 .top-nav_auth {
     display: flex;
     flex-direction: row;
@@ -31,18 +42,31 @@
     text-align: center;
 }
 
-.top-nav_title{
-    flex-basis: 100x;
-    margin-left: -300px;
-    font-size: 22px;
-}
-
 .top-nav_auth_login:hover {
     cursor: pointer;
     background-color: rgb(32, 32, 32);
     color: rgb(9, 185, 9);
 }
 
+/* Suchfeld */
+.top-nav_search {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Dropdown für die Suchkategorie */
+.search-category {
+    border: none;
+    border-radius: 20px;
+    height: 35px;
+    padding: 0 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+}
+
+/* Eingabefeld der Suche */
 input.search {
     border: none;
     width: 350px;
@@ -57,3 +81,58 @@ input.search::placeholder {
     color: gray;
     font-weight: 500;
 }
+
+/* Button "Los!" */
+.search-button {
+    border: none;
+    border-radius: 20px;
+    height: 35px;
+    padding: 0 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: white;
+    color: black;
+}
+
+/* Der Button zum Hinzufügen */
+.button {
+    background-color: white;
+    padding: 3px;
+    border-radius: 3px;
+    color: black;
+    font-weight: bold;
+    width: 100px;
+    height: 50px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Schrift innerhalb des Buttons verkleinern */
+.button h1 {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Hauptcontainer für die gesamte Suchfunktion */
+.top-nav_search {
+    display: flex;
+    flex-direction: column; /* Elemente vertikal anordnen */
+    align-items: flex-start; /* Elemente linksbündig ausrichten */
+    gap: 20px; /* Abstand zwischen Suchleiste und Checkboxen */
+  }
+  
+  /* Suchleiste */
+  .search-container {
+    display: flex;
+    gap: 10px; /* Abstand zwischen Input und Button */
+    align-items: center; /* Vertikale Zentrierung */
+  }
+  
+  /* Filteroptionen (Checkboxen horizontal ausgerichtet) */
+  .filter-container {
+    display: flex;
+    align-self: center;
+    flex-direction: row; /* Checkboxen horizontal anordnen */
+    gap: 15px; /* Abstand zwischen den Checkboxen */
+  }

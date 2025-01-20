@@ -40,6 +40,17 @@ public class OpenSearchController(DatabaseController dbController) : ControllerB
         return Ok(songs);
     }
 
+    [HttpGet("FindSong/{id}")]
+    public async Task <ActionResult <OpenSearchSongDocument>> FindSongById(string id)
+    {
+        var song = await OpenSearchService.Instance.FindSongById(id);
+
+        if (song == null)
+            return BadRequest($"No song was found for the given id {id}");
+
+        return Ok(song);
+    }
+
     [HttpPost("IndexArtistSongsInOpenSearch_MusicBrainz/{artistName}")]
     public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchMusicBrainz(string artistName)
     {

@@ -20,13 +20,27 @@ export class OpenSearchService {
 
     public getSongTest() {
         var song: SongDTO = {
+            album: "test",
+            artist: "test",
+            title: "TESET",
+            lyrics: "sdafadfddf",
+            release: "22.02.2333",
+            genre: ["metal", "pop"], 
+            id: "3234d"
+        }
+        this.Songs.push(song);
+        console.log(song);
+    }
+
+    public getSong() {
+        var song: SongDTO = {
             album: "",
             artist: "",
             title: "",
             lyrics: "",
             release: "",
             genre: [], 
-            spotifyId: ""
+            id: ""
         }
 
         this.http.get<SongDTO>(this.apiURL)
@@ -36,7 +50,7 @@ export class OpenSearchService {
             song.album = data.album;
             song.artist = data.artist;
             song.genre = data.genre;
-            song.spotifyId = data.spotifyId;
+            song.id = data.id;
             song.release = data.release;
         });
 

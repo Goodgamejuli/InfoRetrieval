@@ -1,11 +1,36 @@
 <div class="top-nav">
-    <div class="top-nav_title">Info Management</div>
-    <div class="top-nav_search">
-        <input type="search" class="search" placeholder="What do you want to listen">
-    </div>
-    <div class="top-nav_auth">
+    <div class="top-nav_title">Info Retrival</div>
+  
+      <div class="top-nav_search">
+        <!-- Suchleiste mit Button -->
+        <div class="search-container">
+          <input
+            type="search"
+            class="search"
+            placeholder="What are you looking for?"
+            [(ngModel)]="searchValue"
+          />
+          <button class="search-button" (click)="search()">Suchen!</button>
+        </div>
+      
+        <!-- Filteroptionen -->
+        <div class="filter-container">
+          <div *ngFor="let item of filterOptions">
+            <label>
+              <input
+                type="checkbox"
+                [value]="item.value"
+                (change)="onCheckboxChange($event)"
+              />
+              {{ item.label }}
+            </label>
+          </div>
+        </div>
+      </div>
+    
+      <div class="top-nav_auth">
         <div class="top-nav_auth_sign-up">Sign up</div>
         <div class="top-nav_auth_login" (click)="onNavigateToLogin()">Login</div>
-    </div>
-
-</div>
+      </div>
+  </div>
+  
