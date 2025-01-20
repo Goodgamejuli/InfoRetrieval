@@ -59,6 +59,9 @@ public class OpenSearchService
     // ReSharper disable once CognitiveComplexity
     public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(string query, string search, int hitCount)
     {
+        if (string.IsNullOrEmpty(search))
+            return null;
+
         var queries = query.Split(";");
 
         var titleBoost = queries.Contains("title") ? 1.5 : -1.0;
@@ -93,8 +96,11 @@ public class OpenSearchService
                                           Fuzziness(Fuzziness.Auto))
                            ))));
 
-        if (songs == null || songs.Documents.Count == 0)
+        if (songs == null)
             return null;
+
+        if (songs.Documents.Count == 0)
+            return [];
         
         Console.WriteLine($"Found {songs.Documents!.Count} song(s)");
 

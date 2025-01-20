@@ -38,6 +38,18 @@ public class OpenSearchController : ControllerBase
         return Ok(songs);
     }
 
+    /*[HttpGet("FindSong")]
+    public async Task<ActionResult<OpenSearchSongDocument>> FindSongs([FromBody] SearchQuery searchParameters)
+    {
+        OpenSearchSongDocument[]? songs =
+            await OpenSearchService.Instance.SearchForTopFittingSongs(searchParameters);
+
+        if (songs == null)
+            return BadRequest("No song was found for the given query");
+
+        return Ok(songs); 
+    }*/
+
     [HttpGet("FindSong/{id}")]
     public async Task <ActionResult <OpenSearchSongDocument>> FindSongById(string id)
     {
