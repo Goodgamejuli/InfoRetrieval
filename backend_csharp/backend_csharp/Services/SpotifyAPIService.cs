@@ -80,6 +80,38 @@ namespace backend_csharp.Services
             return allTracksOfArtist;
         }
 
+        /// <summary>
+        /// Tries to find the given song and artist in the spotify-api to retrieve the specific Id
+        /// </summary>
+        /// <param name="title">Title of the song</param>
+        /// <param name="artist">Name of the artist</param>
+        public async Task<string> GetSpotifyIdOfSong(string? title, string? artist)
+        {
+            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(artist))
+                return string.Empty;
+            
+            var searchRequest = new SearchRequest(
+                SearchRequest.Types.Track,
+                query: title
+            );
+
+            FullTrack? song = null;
+
+            try
+            {
+                var songs = await _spotifyClient.Search.Item(searchRequest);
+
+                // Only wanna get the first artist, that was found
+                song = songs.Tracks.Items.FirstOrDefault(song => 
+                                                             song.Artists.Any(simpleArtist => 
+                                                                                  simpleArtist.Name.ToLower().Equals(artist.ToLower())));
+            }
+            catch (Exception) { }
+
+            return song == null ? string.Empty : song.Id;
+        }
+
+
         private async Task AddTracksOfAlbumToList(FullAlbum album, FullArtist artist, List <OpenSearchSongDocument> tracks)
         {
             foreach (var track in album.Tracks.Items)

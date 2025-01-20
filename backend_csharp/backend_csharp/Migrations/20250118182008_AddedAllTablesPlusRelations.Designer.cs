@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_csharp.Database;
 
@@ -10,9 +11,11 @@ using backend_csharp.Database;
 namespace backend_csharp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250118182008_AddedAllTablesPlusRelations")]
+    partial class AddedAllTablesPlusRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -39,7 +42,7 @@ namespace backend_csharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DatabaseSongs");
+                    b.ToTable("DatabaseSong");
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.LastListenedSong", b =>
@@ -52,9 +55,6 @@ namespace backend_csharp.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("LastListenedTo")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
@@ -64,7 +64,7 @@ namespace backend_csharp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("LastListenedSongs");
+                    b.ToTable("LastListenedSong");
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.Playlist", b =>
@@ -88,7 +88,7 @@ namespace backend_csharp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Playlists");
+                    b.ToTable("Playlist");
                 });
 
             modelBuilder.Entity("backend_csharp.Models.Database.User", b =>
@@ -134,7 +134,7 @@ namespace backend_csharp.Migrations
                         .IsRequired();
 
                     b.HasOne("backend_csharp.Models.Database.User", "User")
-                        .WithMany("LastListenedSongs")
+                        .WithMany("LastListenedSong")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -162,7 +162,7 @@ namespace backend_csharp.Migrations
 
             modelBuilder.Entity("backend_csharp.Models.Database.User", b =>
                 {
-                    b.Navigation("LastListenedSongs");
+                    b.Navigation("LastListenedSong");
 
                     b.Navigation("Playlists");
                 });
