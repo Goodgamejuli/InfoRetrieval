@@ -120,6 +120,7 @@ namespace backend_csharp.Services
         {
             var song = await _context.DatabaseSongs
                                      .Include(x => x.LastListenedSongs)
+                                     .Include(x => x.Album)
                                      .FirstOrDefaultAsync(x => x.Id.Equals(songId));
 
             return song;

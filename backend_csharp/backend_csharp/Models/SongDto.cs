@@ -20,5 +20,7 @@
         public List<string> Genre { get; set; }
         
         public string? Embed { get; set; }
+        
+        public string? Cover { get; set; }
     }
 }
