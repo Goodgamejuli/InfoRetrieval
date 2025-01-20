@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace backend_csharp.Models.Database
 {
@@ -15,5 +15,6 @@ namespace backend_csharp.Models.Database
         // Relationship
         [JsonIgnore] public List <Playlist> Playlists { get; set; } = new List<Playlist>();
         [JsonIgnore] public ICollection <LastListenedSong> LastListenedSongs {get; set;} = new List <LastListenedSong>();
+        public string? Embed  { get; set; }
     }
 }

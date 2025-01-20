@@ -73,10 +73,29 @@ namespace backend_csharp.Controllers
         {
             DatabaseSong song = await _databaseService.GetSongFromDatabase(id);
             
+            Console.WriteLine($"Getting song for id {id}");
+            
             if (song == null)
                 return BadRequest($"No song was found with the id {id}");
 
+            Console.WriteLine($"Found song {song}");
+            
             return Ok(song);
+        }
+
+        #endregion
+        
+        #region Database Song Data Specific
+
+        [HttpGet("SongData_Embed")]
+        public async Task <ActionResult <string>> GetEmbedOfSong(string id)
+        {
+            var embed = await _databaseService.GetEmbedOfSong(id);
+
+            if (embed == null)
+                return BadRequest("No embed was found for the provided id");
+
+            return Ok(embed);
         }
 
         #endregion

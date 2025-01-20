@@ -1,4 +1,5 @@
 ﻿using backend_csharp.Models;
+using backend_csharp.Models.Database;
 using backend_csharp.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +7,8 @@ namespace backend_csharp.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class OpenSearchController : ControllerBase
+public class OpenSearchController (DatabaseService databaseService)
+    : ControllerBase
 {
     #region Public Methods
 
@@ -23,8 +25,8 @@ public class OpenSearchController : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet("FindSong")]
-    public async Task <ActionResult <OpenSearchSongDocument>> FindSongs(
+    [HttpGet("FindSongs")]
+    public async Task <ActionResult <SongDto[]>> FindSongs(
         string search,
         string query = "title;album;artist;lyrics",
         int hitCount = 10)
@@ -35,7 +37,28 @@ public class OpenSearchController : ControllerBase
         if (songs == null)
             return BadRequest("No song was found for the given query");
 
-        return Ok(songs);
+        SongDto[] output = new SongDto[songs.Length];
+
+        for (var i = 0; i < songs.Length; i++)
+        {
+            OpenSearchSongDocument song = songs[i];
+
+            DatabaseSong dbEntry = await databaseService.GetSongFromDatabase(song.Id);
+            
+            output[i] = new SongDto
+            {
+                Id = song.Id,
+                Title = song.Title,
+                Album = song.AlbumTitle,
+                Artist = song.ArtistName,
+                Lyrics = song.Lyrics,
+                Genre = song.Genre,
+                Release = song.ReleaseDate,
+                Embed = dbEntry.Embed
+            };
+        }
+
+        return Ok(output);
     }
 
     /*[HttpGet("FindSong")]
@@ -71,7 +94,10 @@ public class OpenSearchController : ControllerBase
             return BadRequest("No song was found for the given artist");
 
         foreach (OpenSearchSongDocument song in songs)
+        {
             await OpenSearchService.Instance.IndexNewSong(song);
+            await databaseService.InsertSongIntoDatabase(song.ToDbSong());
+        }
 
         return Ok(songs);
     }
@@ -84,10 +110,13 @@ public class OpenSearchController : ControllerBase
 
         if (songs is not {Count: > 0})
             return BadRequest("No song was found for the given artist");
-
+        
         foreach (OpenSearchSongDocument song in songs)
+        {
             await OpenSearchService.Instance.IndexNewSong(song);
-
+            await databaseService.InsertSongIntoDatabase(song.ToDbSong());
+        }
+        
         return Ok(songs);
     }
 
