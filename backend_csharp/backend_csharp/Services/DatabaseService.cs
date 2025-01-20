@@ -1,5 +1,6 @@
 ﻿using backend_csharp.Database;
 using backend_csharp.Helper;
+using backend_csharp.Models;
 using backend_csharp.Models.Database;
 using backend_csharp.Models.Database.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,7 @@ namespace backend_csharp.Services
 
         #region LastListenedSong Specific
 
-        public async Task <bool> InsertLastListenedSongIntoDatabase(SimpleLastListenedSong simpleLastListenedSong)
+        public async Task <bool> AddLastListenSongForUser(SimpleLastListenedSong simpleLastListenedSong)
         {
             try
             {
@@ -56,6 +57,42 @@ namespace backend_csharp.Services
             }
 
             return true;
+        }
+
+        public async Task <List <SongDto>> GetLastListenedSongsOfUser(Guid userId, int amount)
+        {
+            var user = await _context.Users
+                                     .Include(x => x.LastListenedSongs)
+                                     .ThenInclude(x => x.DatabaseSong)
+                                     .FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user == null)
+                return null;
+
+            // Order the results and only pick the wanted amount
+            List <LastListenedSong> dbSongs = user.LastListenedSongs
+                                                  .OrderBy(x => x.LastListenedTo)
+                                                  .Take(amount)
+                                                  .ToList();
+            
+            List<SongDto> lastListenedSongs = new List<SongDto>();
+
+
+
+            foreach (LastListenedSong lastListenedSong in dbSongs)
+            {
+                if(lastListenedSong?.DatabaseSong == null)
+                    continue;
+
+                var song = await OpenSearchService.Instance.FindSongById(lastListenedSong.DatabaseSong.Id);
+
+                if(song == null)
+                    continue;
+
+                lastListenedSongs.Add(song.ToSongDto());
+            }
+
+            return lastListenedSongs;
         }
 
         #endregion

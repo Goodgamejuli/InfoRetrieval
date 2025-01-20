@@ -10,6 +10,7 @@ namespace backend_csharp.Models.Database
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public string DatabaseSongId { get; set; } = null!;
+        public DateTime LastListenedTo { get; set; }
 
         // Relationship
         [JsonIgnore] public User User { get; set;} = null!;
