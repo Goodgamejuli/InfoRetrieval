@@ -7,9 +7,9 @@
 }
 
 #song_card_item {
-    flex: 1 1 calc(25% - 20px); /* Jede Karte nimmt 25% der Breite abzüglich Abstand */
+    flex: 1 1 calc(20% - 20px); /* Jede Karte nimmt 25% der Breite abzüglich Abstand */
   box-sizing: border-box; /* Padding und Border in die Breite einberechnen */
-  max-width: calc(25% - 20px); /* Maximale Breite pro Karte */
+  max-width: calc(20% - 20px); /* Maximale Breite pro Karte */
 }
 
 .song-cards-container {
@@ -17,7 +17,7 @@
     border-radius: 10px; /* Abgerundete Ecken */
     padding: 20px; /* Innenabstand */
     margin: 20px auto; /* Abstand zu anderen Elementen, zentriert */
-    max-width: 1200px; /* Maximale Breite */
+    max-width: 1500px; /* Maximale Breite */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Schatten für Tiefeneffekt */
   }
   

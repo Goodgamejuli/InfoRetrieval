@@ -13,8 +13,8 @@ export class SongCardContainerComponent {
   opensearchService = inject(OpenSearchService);
 
   // Steuerungsvariablen
-  visibleCount: number = 4; // Anzahl der angezeigten Karten
-  step: number = 4; // Anzahl, die pro Klick hinzugefügt/entfernt wird
+  visibleCount: number = 5; // Anzahl der angezeigten Karten
+  step: number = 5; // Anzahl, die pro Klick hinzugefügt/entfernt wird
 
   // Getter, um die sichtbaren Songs basierend auf visibleCount zu ermitteln
   get visibleSongs() {
