@@ -1,9 +1,9 @@
 export interface SongDTO {
     title: string;
     lyrics: string;
-    albumTitle: string;
-    releaseDate: string;
-    artistName: string;
+    album: string;
+    release: string;
+    artist: string;
     genre: string[];
     id: string;
 }

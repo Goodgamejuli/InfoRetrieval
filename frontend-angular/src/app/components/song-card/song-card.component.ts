@@ -21,6 +21,8 @@ export class SongCardComponent {
   @Input() public artist!: string;
   @Input() public genre!: string[];
 
+  @Input() public song!: SongDTO;
+
   @Input() public coverUrl!: string;
   @Input() public spotifyPlayUrl!: string;
 
