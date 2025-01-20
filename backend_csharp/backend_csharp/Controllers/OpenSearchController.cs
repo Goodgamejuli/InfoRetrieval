@@ -2,6 +2,7 @@
 using backend_csharp.Models.Database;
 using backend_csharp.Services;
 using Microsoft.AspNetCore.Mvc;
+using SpotifyAPI.Web;
 
 namespace backend_csharp.Controllers;
 
@@ -80,32 +81,54 @@ public class OpenSearchController (DatabaseService databaseService)
 
         if (songs is not {Count: > 0})
             return BadRequest("No song was found for the given artist");
-
+        
         foreach (OpenSearchSongDocument song in songs)
         {
             await OpenSearchService.Instance.IndexNewSong(song);
-            await databaseService.InsertSongIntoDatabase(song.ToDbSong());
+            // TODO reenable await databaseService.InsertSongIntoDatabase(song.ToDbSong());
         }
-
+        
         return Ok(songs);
     }
 
     [HttpPost("IndexArtistSongsInOpenSearch_Spotify/{artistName}")]
     public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchSpotify(string artistName)
     {
-        List <OpenSearchSongDocument> songs =
+        Tuple <FullArtist, List <FullAlbum>, List <OpenSearchSongDocument>> data =
             await SpotifyAPIService.Instance.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
-
-        if (songs is not {Count: > 0})
+        
+        if (data.Item3 is not {Count: > 0})
             return BadRequest("No song was found for the given artist");
         
-        foreach (OpenSearchSongDocument song in songs)
+        Artist artist = await databaseService.TryInsertOrGetExistingArtist(new Artist
         {
+            Id = data.Item1.Id,
+            Name = data.Item1.Name,
+            CoverUrl = data.Item1.Images.Count > 0 ? data.Item1.Images[0].Url : null
+        });
+        
+        foreach (OpenSearchSongDocument song in data.Item3)
+        {
+            FullAlbum? fullAlbum = data.Item2.FirstOrDefault(x => x.Name.Equals(song.AlbumTitle));
+            
+            Album album = await databaseService.TryInsertOrGetExistingAlbum(new Album
+            {
+                Id = fullAlbum.Id,
+                Name = fullAlbum.Name,
+                ArtistId = artist.Id,
+                CoverUrl = fullAlbum.Images.Count > 0 ? fullAlbum.Images[0].Url : null
+            });
+            
             await OpenSearchService.Instance.IndexNewSong(song);
-            await databaseService.InsertSongIntoDatabase(song.ToDbSong());
+            await databaseService.InsertSongIntoDatabase(new DatabaseSong
+            {
+                Id = song.Id,
+                Embed = song.GenerateSongEmbed(),
+                AlbumId = album.Id
+            });
         }
         
-        return Ok(songs);
+        return Ok(data.Item3);
     }
 
     #endregion

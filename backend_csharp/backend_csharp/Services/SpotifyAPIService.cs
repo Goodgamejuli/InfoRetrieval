@@ -57,7 +57,7 @@ namespace backend_csharp.Services
             return track;
         }
 
-        public async Task <List <OpenSearchSongDocument>> GetAllTracksOfArtistAsOpenSearchDocument(string artistName)
+        public async Task <Tuple<FullArtist, List<FullAlbum>, List <OpenSearchSongDocument>>> GetAllTracksOfArtistAsOpenSearchDocument(string artistName)
         {
             var artist = await SearchForArtist(artistName);
 
@@ -77,7 +77,10 @@ namespace backend_csharp.Services
             //    await AddTracksOfAlbumToList(album, artist, allTracksOfArtist);
             //}
 
-            return allTracksOfArtist;
+            return new Tuple <FullArtist, List <FullAlbum>, List <OpenSearchSongDocument>>(
+                artist,
+                albumsOfArtist,
+                allTracksOfArtist);
         }
 
         /// <summary>

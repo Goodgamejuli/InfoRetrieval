@@ -98,7 +98,7 @@ namespace backend_csharp.Services
         #endregion
 
         #region DatabaseSong Specific
-
+        
         public async Task<bool> InsertSongIntoDatabase(DatabaseSong song)
         {
             try
@@ -132,6 +132,32 @@ namespace backend_csharp.Services
             DatabaseSong song = await GetSongFromDatabase(id);
 
             return song.Embed;
+        }
+
+        public async Task<Artist> TryInsertOrGetExistingArtist(Artist artist)
+        {
+            Artist? foundArtist = await _context.Artists.FirstOrDefaultAsync(x => x.Id == artist.Id);
+
+            if (foundArtist != null)
+                return foundArtist;
+
+            await _context.Artists.AddAsync(artist);
+            await _context.SaveChangesAsync();
+            
+            return artist;
+        }
+
+        public async Task<Album> TryInsertOrGetExistingAlbum(Album album)
+        {
+            Album? foundAlbum = await _context.Albums.FirstOrDefaultAsync(x => x.Id == album.Id);
+
+            if (foundAlbum != null)
+                return foundAlbum;
+
+            await _context.Albums.AddAsync(album);
+            await _context.SaveChangesAsync();
+            
+            return album;
         }
     }
 }
