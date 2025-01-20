@@ -1,13 +1,13 @@
 .song-card {
-    height: 450px;
     width: 250px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start; /* Ändert die Ausrichtung */
     align-items: center;
     background-color: #202020;
-    border-radius: 12px;
+    border-radius: 20px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    padding: 20px; /* Füge Padding hinzu, um Platz zu schaffen */
 }
 
 .song-card_title {
@@ -22,47 +22,52 @@
     height: 40px;
 }
 
-.song-card_description-artist {
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: 0.3px;
-    word-spacing: 0.4px;
-    color: grey;
-    margin-top: 18px;
-    text-align: left;
+.song-card_description {
+    width: 100%; /* Stelle sicher, dass der Container die volle Breite nutzt */
+    text-align: left; /* Gemeinsame Ausrichtung für alle Beschreibungen */
+    margin-top: 10px;
 }
 
-.song-card_description-album {
+.song-card_description-artist,
+.song-card_description-album,
+.song-card_description-genre,
+.song-card_description-release {
     font-size: 12px;
-    font-weight: normal;
-    letter-spacing: 0.3px;
-    word-spacing: 0.4px;
     color: grey;
     margin-top: 10px;
-    margin-bottom: 18px;
-    text-align: left;
 }
 
 .song-card_thumbnail {
     background-color: rgba(0, 0, 0, 0.24);
-    padding: 20px;
     border-radius: 12px;
     margin-top: 15px;
     width: 150px;
     height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .song-card_play-button {
     background-color: #1ED760;
-    border-radius: 100px;
+    border-radius: 50%;
     width: 50px;
     height: 50px;
-    margin-bottom: 18px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }
 
 .song-card_play-button:hover {
     background-color: #7cd69c;
-    border-radius: 100px;
-    width: 50px;
-    height: 50px;
 }
+
+.description-separator {
+    border: none;
+    border-top: 1px solid #1ED760;
+    margin: 2px 0; /* Weiter reduzierter Abstand */
+    width: 100%;
+}
+
