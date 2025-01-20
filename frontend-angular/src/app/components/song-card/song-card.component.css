@@ -5,7 +5,7 @@
     justify-content: flex-start; /* Ändert die Ausrichtung */
     align-items: center;
     background-color: #202020;
-    border-radius: 2px;
+    border-radius: 20px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     padding: 20px; /* Füge Padding hinzu, um Platz zu schaffen */
 }

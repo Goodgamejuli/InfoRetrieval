@@ -8,10 +8,11 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { OpenSearchService } from '../../services/opensearch.service';
 import { SongDTO } from '../../models/songDto';
 import { PlaybarComponent } from "../../components/playbar/playbar.component";
+import { SongCardContainerComponent } from "../../components/song-card-container/song-card-container.component";
 
 @Component({
   selector: 'app-home',
-  imports: [TopNavComponent, SongCardComponent, CommonModule, RouterModule, HttpClientModule, AsyncPipe, PlaybarComponent],
+  imports: [TopNavComponent, SongCardComponent, CommonModule, RouterModule, HttpClientModule, AsyncPipe, PlaybarComponent, SongCardContainerComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

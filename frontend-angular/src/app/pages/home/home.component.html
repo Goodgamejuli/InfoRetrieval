@@ -27,21 +27,20 @@
     </div>
     
     <div class="home-container_playlist-container col-10">
-        <app-top-nav></app-top-nav>
-
-        <div [style.padding]="'48px'" class="mt-5 container-fluid">
-            <h4 [style.color]="'white'" [style.padding]="'10px'">Songs</h4>
-            <div class="playlist_card_collections" >
-                <div id="song_card_item" *ngFor="let sc of opensearchService.Songs">
-                    <app-song-card
-                    [song]="sc"></app-song-card>
-                </div>
-            </div>
+        
+        <div class="top-nav-container_div">
+            <app-top-nav></app-top-nav>
         </div>
+        
 
-        <div [style.padding]="'90px'" class="static">
+        <div class="song-card-container_div">
+            <app-song-card-container></app-song-card-container>
+        </div>
+        
+
+        <!--<div [style.padding]="'90px'" class="static">
             <app-playbar></app-playbar>
-        </div> 
+        </div> -->
     </div>
 
     

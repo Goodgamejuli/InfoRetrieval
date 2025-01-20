@@ -1,0 +1,29 @@
+.playlist_card_collections {
+    display: flex;
+  flex-wrap: wrap; /* Karten umbrechen, wenn sie nicht in eine Zeile passen */
+  gap: 20px; /* Abstand zwischen den Karten */
+  justify-content: left; /* Karten gleichmäßig verteilen */
+  direction: ltr; /* Links-nach-Rechts-Ausrichtung explizit setzen */
+}
+
+#song_card_item {
+    flex: 1 1 calc(25% - 20px); /* Jede Karte nimmt 25% der Breite abzüglich Abstand */
+  box-sizing: border-box; /* Padding und Border in die Breite einberechnen */
+  max-width: calc(25% - 20px); /* Maximale Breite pro Karte */
+}
+
+.song-cards-container {
+    background-color: #2c2c2c; /* Dunkler Hintergrund */
+    border-radius: 10px; /* Abgerundete Ecken */
+    padding: 20px; /* Innenabstand */
+    margin: 20px auto; /* Abstand zu anderen Elementen, zentriert */
+    max-width: 1200px; /* Maximale Breite */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Schatten für Tiefeneffekt */
+  }
+  
+  /* Titel-Styling */
+  .song-cards-container h4 {
+    margin: 0 0 15px 0; /* Abstand unterhalb des Titels */
+    font-size: 24px;
+    font-weight: bold;
+  }

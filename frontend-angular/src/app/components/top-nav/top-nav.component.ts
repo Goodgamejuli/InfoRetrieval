@@ -3,11 +3,12 @@ import { Router } from '@angular/router';
 import { SearchBarService } from '../../services/searchbar.service';
 import { CommonModule } from '@angular/common';
 import { OpenSearchService } from '../../services/opensearch.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-top-nav',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './top-nav.component.html',
   styleUrls: ['./top-nav.component.css']
 })
@@ -21,6 +22,8 @@ export class TopNavComponent {
     { label: 'Album', value: 'album' },
     { label: 'Genre', value: 'genre' },
   ];
+
+  searchValue: string = '';
 
   // Die vom Benutzer ausgewählten Optionen
   selectedFilterOptions: string[] = [];
@@ -36,18 +39,22 @@ export class TopNavComponent {
 
   
 
-  // Methode zum Verarbeiten von Checkbox-Änderungen
+  // Function to check if checkboxes-values are changing
   onCheckboxChange(event: Event): void {
     const checkbox = event.target as HTMLInputElement;
     const value = checkbox.value;
 
     if (checkbox.checked) {
-      // Option zur Liste hinzufügen
       this.selectedFilterOptions.push(value);
     } else {
-      // Option aus der Liste entfernen
       this.selectedFilterOptions = this.selectedFilterOptions.filter((option) => option !== value);
     }
+  }
+
+  search() {
+    console.log("searchValue: ", this.searchValue);
+
+    this.opensearchService.getSongTest();
   }
 
   onTestClick() {

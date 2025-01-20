@@ -1,15 +1,6 @@
 <div class="top-nav">
     <div class="top-nav_title">Info Retrival</div>
   
-    <!-- DropDown 
-    <div class="top-nav_search">
-      <select class="search-category">
-        <option value="song" selected>Suchkategorie: Song</option>
-        <option value="artist">Suche nach Künstler</option>
-        <option value="album">Suche nach Album</option>
-        <option value="genre">Suche nach Genre</option>
-      </select> -->
-  
       <div class="top-nav_search">
         <!-- Suchleiste mit Button -->
         <div class="search-container">
@@ -17,8 +8,9 @@
             type="search"
             class="search"
             placeholder="What are you looking for?"
+            [(ngModel)]="searchValue"
           />
-          <button class="search-button">Suchen!</button>
+          <button class="search-button" (click)="search()">Suchen!</button>
         </div>
       
         <!-- Filteroptionen -->
@@ -36,7 +28,6 @@
         </div>
       </div>
     
-  
       <div class="top-nav_auth">
         <div class="top-nav_auth_sign-up">Sign up</div>
         <div class="top-nav_auth_login" (click)="onNavigateToLogin()">Login</div>
