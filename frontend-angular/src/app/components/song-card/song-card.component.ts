@@ -31,7 +31,6 @@ export class SongCardComponent {
   {
     //TODO: delete and set via api-call
     this.coverUrl = "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228";
-    this.spotifyPlayUrl = "https://open.spotify.com/embed/track/4Zcz6saEkOII3PlXd9gN3o?utm_source=generator";
   }
 
   playThisSong() {

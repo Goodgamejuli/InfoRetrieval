@@ -54,7 +54,7 @@ public class OpenSearchController (DatabaseService databaseService)
                 Lyrics = song.Lyrics,
                 Genre = song.Genre,
                 Release = song.ReleaseDate,
-                Embed = dbEntry.Embed
+                Embed = dbEntry?.Embed ?? ""
             };
         }
 

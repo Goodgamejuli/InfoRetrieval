@@ -36,7 +36,7 @@ export class OpenSearchService {
 
         console.log(params.toString());
 
-        var results = this.http.get<SongDTO[]>(`${this.apiURL}/FindSong`, {params})
+        var results = this.http.get<SongDTO[]>(`${this.apiURL}/FindSongs`, {params})
             .subscribe({
                 next: (songs) => {
                     if(songs.length == 0)
