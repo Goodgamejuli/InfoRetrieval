@@ -10,10 +10,11 @@ import { SongDTO } from '../../models/songDto';
 import { PlaybarComponent } from "../../components/playbar/playbar.component";
 import { SongCardContainerComponent } from "../../components/song-card-container/song-card-container.component";
 import { PlaybarService } from '../../services/playbar.service';
+import { AdminComponent } from "../admin/admin.component";
 
 @Component({
   selector: 'app-home',
-  imports: [TopNavComponent, SongCardComponent, CommonModule, RouterModule, HttpClientModule, AsyncPipe, PlaybarComponent, SongCardContainerComponent],
+  imports: [TopNavComponent, SongCardComponent, CommonModule, RouterModule, HttpClientModule, AsyncPipe, PlaybarComponent, SongCardContainerComponent, AdminComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -21,22 +22,7 @@ export class HomeComponent implements OnInit{
   playbarService = inject(PlaybarService);
   opensearchService = inject(OpenSearchService);
 
-public songCards= [
-    {
-      song_id: 1,
-      thumbnail: 'assets/song_placeholder.png',
-      title: 'Test song',
-      description: 'Test einer song description oder so',
-      song_link: 'assets/songs/test_song.mp3'
-    },
-    {
-      song_id: 1,
-      thumbnail: 'assets/song_placeholder.png',
-      title: 'Test song',
-      description: 'Test einer song description oder so',
-      song_link: ''
-    }
-  ];
+  showAdminPage: boolean = false;
 
   constructor(private searchBarService: SearchBarService) { }
 
@@ -49,8 +35,11 @@ public songCards= [
     this.searchBarService.isSearchVisible.next(false);
   }
 
-  /*
-  onTestClick() {
-    this.opensearchService.getSongTest();
-  }*/
+  onAdminClick() {
+    this.showAdminPage = true;
+  }
+
+  onHomeClick() {
+    this.showAdminPage = false;
+  }
 }

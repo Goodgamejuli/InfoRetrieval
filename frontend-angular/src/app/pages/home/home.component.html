@@ -7,12 +7,12 @@
             <img width="150" class="m-3 text-left" src="assets/spotify_light.png" alt="spotify light logo">
         </div>
         <!--Home Screen-->
-        <div class="home-container_side-bar-item" (click)="onNavigate('home')">
+        <div class="home-container_side-bar-item" (click)="onHomeClick()">
             <a>Home</a>
         </div>
-        <!--Search-->
-        <div class="home-container_side-bar-item" (click)="onNavigate('search')">
-            <a>Search</a>
+        <!--Admin page-->
+        <div class="home-container_side-bar-item" (click)="onAdminClick()">
+            <a>Admin</a>
         </div>
         <!--Own Library-->
         <div class="home-container_side-bar-item" (click)="onNavigate('library')">
@@ -27,29 +27,28 @@
     </div>
     
     <div class="home-main_container col-10">
-        <!-- Top Navigation -->
-        <div class="top-nav-container_div">
-            <app-top-nav></app-top-nav>
-        </div>
-        
-        <app-song-card artist="eminem" title="test"></app-song-card>
+        @if (showAdminPage) {
+            <app-admin></app-admin>
+        }
+        @else {
+            <!-- Top Navigation -->
+            <div class="top-nav-container_div">
+                <app-top-nav></app-top-nav>
+            </div>
 
-        <div class="song-card-container_div">
-            <app-song-card-container></app-song-card-container>
-        </div>
+            <!-- Content to show -->
+            <div class="song-card-container_div">
+                <app-song-card-container></app-song-card-container>
+            </div>
 
-        <!--Playbar-->
-        @if (playbarService.songToPlayUrl != null) {
-        <div class="playbar-container">
-            <app-playbar></app-playbar>
-        </div>
+            <!--Playbar-->
+            @if (playbarService.songToPlayUrl != null) {
+            <div class="playbar-container">
+                <app-playbar></app-playbar>
+            </div>
+        }
     }
     </div>
-
-    
-
-    
-
 </div>
 
  
