@@ -12,7 +12,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
 {
     #region DB_Users
 
-    [HttpPost("DB_Users_Add")]
+    [HttpPost("AddUser")]
     public async Task <ActionResult> AddNewUser([FromBody] SimpleUser user)
     {
         if (await service.InsertUserToDatabase(user))
@@ -25,7 +25,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
 
     #region DB_Basics
 
-    [HttpDelete("DB_Basics_Clear")]
+    [HttpDelete("Clear")]
     public async Task <ActionResult> ClearDatabase(
         bool clearSongs = true,
         bool clearArtists = true,
@@ -49,7 +49,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
 
     #region DB_Songs
 
-    [HttpGet("DB_Songs_GetSong")]
+    [HttpGet("GetSong")]
     public async Task <ActionResult <SongDto>> GetDatabaseSong(string id)
     {
         DatabaseSong? dbSong = await service.GetSong(id);
@@ -67,14 +67,10 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         return Ok(new SongDto(osSong, dbSong));
     }
 
-    [HttpGet("DB_Songs_GetAllSongs")]
+    [HttpGet("GetAllSongs")]
     public async Task <ActionResult <List <SongDto>>> GetAllDatabaseSongs()
     {
-        Console.WriteLine("---------------------------------");
-        
         List <DatabaseSong> songs = await service.GetAllSongs();
-        
-        Console.WriteLine(songs);
         
         if (songs.Count == 0)
             return BadRequest("No songs were found!");
@@ -83,12 +79,8 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         
         foreach (DatabaseSong song in songs)
         {
-            Console.WriteLine(song);
-            
             OpenSearchSongDocument? osSong = await OpenSearchService.Instance.FindSongById(song.Id);
 
-            Console.WriteLine(osSong);
-            
             if (osSong == null)
                 return BadRequest(
                     $"The found db song with the id [{song.Id
@@ -100,7 +92,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         return Ok(songDtOs);
     }
 
-    [HttpGet("DB_Songs_GetAllAlbumSongs")]
+    [HttpGet("GetAllAlbumSongs")]
     public async Task <ActionResult <List <SongDto>>> GetAllAlbumSongs(string albumId)
     {
         Album? album = await service.GetAlbum(albumId);
@@ -130,7 +122,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         return Ok(songDtOs);
     }
 
-    [HttpGet("DB_Songs_GetAllArtistSongs")]
+    [HttpGet("GetAllArtistSongs")]
     public async Task <ActionResult <List <SongDto>>> GetAllArtistSongs(string artistId)
     {
         Artist? artist = await service.GetArtist(artistId);
@@ -164,7 +156,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
 
     #region DB_Albums
 
-    [HttpGet("DB_Albums_GetAlbum")]
+    [HttpGet("GetAlbum")]
     public async Task <ActionResult <Album>> GetAllDatabaseAlbum(string id)
     {
         Album? album = await service.GetAlbum(id);
@@ -175,7 +167,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         return Ok(album);
     }
 
-    [HttpGet("DB_Albums_GetAllAlbums")]
+    [HttpGet("GetAllAlbums")]
     public async Task <ActionResult <List <Album>>> GetAllDatabaseAlbums()
     {
         List <Album> albums = await service.GetAllAlbums();
@@ -186,7 +178,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         return Ok(albums);
     }
 
-    [HttpGet("DB_Songs_GetAllArtistAlbums")]
+    [HttpGet("GetAllArtistAlbums")]
     public async Task <ActionResult <List <DatabaseSong>>> GetAllArtistAlbums(string artistId)
     {
         Artist? artist = await service.GetArtist(artistId);
@@ -206,7 +198,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
 
     #region DB_Artists
 
-    [HttpGet("DB_Artists_GetArtist")]
+    [HttpGet("GetArtist")]
     public async Task <ActionResult <Artist>> GetAllDatabaseArtist(string id)
     {
         Artist? artist = await service.GetArtist(id);
@@ -217,7 +209,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         return Ok(artist);
     }
 
-    [HttpGet("DB_Artists_GetAllArtists")]
+    [HttpGet("GetAllArtists")]
     public async Task <ActionResult <List <Artist>>> GetAllDatabaseArtists()
     {
         List <Artist> artists = await service.GetAllArtists();
@@ -232,7 +224,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
 
     #region DB_LastListening
 
-    [HttpPost("DB_LastListened_AddSong")]
+    [HttpPost("AddLastListenedSong")]
     public async Task <ActionResult> AddLastListenSong([FromBody] SimpleLastListenedSong lastListenedSong)
     {
         if (await service.AddLastListenSongForUser(lastListenedSong))
@@ -241,7 +233,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         return BadRequest("Song could not get added!");
     }
 
-    [HttpGet("DB_LastListened_GetSongs")]
+    [HttpGet("GetLastListenedSongs")]
     public async Task <ActionResult <List <SongDto>>> GetLastListenedSongsOfUser(Guid userId, int amount)
     {
         List <SongDto>? songs = await service.GetLastListenedSongsOfUser(userId, amount);
