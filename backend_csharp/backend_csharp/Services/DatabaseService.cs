@@ -3,162 +3,229 @@ using backend_csharp.Helper;
 using backend_csharp.Models;
 using backend_csharp.Models.Database;
 using backend_csharp.Models.Database.DTOs;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend_csharp.Services
+namespace backend_csharp.Services;
+
+public class DatabaseService(DataContext dataContext)
 {
-    public class DatabaseService
+    #region Public Methods
+
+    public async Task ClearDatabase(
+        bool clearSongs,
+        bool clearArtists,
+        bool clearAlbums,
+        bool clearLastListenedSongs,
+        bool clearUsers,
+        bool clearPlaylists)
     {
-        private readonly DataContext _context;
+        if (clearSongs)
+            ClearDbSet(dataContext.DatabaseSongs);
 
-        public DatabaseService(DataContext dataContext)
+        if (clearArtists)
+            ClearDbSet(dataContext.Artists);
+
+        if (clearAlbums)
+            ClearDbSet(dataContext.Albums);
+
+        if (clearLastListenedSongs)
+            ClearDbSet(dataContext.LastListenedSongs);
+
+        if (clearUsers)
+            ClearDbSet(dataContext.Users);
+
+        if (clearPlaylists)
+            ClearDbSet(dataContext.Playlists);
+
+        await dataContext.SaveChangesAsync();
+    }
+
+    public async Task <Album?> GetAlbum(string id)
+    {
+        return await dataContext.Albums.FirstOrDefaultAsync(x => x.Id.Equals(id));
+    }
+
+    public async Task <List <Album>> GetAllAlbums()
+    {
+        return await dataContext.Albums.ToListAsync();
+    }
+
+    public async Task <List <DatabaseSong>> GetAllAlbumSongs(string albumId)
+    {
+        Album? album = await dataContext.Albums.Include(album => album.Songs).
+                                         FirstOrDefaultAsync(x => x.Id == albumId);
+
+        return album == null ? [] : album.Songs.ToList();
+    }
+
+    public async Task <List <Album>> GetAllArtistAlbums(string artistId)
+    {
+        Artist? artist = await dataContext.Artists.Include(artist => artist.Albums).
+                                           FirstOrDefaultAsync(x => x.Id == artistId);
+
+        return artist == null ? [] : artist.Albums.ToList();
+    }
+
+    public async Task <List <Artist>> GetAllArtists()
+    {
+        return await dataContext.Artists.ToListAsync();
+    }
+
+    public async Task <List <DatabaseSong>> GetAllArtistSongs(string artistId)
+    {
+        Artist? artist = await dataContext.Artists.Include(artist => artist.Albums).
+                                           ThenInclude(album => album.Songs).
+                                           FirstOrDefaultAsync(x => x.Id == artistId);
+
+        return artist == null ? [] : artist.Albums.SelectMany(album => album.Songs).ToList();
+    }
+
+    public async Task <Artist?> GetArtist(string id)
+    {
+        return await dataContext.Artists.FirstOrDefaultAsync(x => x.Id.Equals(id));
+    }
+
+    #region UserSpecific
+
+    public async Task <bool> InsertUserToDatabase(SimpleUser simpleUser)
+    {
+        try
         {
-            _context = dataContext;
+            var user = simpleUser.ToUser();
+            await dataContext.Users.AddAsync(user);
+            await dataContext.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+
+            return false;
         }
 
-        #region UserSpecific
+        return true;
+    }
 
-        public async Task <bool> InsertUserToDatabase(SimpleUser simpleUser)
+    #endregion
+
+    public async Task <Album> TryInsertOrGetExistingAlbum(Album album)
+    {
+        Album? foundAlbum = await dataContext.Albums.FirstOrDefaultAsync(x => x.Id == album.Id);
+
+        if (foundAlbum != null)
+            return foundAlbum;
+
+        await dataContext.Albums.AddAsync(album);
+        await dataContext.SaveChangesAsync();
+
+        return album;
+    }
+
+    public async Task <Artist> TryInsertOrGetExistingArtist(Artist artist)
+    {
+        Artist? foundArtist = await dataContext.Artists.FirstOrDefaultAsync(x => x.Id == artist.Id);
+
+        if (foundArtist != null)
+            return foundArtist;
+
+        await dataContext.Artists.AddAsync(artist);
+        await dataContext.SaveChangesAsync();
+
+        return artist;
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private static void ClearDbSet <T>(DbSet <T> entries) where T : class
+    {
+        foreach (T entity in entries)
+            entries.Remove(entity);
+    }
+
+    #endregion
+
+    #region LastListenedSong Specific
+
+    public async Task <bool> AddLastListenSongForUser(SimpleLastListenedSong simpleLastListenedSong)
+    {
+        try
         {
-            try
-            {
-                var user = simpleUser.ToUser();
-                await _context.Users.AddAsync(user);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+            var lastListenedSong = simpleLastListenedSong.ToLastListenedSong();
+            await dataContext.LastListenedSongs.AddAsync(lastListenedSong);
+            await dataContext.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
 
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
-        #endregion
+        return true;
+    }
 
-        #region LastListenedSong Specific
+    public async Task <List <SongDto>?> GetLastListenedSongsOfUser(Guid userId, int amount)
+    {
+        User? user = await dataContext.Users.Include(x => x.LastListenedSongs).
+                                       ThenInclude(x => x.DatabaseSong).
+                                       FirstOrDefaultAsync(x => x.Id == userId);
 
-        public async Task <bool> AddLastListenSongForUser(SimpleLastListenedSong simpleLastListenedSong)
+        if (user == null)
+            return null;
+
+        // Order the results and only pick the wanted amount
+        List <LastListenedSong> listenedSongs =
+            user.LastListenedSongs.OrderBy(x => x.LastListenedTo).Take(amount).ToList();
+
+        List <SongDto> lastListenedSongs = [];
+
+        foreach (LastListenedSong listenedSong in listenedSongs)
         {
-            try
-            {
-                var lastListenedSong = simpleLastListenedSong.ToLastListenedSong();
-                await _context.LastListenedSongs.AddAsync(lastListenedSong);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+            OpenSearchSongDocument? osSong =
+                await OpenSearchService.Instance.FindSongById(listenedSong.DatabaseSong.Id);
 
-                return false;
-            }
+            DatabaseSong? dbSong = await GetSong(listenedSong.DatabaseSongId);
 
-            return true;
+            if (osSong == null || dbSong == null)
+                continue;
+
+            lastListenedSongs.Add(new SongDto(osSong, dbSong));
         }
 
-        public async Task <List <SongDto>> GetLastListenedSongsOfUser(Guid userId, int amount)
+        return lastListenedSongs;
+    }
+
+    #endregion
+
+    #region DatabaseSong Specific
+
+    public async Task InsertSongIntoDatabase(DatabaseSong song)
+    {
+        try
         {
-            var user = await _context.Users
-                                     .Include(x => x.LastListenedSongs)
-                                     .ThenInclude(x => x.DatabaseSong)
-                                     .FirstOrDefaultAsync(x => x.Id == userId);
-
-            if (user == null)
-                return null;
-
-            // Order the results and only pick the wanted amount
-            List <LastListenedSong> dbSongs = user.LastListenedSongs
-                                                  .OrderBy(x => x.LastListenedTo)
-                                                  .Take(amount)
-                                                  .ToList();
-            
-            List<SongDto> lastListenedSongs = new List<SongDto>();
-
-
-
-            foreach (LastListenedSong lastListenedSong in dbSongs)
-            {
-                if(lastListenedSong?.DatabaseSong == null)
-                    continue;
-
-                var song = await OpenSearchService.Instance.FindSongById(lastListenedSong.DatabaseSong.Id);
-
-                if(song == null)
-                    continue;
-
-                lastListenedSongs.Add(song.ToSongDto());
-            }
-
-            return lastListenedSongs;
+            await dataContext.DatabaseSongs.AddAsync(song);
+            await dataContext.SaveChangesAsync();
         }
-
-        #endregion
-
-        #region DatabaseSong Specific
-        
-        public async Task<bool> InsertSongIntoDatabase(DatabaseSong song)
+        catch (Exception e)
         {
-            try
-            {
-                await _context.DatabaseSongs.AddAsync(song);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-
-                return false;
-            }
-
-            return true;
-        }
-
-        public async Task <DatabaseSong> GetSongFromDatabase(string songId)
-        {
-            var song = await _context.DatabaseSongs
-                                     .Include(x => x.LastListenedSongs)
-                                     .Include(x => x.Album)
-                                     .FirstOrDefaultAsync(x => x.Id.Equals(songId));
-
-            return song;
-        }
-
-        #endregion
-
-        public async Task<object?> GetEmbedOfSong(string id)
-        {
-            DatabaseSong song = await GetSongFromDatabase(id);
-
-            return song.Embed;
-        }
-
-        public async Task<Artist> TryInsertOrGetExistingArtist(Artist artist)
-        {
-            Artist? foundArtist = await _context.Artists.FirstOrDefaultAsync(x => x.Id == artist.Id);
-
-            if (foundArtist != null)
-                return foundArtist;
-
-            await _context.Artists.AddAsync(artist);
-            await _context.SaveChangesAsync();
-            
-            return artist;
-        }
-
-        public async Task<Album> TryInsertOrGetExistingAlbum(Album album)
-        {
-            Album? foundAlbum = await _context.Albums.FirstOrDefaultAsync(x => x.Id == album.Id);
-
-            if (foundAlbum != null)
-                return foundAlbum;
-
-            await _context.Albums.AddAsync(album);
-            await _context.SaveChangesAsync();
-            
-            return album;
+            Console.WriteLine(e);
         }
     }
+
+    public async Task <DatabaseSong?> GetSong(string songId)
+    {
+        DatabaseSong? song = await dataContext.DatabaseSongs.Include(x => x.LastListenedSongs).
+                                               Include(x => x.Album).
+                                               FirstOrDefaultAsync(x => x.Id.Equals(songId));
+
+        return song;
+    }
+
+    public async Task <List <DatabaseSong>> GetAllSongs()
+    {
+        return await dataContext.DatabaseSongs.Include(song => song.Album).ToListAsync();
+    }
+
+    #endregion
 }

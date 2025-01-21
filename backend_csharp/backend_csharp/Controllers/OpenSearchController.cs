@@ -44,20 +44,9 @@ public class OpenSearchController (DatabaseService databaseService)
         {
             OpenSearchSongDocument song = songs[i];
 
-            DatabaseSong dbEntry = await databaseService.GetSongFromDatabase(song.Id);
-            
-            output[i] = new SongDto
-            {
-                Id = song.Id,
-                Title = song.Title,
-                Album = song.AlbumTitle,
-                Artist = song.ArtistName,
-                Lyrics = song.Lyrics,
-                Genre = song.Genre,
-                Release = song.ReleaseDate,
-                Embed = dbEntry.Embed,
-                Cover = dbEntry.Album.CoverUrl
-            };
+            DatabaseSong dbEntry = await databaseService.GetSong(song.Id);
+
+            output[i] = new SongDto(song, dbEntry);
         }
 
         return Ok(output);

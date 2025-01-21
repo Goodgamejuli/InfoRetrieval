@@ -105,14 +105,12 @@ public class OpenSearchService
         return output?.ToArray();
     }
 
-    public async Task <OpenSearchSongDocument> FindSongById(string id)
+    public async Task <OpenSearchSongDocument?> FindSongById(string id)
     {
-        var response = await _client.GetAsync <OpenSearchSongDocument>(id, g => g.Index(Indexname));
+        GetResponse <OpenSearchSongDocument>? response =
+            await _client.GetAsync <OpenSearchSongDocument>(id, g => g.Index(Indexname));
 
-        if (response.Found)
-            return response.Source;
-        else
-            return null;
+        return response.Found ? response.Source : null;
     }
 
     #endregion
