@@ -107,10 +107,84 @@ public class DatabaseService(DataContext dataContext)
 
     #endregion
 
+    private async Task<Album?> ReplaceAlbumId(Album album, string newId)
+    {
+        Album? oldAlbum = await dataContext.Albums.Include(x => x.Songs).FirstOrDefaultAsync(x => x.Id.Equals(album.Id));
+
+        if (oldAlbum == null)
+            return null;
+
+        var newAlbum = new Album
+        {
+            Id = newId,
+            Name = oldAlbum.Name,
+            ArtistId = oldAlbum.ArtistId,
+            CoverUrl = oldAlbum.CoverUrl,
+            Songs = oldAlbum.Songs
+        };
+
+        foreach (DatabaseSong song in oldAlbum.Songs)
+        {
+            song.AlbumId = newAlbum.Id;
+        }
+
+        dataContext.Albums.Remove(oldAlbum);
+        dataContext.Albums.Add(newAlbum);
+        
+        await dataContext.SaveChangesAsync();
+
+        return newAlbum;
+    }
+    
+    private async Task<Artist?> ReplaceArtistId(Artist artist, string newId)
+    {
+        Artist? oldArtist = await dataContext.Artists.Include(x => x.Albums).FirstOrDefaultAsync(x => x.Id.Equals(artist.Id));
+
+        if (oldArtist == null)
+            return null;
+
+        var newArtist = new Artist
+        {
+            Id = newId,
+            Name = oldArtist.Name,
+            CoverUrl = oldArtist.CoverUrl,
+            Albums = oldArtist.Albums
+        };
+
+        foreach (Album album in oldArtist.Albums)
+        {
+            album.ArtistId = newArtist.Id;
+        }
+
+        dataContext.Artists.Remove(oldArtist);
+        dataContext.Artists.Add(newArtist);
+        
+        await dataContext.SaveChangesAsync();
+
+        return newArtist;
+    }
+    
     public async Task <Album> TryInsertOrGetExistingAlbum(Album album)
     {
-        Album? foundAlbum = await dataContext.Albums.FirstOrDefaultAsync(x => x.Id == album.Id);
+        Album? foundAlbum;
 
+        if (album.Id.StartsWith("mbid_"))
+        {
+            foundAlbum = await dataContext.Albums.FirstOrDefaultAsync(
+                x => (!x.Id.StartsWith("mbid_") && x.Name.Equals(album.Name)) || x.Id.Equals(album.Id));
+        }
+        else
+        {
+            foundAlbum = await dataContext.Albums.FirstOrDefaultAsync(
+                x => (x.Id.StartsWith("mbid_") && x.Name.Equals(album.Name)) || x.Id.Equals(album.Id));
+
+            if (foundAlbum != null)
+            {
+                if (foundAlbum.Id.StartsWith("mbid_"))
+                    foundAlbum = await ReplaceAlbumId(foundAlbum, album.Id);
+            }
+        }
+        
         if (foundAlbum != null)
             return foundAlbum;
 
@@ -122,7 +196,24 @@ public class DatabaseService(DataContext dataContext)
 
     public async Task <Artist> TryInsertOrGetExistingArtist(Artist artist)
     {
-        Artist? foundArtist = await dataContext.Artists.FirstOrDefaultAsync(x => x.Id == artist.Id);
+        Artist? foundArtist;
+
+        if (artist.Id.StartsWith("mbid_"))
+        {
+            foundArtist = await dataContext.Artists.FirstOrDefaultAsync(
+                x => (!x.Id.StartsWith("mbid_") && x.Name.Equals(artist.Name)) || x.Id.Equals(artist.Id));
+        }
+        else
+        {
+            foundArtist = await dataContext.Artists.FirstOrDefaultAsync(
+                x => (x.Id.StartsWith("mbid_") && x.Name.Equals(artist.Name)) || x.Id.Equals(artist.Id));
+
+            if (foundArtist != null)
+            {
+                if (foundArtist.Id.StartsWith("mbid_"))
+                    foundArtist = await ReplaceArtistId(foundArtist, artist.Id);
+            }
+        }
 
         if (foundArtist != null)
             return foundArtist;

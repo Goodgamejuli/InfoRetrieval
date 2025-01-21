@@ -70,9 +70,9 @@ public class OpenSearchService
 
         return new Tuple <OpenSearchSongDocument?, string?, string?, string?, string?>(
             osDocument,
-            spotifySongData?.artistId,
+            spotifySongData?.artistId ?? (mbSongData?.artistId ?? string.Empty),
             spotifySongData?.artistCoverUrl,
-            spotifySongData?.albumId,
+            spotifySongData?.albumId ?? (mbSongData?.albumId ?? string.Empty),
             spotifySongData?.albumCoverUrl);
     }
 

@@ -75,7 +75,9 @@ public static class MusicBrainzApiService
         {
             id = $"mbid_{track.Id.ToString()}",
             title = track.Title,
+            albumId = $"mbid_{releaseRecording.ToString()}",
             albumTitle = GetAlbumTitleOfRecording(query, releaseRecording),
+            artistId = $"mbid_{artist.Id.ToString()}",
             artistName = artist.Name,
             genres = genres,
             releaseDate = releaseDate
@@ -146,6 +148,8 @@ public static class MusicBrainzApiService
         while (recordings.Results.Count > 0);
 
         Console.WriteLine($"Queried {allRecordings.Count} recordings");
+        
+        Console.WriteLine("This could take a while...");
 
         return allRecordings.Count > 0 ? allRecordings : null;
     }

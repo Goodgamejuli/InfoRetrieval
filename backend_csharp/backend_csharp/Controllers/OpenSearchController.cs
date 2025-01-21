@@ -60,11 +60,11 @@ public class OpenSearchController(DatabaseService databaseService)
             if (string.IsNullOrEmpty(albumId))
                 continue;
 
-            await databaseService.TryInsertOrGetExistingArtist(
+            Artist artist = await databaseService.TryInsertOrGetExistingArtist(
                 new Artist {Id = artistId, Name = osDocument.ArtistName, CoverUrl = data.Item3});
 
             Album album = await databaseService.TryInsertOrGetExistingAlbum(
-                new Album {Id = albumId, Name = osDocument.AlbumTitle, ArtistId = artistId, CoverUrl = data.Item5});
+                new Album {Id = albumId, Name = osDocument.AlbumTitle, ArtistId = artist.Id, CoverUrl = data.Item5});
 
             DatabaseSong? dbSong = await databaseService.InsertSongIntoDatabase(
                 new DatabaseSong {Id = osDocument.Id, Embed = osDocument.GenerateSongEmbed(), AlbumId = album.Id});
