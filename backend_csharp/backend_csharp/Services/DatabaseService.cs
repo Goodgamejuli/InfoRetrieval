@@ -17,6 +17,15 @@ namespace backend_csharp.Services
             _context = dataContext;
         }
 
+        public bool RemigrateDatabase()
+        {
+            _context.Database.EnsureDeleted();
+
+            _context.Database.Migrate();
+
+            return _context.Database.CanConnect();
+        }
+
         #region UserSpecific
 
         public async Task <bool> InsertUserToDatabase(SimpleUser simpleUser)

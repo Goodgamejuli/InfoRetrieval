@@ -20,6 +20,22 @@ namespace backend_csharp.Controllers
             _databaseService = service;
         }
 
+        /// <summary>
+        /// Deletes the old db and creates a new.
+        /// All data will get deleted
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("RemigrateDatabase")]
+        public ActionResult RemigrateDatabase()
+        {
+            var creationSuccessful = _databaseService.RemigrateDatabase();
+
+            if (!creationSuccessful)
+                return BadRequest("Database could not get instantiated again");
+
+            return Ok("New database successfully created!");
+        }
+
         #region User Specific
 
         [HttpPost("Users")]
