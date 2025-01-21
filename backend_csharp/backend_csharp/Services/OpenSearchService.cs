@@ -39,12 +39,20 @@ public class OpenSearchService
             CrawlSongData? mbSongData)
     {
         if (spotifySongData == null && mbSongData == null)
+        {
+            Console.WriteLine("Failed: No data provided!");
+            
             return null;
+        }
 
         var id = GenerateOsdId(spotifySongData, mbSongData);
 
         if (string.IsNullOrEmpty(id))
+        {
+            Console.WriteLine("Failed: Missing song id!");
+            
             return null;
+        }
 
         var title = GenerateOsdTitle(spotifySongData, mbSongData);
         var artistName = GenerateOsdArtistName(spotifySongData, mbSongData);

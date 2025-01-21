@@ -29,6 +29,8 @@ public class SpotifyApiService
 
     public async Task <OpenSearchService.CrawlSongData[]?> CrawlAllSongsOfArtist(string artistName)
     {
+        Console.WriteLine("Crawling songs from spotify...");
+        
         FullArtist? artist = await SearchForArtist(artistName);
 
         if (artist == null)
@@ -55,8 +57,12 @@ public class SpotifyApiService
                     {
                         id = song.Id,
                         title = song.Name,
+                        albumId = album.Id,
                         albumTitle = album.Name,
+                        albumCoverUrl = album.Images[0].Url,
+                        artistId = artist.Id,
                         artistName = artist.Name,
+                        artistCoverUrl = artist.Images[0].Url,
                         genres = artist.Genres.ToArray(),
                         releaseDate = new PartialDate(album.ReleaseDate)
                     });

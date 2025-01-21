@@ -11,6 +11,8 @@ public static class MusicBrainzApiService
 
     public static async Task <OpenSearchService.CrawlSongData[]?> CrawlAllSongsOfArtist(string artistName)
     {
+        Console.WriteLine("Crawling songs from musicBrainz...");
+        
         var query = new Query("InfoManagement", "0.0.1", "tiogiras@gmail.com");
 
         IArtist? artist = await query.QueryArtist(artistName);

@@ -21,6 +21,8 @@ public class OpenSearchController(DatabaseService databaseService)
         OpenSearchService.CrawlSongData[]? spotifyData = null;
         OpenSearchService.CrawlSongData[]? musicBrainzData = null;
 
+        Console.WriteLine($"Crawling songs for artist [{artistName}]...");
+        
         if (useSpotifyApi)
             spotifyData = await SpotifyApiService.Instance.CrawlAllSongsOfArtist(artistName);
 
@@ -38,6 +40,8 @@ public class OpenSearchController(DatabaseService databaseService)
 
         for (var i = 0; i < elementCount; i++)
         {
+            Console.WriteLine($"Trying to generate osDocument for song {i + 1}/{elementCount}!");
+            
             Tuple <OpenSearchSongDocument?, string?, string?, string?, string?>? data =
                 await OpenSearchService.GenerateOpenSearchDocument(spotifyData?[i], musicBrainzData?[i]);
 
@@ -68,7 +72,11 @@ public class OpenSearchController(DatabaseService databaseService)
             if (dbSong == null)
                 continue;
 
+            Console.WriteLine("Song was added to the database!");
+            
             await OpenSearchService.Instance.IndexNewSong(osDocument);
+            
+            Console.WriteLine("Song was added to openSearch!");
 
             output.Add(new SongDto(osDocument, dbSong));
         }
