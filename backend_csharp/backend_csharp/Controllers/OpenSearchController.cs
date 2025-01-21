@@ -70,6 +70,42 @@ public class OpenSearchController(DatabaseService databaseService)
         return Ok(output);
     }
 
+    [HttpPost("CrawlAllSongsOfArtist")]
+    public async Task <ActionResult <SongDto>> CrawlAllSongsOfArtist(
+        string artistName,
+        bool useSpotifyApi = true,
+        bool useMusicBrainzApi = true)
+    {
+        OpenSearchService.CrawlSongData[]? spotifyData = null;
+        OpenSearchService.CrawlSongData[]? musicBrainzData = null;
+        
+        if (useSpotifyApi)
+            spotifyData = await SpotifyApiService.Instance.CrawlAllSongsOfArtist(artistName);
+        
+        if (useMusicBrainzApi)
+            musicBrainzData = await MusicBrainzApiService.CrawlAllSongsOfArtist(artistName);
+        
+        if (spotifyData is not {Length: > 0} && musicBrainzData is not {Length: > 0})
+            return BadRequest("At least one api is required to crawl songs of an artist!");
+
+        var elementCount = (spotifyData?.Length ?? 0) > (musicBrainzData?.Length ?? 0)
+            ? spotifyData!.Length
+            : musicBrainzData!.Length;
+
+        List <OpenSearchSongDocument> osSongs = [];
+        
+        for (var i = 0; i < elementCount; i++)
+        {
+            OpenSearchSongDocument? osDocument =
+                await OpenSearchService.GenerateOpenSearchDocument(spotifyData?[i], musicBrainzData?[i]);
+            
+            if (osDocument != null)
+                osSongs.Add(osDocument);
+        }
+        
+        return null;
+    }
+
     [HttpPost("IndexArtistSongsInOpenSearch_MusicBrainz/{artistName}")]
     public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchMusicBrainz(string artistName)
     {
@@ -90,7 +126,7 @@ public class OpenSearchController(DatabaseService databaseService)
     public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchSpotify(string artistName)
     {
         Tuple <FullArtist, List <FullAlbum>, List <OpenSearchSongDocument>> data =
-            await SpotifyAPIService.Instance.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
+            await SpotifyApiService.Instance.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
 
         if (data.Item3 is not {Count: > 0})
             return BadRequest("No song was found for the given artist");
