@@ -2,7 +2,6 @@
 using backend_csharp.Models.Database;
 using backend_csharp.Services;
 using Microsoft.AspNetCore.Mvc;
-using SpotifyAPI.Web;
 
 namespace backend_csharp.Controllers;
 
@@ -12,6 +11,70 @@ public class OpenSearchController(DatabaseService databaseService)
     : ControllerBase
 {
     #region Public Methods
+
+    [HttpPost("CrawlAllSongsOfArtist")]
+    public async Task <ActionResult <SongDto[]?>> CrawlAllSongsOfArtist(
+        string artistName,
+        bool useSpotifyApi = true,
+        bool useMusicBrainzApi = true)
+    {
+        OpenSearchService.CrawlSongData[]? spotifyData = null;
+        OpenSearchService.CrawlSongData[]? musicBrainzData = null;
+
+        if (useSpotifyApi)
+            spotifyData = await SpotifyApiService.Instance.CrawlAllSongsOfArtist(artistName);
+
+        if (useMusicBrainzApi)
+            musicBrainzData = await MusicBrainzApiService.CrawlAllSongsOfArtist(artistName);
+
+        if (spotifyData is not {Length: > 0} && musicBrainzData is not {Length: > 0})
+            return BadRequest("At least one api is required to crawl songs of an artist!");
+
+        var elementCount = (spotifyData?.Length ?? 0) > (musicBrainzData?.Length ?? 0)
+            ? spotifyData!.Length
+            : musicBrainzData!.Length;
+
+        List <SongDto> output = [];
+
+        for (var i = 0; i < elementCount; i++)
+        {
+            Tuple <OpenSearchSongDocument?, string?, string?, string?, string?>? data =
+                await OpenSearchService.GenerateOpenSearchDocument(spotifyData?[i], musicBrainzData?[i]);
+
+            OpenSearchSongDocument? osDocument = data?.Item1;
+
+            if (osDocument == null)
+                continue;
+
+            var artistId = data!.Item2;
+
+            if (string.IsNullOrEmpty(artistId))
+                continue;
+
+            var albumId = data.Item4;
+
+            if (string.IsNullOrEmpty(albumId))
+                continue;
+
+            await databaseService.TryInsertOrGetExistingArtist(
+                new Artist {Id = artistId, Name = osDocument.ArtistName, CoverUrl = data.Item3});
+
+            Album album = await databaseService.TryInsertOrGetExistingAlbum(
+                new Album {Id = albumId, Name = osDocument.AlbumTitle, ArtistId = artistId, CoverUrl = data.Item5});
+
+            DatabaseSong? dbSong = await databaseService.InsertSongIntoDatabase(
+                new DatabaseSong {Id = osDocument.Id, Embed = osDocument.GenerateSongEmbed(), AlbumId = album.Id});
+
+            if (dbSong == null)
+                continue;
+
+            await OpenSearchService.Instance.IndexNewSong(osDocument);
+
+            output.Add(new SongDto(osDocument, dbSong));
+        }
+
+        return output.ToArray();
+    }
 
     /// <summary>
     ///     This method creates the index for the openSearch songs in openSearch.
@@ -63,50 +126,16 @@ public class OpenSearchController(DatabaseService databaseService)
 
             if (dbSong == null)
                 return BadRequest($"The found os song with the id [{osSong.Id}] has not been added to the database!");
-            
+
             output[i] = new SongDto(osSong, dbSong);
         }
 
         return Ok(output);
     }
 
-    [HttpPost("CrawlAllSongsOfArtist")]
-    public async Task <ActionResult <SongDto>> CrawlAllSongsOfArtist(
-        string artistName,
-        bool useSpotifyApi = true,
-        bool useMusicBrainzApi = true)
-    {
-        OpenSearchService.CrawlSongData[]? spotifyData = null;
-        OpenSearchService.CrawlSongData[]? musicBrainzData = null;
-        
-        if (useSpotifyApi)
-            spotifyData = await SpotifyApiService.Instance.CrawlAllSongsOfArtist(artistName);
-        
-        if (useMusicBrainzApi)
-            musicBrainzData = await MusicBrainzApiService.CrawlAllSongsOfArtist(artistName);
-        
-        if (spotifyData is not {Length: > 0} && musicBrainzData is not {Length: > 0})
-            return BadRequest("At least one api is required to crawl songs of an artist!");
+    #endregion
 
-        var elementCount = (spotifyData?.Length ?? 0) > (musicBrainzData?.Length ?? 0)
-            ? spotifyData!.Length
-            : musicBrainzData!.Length;
-
-        List <OpenSearchSongDocument> osSongs = [];
-        
-        for (var i = 0; i < elementCount; i++)
-        {
-            OpenSearchSongDocument? osDocument =
-                await OpenSearchService.GenerateOpenSearchDocument(spotifyData?[i], musicBrainzData?[i]);
-            
-            if (osDocument != null)
-                osSongs.Add(osDocument);
-        }
-        
-        return null;
-    }
-
-    [HttpPost("IndexArtistSongsInOpenSearch_MusicBrainz/{artistName}")]
+    /*[HttpPost("IndexArtistSongsInOpenSearch_MusicBrainz/{artistName}")]
     public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchMusicBrainz(string artistName)
     {
         List <OpenSearchSongDocument>? songs =
@@ -159,7 +188,5 @@ public class OpenSearchController(DatabaseService databaseService)
         }
 
         return Ok(data.Item3);
-    }
-
-    #endregion
+    }*/
 }

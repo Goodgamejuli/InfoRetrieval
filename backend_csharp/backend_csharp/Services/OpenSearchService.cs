@@ -8,7 +8,11 @@ public class OpenSearchService
 {
     public class CrawlSongData
     {
+        public string? albumCoverUrl;
+        public string? albumId;
         public string? albumTitle;
+        public string? artistCoverUrl;
+        public string? artistId;
         public string? artistName;
         public string[]? genres;
         public string? id;
@@ -28,6 +32,41 @@ public class OpenSearchService
     }
 
     #region Public Methods
+
+    public static async Task <Tuple <OpenSearchSongDocument?, string?, string?, string?, string?>?>
+        GenerateOpenSearchDocument(
+            CrawlSongData? spotifySongData,
+            CrawlSongData? mbSongData)
+    {
+        if (spotifySongData == null && mbSongData == null)
+            return null;
+
+        var id = GenerateOsdId(spotifySongData, mbSongData);
+
+        if (string.IsNullOrEmpty(id))
+            return null;
+
+        var title = GenerateOsdTitle(spotifySongData, mbSongData);
+        var artistName = GenerateOsdArtistName(spotifySongData, mbSongData);
+
+        var osDocument = new OpenSearchSongDocument
+        {
+            Id = id,
+            Title = title,
+            AlbumTitle = GenerateOsdAlbumTitle(spotifySongData, mbSongData),
+            ArtistName = artistName,
+            ReleaseDate = GenerateOsdReleaseDate(spotifySongData, mbSongData),
+            Genre = GenerateOsdGenre(spotifySongData, mbSongData),
+            Lyrics = await GenerateOsdLyrics(artistName, title)
+        };
+
+        return new Tuple <OpenSearchSongDocument?, string?, string?, string?, string?>(
+            osDocument,
+            spotifySongData?.artistId,
+            spotifySongData?.artistCoverUrl,
+            spotifySongData?.albumId,
+            spotifySongData?.albumCoverUrl);
+    }
 
     /// <summary>
     ///     Crate the index for our songDocuments in OpenSearch
@@ -63,40 +102,15 @@ public class OpenSearchService
         return response.Found ? response.Source : null;
     }
 
-    public static async Task <OpenSearchSongDocument?> GenerateOpenSearchDocument(
-        CrawlSongData? spotifySongData,
-        CrawlSongData? mbSongData)
-    {
-        if (spotifySongData == null && mbSongData == null)
-            return null;
-
-        var id = GenerateOsdId(spotifySongData, mbSongData);
-
-        if (string.IsNullOrEmpty(id))
-            return null;
-
-        var title = GenerateOsdTitle(spotifySongData, mbSongData);
-        var artistName = GenerateOsdArtistName(spotifySongData, mbSongData);
-
-        return new OpenSearchSongDocument
-        {
-            Id = id,
-            Title = title,
-            AlbumTitle = GenerateOsdAlbumTitle(spotifySongData, mbSongData),
-            ArtistName = artistName,
-            ReleaseDate = GenerateOsdReleaseDate(spotifySongData, mbSongData),
-            Genre = GenerateOsdGenre(spotifySongData, mbSongData),
-            Lyrics = await GenerateOsdLyrics(artistName, title)
-        };
-    }
-
     /// <summary>
     ///     Adds a song to OpenSearch
     /// </summary>
     /// <param name="song"></param>
-    /// <returns></returns>
-    public async Task IndexNewSong(OpenSearchSongDocument song)
+    public async Task IndexNewSong(OpenSearchSongDocument? song)
     {
+        if (song == null)
+            return;
+
         IndexResponse? response = await _client.IndexAsync(song, i => i.Index(IndexName));
 
         Console.WriteLine(response.DebugInformation);
@@ -149,7 +163,7 @@ public class OpenSearchService
 
         output.Sort();
 
-        return output?.ToArray();
+        return output.ToArray();
     }
 
     #endregion

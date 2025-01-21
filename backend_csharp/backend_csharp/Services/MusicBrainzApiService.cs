@@ -71,7 +71,7 @@ public static class MusicBrainzApiService
 
         return new OpenSearchService.CrawlSongData
         {
-            id = track.Id.ToString(),
+            id = $"mbid_{track.Id.ToString()}",
             title = track.Title,
             albumTitle = GetAlbumTitleOfRecording(query, releaseRecording),
             artistName = artist.Name,

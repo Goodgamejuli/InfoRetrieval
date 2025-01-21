@@ -200,7 +200,7 @@ public class DatabaseService(DataContext dataContext)
 
     #region DatabaseSong Specific
 
-    public async Task InsertSongIntoDatabase(DatabaseSong song)
+    public async Task<DatabaseSong?> InsertSongIntoDatabase(DatabaseSong song)
     {
         try
         {
@@ -210,7 +210,11 @@ public class DatabaseService(DataContext dataContext)
         catch (Exception e)
         {
             Console.WriteLine(e);
+
+            return null;
         }
+
+        return song;
     }
 
     public async Task <DatabaseSong?> GetSong(string songId)
