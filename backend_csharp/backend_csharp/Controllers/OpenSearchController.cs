@@ -8,16 +8,15 @@ namespace backend_csharp.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class OpenSearchController (DatabaseService databaseService)
+public class OpenSearchController(DatabaseService databaseService)
     : ControllerBase
 {
     #region Public Methods
 
     /// <summary>
-    ///     This method creates the index for the opensearchsongs in openSearch.
+    ///     This method creates the index for the openSearch songs in openSearch.
     ///     This should not be called by any api in the frontend but needed to create the index once.
     /// </summary>
-    /// <returns></returns>
     [HttpPut]
     public async Task <ActionResult> CreateOpenSearchIndexForSongs()
     {
@@ -26,41 +25,49 @@ public class OpenSearchController (DatabaseService databaseService)
         return Ok(response);
     }
 
+    [HttpGet("FindSong")]
+    public async Task <ActionResult <SongDto>> FindSongById(string id)
+    {
+        OpenSearchSongDocument? osSong = await OpenSearchService.Instance.FindSongById(id);
+
+        if (osSong == null)
+            return BadRequest($"No song was found for the given id [{id}]!");
+
+        DatabaseSong? dbSong = await databaseService.GetSong(id);
+
+        if (dbSong == null)
+            return BadRequest($"The found os song with the id [{id}] has not been added to the database!");
+
+        return Ok(new SongDto(osSong, dbSong));
+    }
+
     [HttpGet("FindSongs")]
     public async Task <ActionResult <SongDto[]>> FindSongs(
         string search,
         string query = "title;album;artist;lyrics",
         int hitCount = 10)
     {
-        OpenSearchSongDocument[]? songs =
+        OpenSearchSongDocument[]? osSongs =
             await OpenSearchService.Instance.SearchForTopFittingSongs(query, search, hitCount);
 
-        if (songs == null)
+        if (osSongs == null)
             return BadRequest("No song was found for the given query");
 
-        SongDto[] output = new SongDto[songs.Length];
+        SongDto[] output = new SongDto[osSongs.Length];
 
-        for (var i = 0; i < songs.Length; i++)
+        for (var i = 0; i < osSongs.Length; i++)
         {
-            OpenSearchSongDocument song = songs[i];
+            OpenSearchSongDocument osSong = osSongs[i];
 
-            DatabaseSong dbEntry = await databaseService.GetSong(song.Id);
+            DatabaseSong? dbSong = await databaseService.GetSong(osSong.Id);
 
-            output[i] = new SongDto(song, dbEntry);
+            if (dbSong == null)
+                return BadRequest($"The found os song with the id [{osSong.Id}] has not been added to the database!");
+            
+            output[i] = new SongDto(osSong, dbSong);
         }
 
         return Ok(output);
-    }
-
-    [HttpGet("FindSong/{id}")]
-    public async Task <ActionResult <OpenSearchSongDocument>> FindSongById(string id)
-    {
-        var song = await OpenSearchService.Instance.FindSongById(id);
-
-        if (song == null)
-            return BadRequest($"No song was found for the given id {id}");
-
-        return Ok(song);
     }
 
     [HttpPost("IndexArtistSongsInOpenSearch_MusicBrainz/{artistName}")]
@@ -71,13 +78,11 @@ public class OpenSearchController (DatabaseService databaseService)
 
         if (songs is not {Count: > 0})
             return BadRequest("No song was found for the given artist");
-        
+
         foreach (OpenSearchSongDocument song in songs)
-        {
             await OpenSearchService.Instance.IndexNewSong(song);
-            // TODO reenable await databaseService.InsertSongIntoDatabase(song.ToDbSong());
-        }
-        
+
+        // TODO reenable await databaseService.InsertSongIntoDatabase(song.ToDbSong());
         return Ok(songs);
     }
 
@@ -86,38 +91,37 @@ public class OpenSearchController (DatabaseService databaseService)
     {
         Tuple <FullArtist, List <FullAlbum>, List <OpenSearchSongDocument>> data =
             await SpotifyAPIService.Instance.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
-        
+
         if (data.Item3 is not {Count: > 0})
             return BadRequest("No song was found for the given artist");
-        
-        Artist artist = await databaseService.TryInsertOrGetExistingArtist(new Artist
-        {
-            Id = data.Item1.Id,
-            Name = data.Item1.Name,
-            CoverUrl = data.Item1.Images.Count > 0 ? data.Item1.Images[0].Url : null
-        });
-        
+
+        Artist artist = await databaseService.TryInsertOrGetExistingArtist(
+            new Artist
+            {
+                Id = data.Item1.Id,
+                Name = data.Item1.Name,
+                CoverUrl = data.Item1.Images.Count > 0 ? data.Item1.Images[0].Url : null
+            });
+
         foreach (OpenSearchSongDocument song in data.Item3)
         {
             FullAlbum? fullAlbum = data.Item2.FirstOrDefault(x => x.Name.Equals(song.AlbumTitle));
-            
-            Album album = await databaseService.TryInsertOrGetExistingAlbum(new Album
-            {
-                Id = fullAlbum.Id,
-                Name = fullAlbum.Name,
-                ArtistId = artist.Id,
-                CoverUrl = fullAlbum.Images.Count > 0 ? fullAlbum.Images[0].Url : null
-            });
-            
+
+            Album album = await databaseService.TryInsertOrGetExistingAlbum(
+                new Album
+                {
+                    Id = fullAlbum.Id,
+                    Name = fullAlbum.Name,
+                    ArtistId = artist.Id,
+                    CoverUrl = fullAlbum.Images.Count > 0 ? fullAlbum.Images[0].Url : null
+                });
+
             await OpenSearchService.Instance.IndexNewSong(song);
-            await databaseService.InsertSongIntoDatabase(new DatabaseSong
-            {
-                Id = song.Id,
-                Embed = song.GenerateSongEmbed(),
-                AlbumId = album.Id
-            });
+
+            await databaseService.InsertSongIntoDatabase(
+                new DatabaseSong {Id = song.Id, Embed = song.GenerateSongEmbed(), AlbumId = album.Id});
         }
-        
+
         return Ok(data.Item3);
     }
 
