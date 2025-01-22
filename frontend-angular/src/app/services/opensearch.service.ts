@@ -12,6 +12,8 @@ export class OpenSearchService {
     private http = inject(HttpClient);
     private apiURL = environment.apiURL + '/api/OpenSearch';
 
+    public minScoreThreshold: number = 0.0;
+
     public Songs: SongDTO[] = [];
 
     public get(): Observable<any> {
@@ -57,7 +59,8 @@ export class OpenSearchService {
         const params = new HttpParams()
         .set('search', searchValue)
         .set('query', query)
-        .set('hitCount', hitCount.toString());
+        .set('hitCount', hitCount.toString())
+        .set('minScoreThreshold', this.minScoreThreshold);
 
         console.log(params.toString());
 
@@ -77,9 +80,23 @@ export class OpenSearchService {
 
 
 
-    public async checkIfBackendIsReachable(): Promise<boolean> {
+    public async checkIfOpenSearchIsReachable(): Promise<boolean> {
         try {
             const response = await fetch('http://localhost:9200', { 
+                method: 'GET',
+                mode: 'no-cors' 
+            });
+            console.log("Erreichbar");
+            return true; // Erfolgreich
+        } catch (error) {
+            console.log("Nicht erreichbar");
+            return false; // Fehlgeschlagen
+        }
+    }
+
+    public async checkIfBackendIsReachable(): Promise<boolean> {
+        try {
+            const response = await fetch('http://localhost:7238/api/Opensearch', { 
                 method: 'GET',
                 mode: 'no-cors' 
             });

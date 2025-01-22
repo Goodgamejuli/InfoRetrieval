@@ -19,9 +19,20 @@
             }
             @else {
                 <div class="status-not-reachable">
-                    Currently Not Working! ❌
+                    Backend ist nicht erreichbar! ❌
                 </div>
             }
+
+            @if (isOpenSearchReachable) {
+              <div class="status-reachable">
+                 Simple Search ist erreichbar! ✅
+              </div>
+          }
+          @else {
+              <div class="status-not-reachable">
+                Simple Search ist nicht erreichbar! ❌
+              </div>
+          }
             
         </div>
     </div>

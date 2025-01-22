@@ -12,7 +12,7 @@ export class AdminComponent {
   opensearchService = inject(OpenSearchService);
 
   // Checking if backend is available
-  isSimpleSearchReachable: boolean = false;
+  isOpenSearchReachable: boolean = false;
   isBackendReachable: boolean = false;
 
   
@@ -23,7 +23,7 @@ export class AdminComponent {
 
   checkReachabilityOfBackends() {
     this.opensearchService.checkIfBackendIsReachable().then(result => this.isBackendReachable = result);
-    console.log("backend Reachable:" + this.isBackendReachable);
+    this.opensearchService.checkIfOpenSearchIsReachable().then(result => this.isOpenSearchReachable = result);
   }
 
   fetchSongsOfArtist() {
