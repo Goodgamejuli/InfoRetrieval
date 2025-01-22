@@ -18,6 +18,31 @@ export class OpenSearchService {
         return this.http.get(this.apiURL);
     }
 
+
+    public crawlAllSongsOfArtist(
+        artist: string,
+        useSpotifyApi: boolean,
+        useMusicBrainzApi: boolean) {
+
+        // Define URL-Parameters
+        const params = new HttpParams()
+        .set('artistName', artist)
+        .set('useSpotifyApi', useSpotifyApi)
+        .set('useMusicBrainzApi', useMusicBrainzApi);
+
+        console.log(params.toString());
+
+        var results = this.http.post<SongDTO>(`${this.apiURL}/CrawlAllSongsOfArtist`,{}, {params})
+            .subscribe({
+                next: () => {
+                    console.log("songs crawled")
+                },
+                error: (err) => {
+                    console.error('Error crawling songs: ', err);
+                }
+            });
+    }
+
     public searchForSongs(
         searchValue: string,
         query: string = 'title;album;artist;lyrics',
@@ -49,6 +74,8 @@ export class OpenSearchService {
                 }
             });
     }
+
+
 
     public async checkIfBackendIsReachable(): Promise<boolean> {
         try {

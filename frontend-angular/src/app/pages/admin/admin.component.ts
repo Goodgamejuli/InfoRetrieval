@@ -36,5 +36,7 @@ export class AdminComponent {
     console.log('Artist Name:', this.artistToFetch);
     console.log('Use Spotify API:', this.useSpotifyApi);
     console.log('Use Spotify MusicBrainzAPI:', this.useMusicBrainzApi);
+
+    this.opensearchService.crawlAllSongsOfArtist(this.artistToFetch, this.useSpotifyApi, this.useMusicBrainzApi);
   }
 }
