@@ -125,10 +125,11 @@ public class OpenSearchController(DatabaseService databaseService)
     public async Task <ActionResult <SongDto[]>> FindSongs(
         string search,
         string query = "title;album;artist;lyrics",
-        int hitCount = 10)
+        int hitCount = 10,
+        float minScoreThreshold = 0.5f)
     {
         OpenSearchSongDocument[]? osSongs =
-            await OpenSearchService.Instance.SearchForTopFittingSongs(query, search, hitCount);
+            await OpenSearchService.Instance.SearchForTopFittingSongs(query, search, hitCount, minScoreThreshold);
 
         if (osSongs == null)
             return BadRequest("No song was found for the given query");
@@ -204,59 +205,4 @@ public class OpenSearchController(DatabaseService databaseService)
     }
 
     #endregion
-
-    /*[HttpPost("IndexArtistSongsInOpenSearch_MusicBrainz/{artistName}")]
-    public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchMusicBrainz(string artistName)
-    {
-        List <OpenSearchSongDocument>? songs =
-            await MusicBrainzApiService.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
-
-        if (songs is not {Count: > 0})
-            return BadRequest("No song was found for the given artist");
-
-        foreach (OpenSearchSongDocument song in songs)
-            await OpenSearchService.Instance.IndexNewSong(song);
-
-        // TODO reenable await databaseService.InsertSongIntoDatabase(song.ToDbSong());
-        return Ok(songs);
-    }
-
-    [HttpPost("IndexArtistSongsInOpenSearch_Spotify/{artistName}")]
-    public async Task <ActionResult> IndexSongsOfArtistIntoOpenSearchSpotify(string artistName)
-    {
-        Tuple <FullArtist, List <FullAlbum>, List <OpenSearchSongDocument>> data =
-            await SpotifyApiService.Instance.GetAllTracksOfArtistAsOpenSearchDocument(artistName);
-
-        if (data.Item3 is not {Count: > 0})
-            return BadRequest("No song was found for the given artist");
-
-        Artist artist = await databaseService.TryInsertOrGetExistingArtist(
-            new Artist
-            {
-                Id = data.Item1.Id,
-                Name = data.Item1.Name,
-                CoverUrl = data.Item1.Images.Count > 0 ? data.Item1.Images[0].Url : null
-            });
-
-        foreach (OpenSearchSongDocument song in data.Item3)
-        {
-            FullAlbum? fullAlbum = data.Item2.FirstOrDefault(x => x.Name.Equals(song.AlbumTitle));
-
-            Album album = await databaseService.TryInsertOrGetExistingAlbum(
-                new Album
-                {
-                    Id = fullAlbum.Id,
-                    Name = fullAlbum.Name,
-                    ArtistId = artist.Id,
-                    CoverUrl = fullAlbum.Images.Count > 0 ? fullAlbum.Images[0].Url : null
-                });
-
-            await OpenSearchService.Instance.IndexNewSong(song);
-
-            await databaseService.InsertSongIntoDatabase(
-                new DatabaseSong {Id = song.Id, Embed = song.GenerateSongEmbed(), AlbumId = album.Id});
-        }
-
-        return Ok(data.Item3);
-    }*/
 }
