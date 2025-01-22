@@ -65,7 +65,7 @@
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Schatten oberhalb der Playbar */
     color: white;
     align-items: center;
-    max-height: 100px;
+    min-height: 100px;
     padding: 10px 20px; /* Innenabstand */
     flex: 0 0 auto; /* Höhe automatisch basierend auf Inhalt */
   }

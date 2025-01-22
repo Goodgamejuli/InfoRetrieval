@@ -1,4 +1,4 @@
-﻿using backend_csharp.Models;
+using backend_csharp.Models;
 using backend_csharp.Models.Database;
 using backend_csharp.Models.Database.DTOs;
 using backend_csharp.Services;

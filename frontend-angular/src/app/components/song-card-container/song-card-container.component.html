@@ -3,7 +3,14 @@
     <div class="playlist_card_collections" >
         <div id="song_card_item" *ngFor="let sc of visibleSongs">
             <app-song-card
-            [song]="sc"></app-song-card>
+            [artist]="sc.artist"
+            [title]="sc.title"
+            [lyrics]="sc.lyrics"
+            [id]="sc.id"
+            [release]="sc.release"
+            [genre]="sc.genre"
+            [album]="sc.album"
+            [spotifyPlayUrl]="sc.embed"></app-song-card>
         </div>
     </div>
     <div class="buttons-container">

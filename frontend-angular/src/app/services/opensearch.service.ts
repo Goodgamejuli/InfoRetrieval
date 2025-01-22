@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../../environments/environment.development";
 import { map, Observable } from "rxjs";
@@ -18,43 +18,37 @@ export class OpenSearchService {
         return this.http.get(this.apiURL);
     }
 
-    public getSongTest() {
-        var song: SongDTO = {
-            album: "test",
-            artist: "test",
-            title: "TESET",
-            lyrics: "sdafadfddf",
-            release: "22.02.2333",
-            genre: ["metal", "pop"], 
-            id: "3234d"
-        }
-        this.Songs.push(song);
-        console.log(song);
-    }
-
-    public getSong() {
-        var song: SongDTO = {
-            album: "",
-            artist: "",
-            title: "",
-            lyrics: "",
-            release: "",
-            genre: [], 
-            id: ""
+    public searchForSongs(
+        searchValue: string,
+        query: string = 'title;album;artist;lyrics',
+        hitCount: number = 10
+    ){
+        if(searchValue == null || searchValue == "") {
+            this.Songs = [];
+            return;
         }
 
-        this.http.get<SongDTO>(this.apiURL)
-        .subscribe(data =>  {
-            song.title = data.title;
-            song.lyrics = data.lyrics;
-            song.album = data.album;
-            song.artist = data.artist;
-            song.genre = data.genre;
-            song.id = data.id;
-            song.release = data.release;
-        });
+        // Define URL-Parameters
+        const params = new HttpParams()
+        .set('search', searchValue)
+        .set('query', query)
+        .set('hitCount', hitCount.toString());
 
-        this.Songs.push(song);
-        console.log(song);
+        console.log(params.toString());
+
+        var results = this.http.get<SongDTO[]>(`${this.apiURL}/FindSongs`, {params})
+            .subscribe({
+                next: (songs) => {
+                    if(songs.length == 0)
+                        console.log("kein song gefunden!")
+
+                    this.Songs = songs;
+                },
+                error: (err) => {
+                    console.error('Error findingsongs: ', err);
+                }
+            });
+
+        
     }
 }

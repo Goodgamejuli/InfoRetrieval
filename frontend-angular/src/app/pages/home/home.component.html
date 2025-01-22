@@ -32,15 +32,18 @@
             <app-top-nav></app-top-nav>
         </div>
         
+        <app-song-card artist="eminem" title="test"></app-song-card>
 
         <div class="song-card-container_div">
             <app-song-card-container></app-song-card-container>
         </div>
 
         <!--Playbar-->
+        @if (playbarService.songToPlayUrl != null) {
         <div class="playbar-container">
             <app-playbar></app-playbar>
         </div>
+    }
     </div>
 
     

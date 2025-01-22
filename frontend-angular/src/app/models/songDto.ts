@@ -6,4 +6,5 @@ export interface SongDTO {
     artist: string;
     genre: string[];
     id: string;
+    embed: string;
 }

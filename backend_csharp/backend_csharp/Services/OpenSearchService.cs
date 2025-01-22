@@ -1,4 +1,4 @@
-﻿using backend_csharp.Models;
+using backend_csharp.Models;
 using MetaBrainz.MusicBrainz;
 using OpenSearch.Client;
 
@@ -127,6 +127,9 @@ public class OpenSearchService
     // ReSharper disable once CognitiveComplexity
     public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(string query, string search, int hitCount)
     {
+        if (string.IsNullOrEmpty(search))
+            return null;
+
         var queries = query.Split(";");
 
         var titleBoost = queries.Contains("title") ? 1.5 : -1.0;
@@ -162,7 +165,7 @@ public class OpenSearchService
                                           Fuzziness(Fuzziness.Auto))
                            ))).Sort(s => s.Descending(SortSpecialField.Score)));
 
-        if (songs == null || songs.Documents.Count == 0)
+        if (songs == null)
             return null;
 
         Console.WriteLine($"Found {songs.Documents!.Count} song(s)");
