@@ -27,10 +27,6 @@ namespace backend_csharp.Models
 
         public SongDto(OpenSearchSongDocument song, DatabaseSong dbEntry)
         {
-            Console.WriteLine("Generating new song dto");
-            
-            // TODOD irgendwo hier ist der gehler
-            
             Id = song.Id;
             Title = song.Title;
             Album = song.AlbumTitle;
@@ -40,8 +36,6 @@ namespace backend_csharp.Models
             Release = song.ReleaseDate;
             Embed = dbEntry.Embed;
             Cover = dbEntry.Album.CoverUrl;
-            
-            Console.WriteLine("Finished");
         }
     }
 }

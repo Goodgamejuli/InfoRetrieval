@@ -126,7 +126,7 @@ public class DatabaseService(DataContext dataContext)
                     x => x.Id.StartsWith("mbid_") && x.Name.Equals(album.Name));
 
                 if (foundAlbum != null)
-                    foundAlbum = await ReplaceAlbumId(foundAlbum, album.Id);
+                    foundAlbum = await ReplaceAlbum(foundAlbum, album);
             }
         }
 
@@ -158,7 +158,7 @@ public class DatabaseService(DataContext dataContext)
                     x => x.Id.StartsWith("mbid_") && x.Name.Equals(artist.Name));
 
                 if (foundArtist != null)
-                    foundArtist = await ReplaceArtistId(foundArtist, artist.Id);
+                    foundArtist = await ReplaceArtist(foundArtist, artist);
             }
         }
 
@@ -222,22 +222,15 @@ public class DatabaseService(DataContext dataContext)
             entries.Remove(entity);
     }
 
-    private async Task <Album?> ReplaceAlbumId(Album album, string newId)
+    private async Task <Album?> ReplaceAlbum(Album album, Album newAlbum)
     {
         Album? oldAlbum =
             await dataContext.Albums.Include(x => x.Songs).FirstOrDefaultAsync(x => x.Id.Equals(album.Id));
 
         if (oldAlbum == null)
             return null;
-
-        var newAlbum = new Album
-        {
-            Id = newId,
-            Name = oldAlbum.Name,
-            ArtistId = oldAlbum.ArtistId,
-            CoverUrl = oldAlbum.CoverUrl,
-            Songs = oldAlbum.Songs
-        };
+        
+        newAlbum.Songs = oldAlbum.Songs;
 
         foreach (DatabaseSong song in oldAlbum.Songs)
             song.AlbumId = newAlbum.Id;
@@ -250,7 +243,7 @@ public class DatabaseService(DataContext dataContext)
         return newAlbum;
     }
 
-    private async Task <Artist?> ReplaceArtistId(Artist artist, string newId)
+    private async Task <Artist?> ReplaceArtist(Artist artist, Artist newArtist)
     {
         Artist? oldArtist = await dataContext.Artists.Include(x => x.Albums).
                                               FirstOrDefaultAsync(x => x.Id.Equals(artist.Id));
@@ -258,11 +251,8 @@ public class DatabaseService(DataContext dataContext)
         if (oldArtist == null)
             return null;
 
-        var newArtist = new Artist
-        {
-            Id = newId, Name = oldArtist.Name, CoverUrl = oldArtist.CoverUrl, Albums = oldArtist.Albums
-        };
-
+        newArtist.Albums = oldArtist.Albums;
+        
         foreach (Album album in oldArtist.Albums)
             album.ArtistId = newArtist.Id;
 

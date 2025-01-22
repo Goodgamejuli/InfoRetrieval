@@ -9,7 +9,7 @@ public static class MusicBrainzApiService
 {
     #region Public Methods
 
-    public static async Task <OpenSearchService.CrawlSongData[]?> CrawlAllSongsOfArtist(string artistName)
+    public static async Task <List<OpenSearchService.CrawlSongData>?> CrawlAllSongsOfArtist(string artistName)
     {
         Console.WriteLine("Crawling songs from musicBrainz...");
         
@@ -44,18 +44,21 @@ public static class MusicBrainzApiService
             
             if ((track.Title ?? string.Empty).Contains('(') && (track.Title ?? string.Empty).Contains(')'))
                 continue;
-            
-            output.Add(CreateCrawlSongData(query, artist, tracks[i], recordingDates));
-        }
 
-        return output.ToArray();
+            OpenSearchService.CrawlSongData? data = await CreateCrawlSongData(query, artist, tracks[i], recordingDates);
+            
+            if (data != null)
+                output.Add(data);
+        }
+        
+        return output.Count > 0 ? output : null;
     }
 
     #endregion
 
     #region Private Methods
 
-    private static OpenSearchService.CrawlSongData CreateCrawlSongData(
+    private static async Task<OpenSearchService.CrawlSongData?> CreateCrawlSongData(
         Query query,
         IArtist artist,
         IWork track,
@@ -78,12 +81,17 @@ public static class MusicBrainzApiService
             }
         }
 
+        var albumTitle = await GetAlbumTitleOfRecording(query, releaseRecording);
+
+        if (string.IsNullOrEmpty(albumTitle))
+            return null;
+        
         return new OpenSearchService.CrawlSongData
         {
             id = $"mbid_{track.Id.ToString()}",
             title = track.Title,
             albumId = $"mbid_{releaseRecording.ToString()}",
-            albumTitle = GetAlbumTitleOfRecording(query, releaseRecording),
+            albumTitle = albumTitle,
             artistId = $"mbid_{artist.Id.ToString()}",
             artistName = artist.Name,
             genres = genres,
@@ -91,13 +99,22 @@ public static class MusicBrainzApiService
         };
     }
 
-    private static string? GetAlbumTitleOfRecording(Query query, Guid releaseRecording)
+    private static async Task<string?> GetAlbumTitleOfRecording(Query query, Guid releaseRecording)
     {
-        IRecording recording = query.LookupRecording(releaseRecording, Include.Releases);
+        try
+        {
+            IRecording recording = await query.LookupRecordingAsync(releaseRecording, Include.Releases);
+            
+            IRelease? release = recording.Releases?.FirstOrDefault(release => release.Date == recording.FirstReleaseDate);
 
-        IRelease? release = recording.Releases?.FirstOrDefault(release => release.Date == recording.FirstReleaseDate);
-
-        return release?.Title;
+            return release?.Title;
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Could not get recording due to invalid mbid returning null");
+            
+            return null;
+        }
     }
 
     private static PartialDate? GetFirstReleaseDateForTrack(
