@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace backend_csharp.Models.Database
 {
@@ -11,10 +11,18 @@ namespace backend_csharp.Models.Database
     {
         /// <summary> This id must be the same as the OpenSearchSongDocument-Id </summary>
         public string Id { get; set; }
+        
+        public string Title { get; set; }
+        
+        public string AlbumId { get; set; }
+        
+        public string? Embed  { get; set; }
 
         // Relationship
+        
+        [JsonIgnore] public Album Album { get; set; }
+        
         [JsonIgnore] public List <Playlist> Playlists { get; set; } = new List<Playlist>();
         [JsonIgnore] public ICollection <LastListenedSong> LastListenedSongs {get; set;} = new List <LastListenedSong>();
-        public string? Embed  { get; set; }
     }
 }

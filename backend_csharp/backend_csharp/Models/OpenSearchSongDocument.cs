@@ -64,14 +64,5 @@ namespace backend_csharp.Models
             
             return string.Compare(Title, other.Title, StringComparison.Ordinal);
         }
-
-        public DatabaseSong ToDbSong()
-        {
-            return new DatabaseSong
-            {
-                Id = Id,
-                Embed = GenerateSongEmbed()
-            };
-        }
     }
 }

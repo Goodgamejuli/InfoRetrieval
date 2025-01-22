@@ -1,4 +1,6 @@
-﻿namespace backend_csharp.Models
+﻿using backend_csharp.Models.Database;
+
+namespace backend_csharp.Models
 {
 /// <summary>
 /// This is the data transfer object to send tracks to the frontend
@@ -20,5 +22,26 @@
         public List<string> Genre { get; set; }
         
         public string? Embed { get; set; }
+        
+        public string? Cover { get; set; }
+
+        public SongDto(OpenSearchSongDocument song, DatabaseSong dbEntry)
+        {
+            Console.WriteLine("Generating new song dto");
+            
+            // TODOD irgendwo hier ist der gehler
+            
+            Id = song.Id;
+            Title = song.Title;
+            Album = song.AlbumTitle;
+            Artist = song.ArtistName;
+            Lyrics = song.Lyrics;
+            Genre = song.Genre;
+            Release = song.ReleaseDate;
+            Embed = dbEntry.Embed;
+            Cover = dbEntry.Album.CoverUrl;
+            
+            Console.WriteLine("Finished");
+        }
     }
 }
