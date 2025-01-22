@@ -25,6 +25,12 @@ public class DatabaseController(DatabaseService service) : ControllerBase
 
     #region DB_Basics
 
+    [HttpGet("IsReachable")]
+    public async Task <ActionResult> IsReachable()
+    {
+        return Ok("Is reachable");
+    }
+    
     [HttpDelete("Clear")]
     public async Task <ActionResult> ClearDatabase(
         bool clearSongs = true,
