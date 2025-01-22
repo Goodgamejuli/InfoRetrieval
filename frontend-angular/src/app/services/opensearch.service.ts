@@ -96,15 +96,14 @@ export class OpenSearchService {
 
     public async checkIfBackendIsReachable(): Promise<boolean> {
         try {
-            const response = await fetch('http://localhost:7238/api/Opensearch', { 
-                method: 'GET',
-                mode: 'no-cors' 
-            });
-            console.log("Erreichbar");
-            return true; // Erfolgreich
+            const response = await this.http
+                .get(`https://localhost:7238/api/Database/IsReachable`,  { responseType: 'text' })
+                .toPromise();
+            console.log("Backend ist erreichbar.");
+            return true;
         } catch (error) {
-            console.log("Nicht erreichbar");
-            return false; // Fehlgeschlagen
+            console.error("Backend nicht erreichbar.", error);
+            return false;
         }
     }
 

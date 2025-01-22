@@ -70,6 +70,11 @@
   margin-bottom: 25px;
 }
 
+.status-reachable {
+  color: lightgray;
+  margin-bottom: 25px;
+}
+
 /* Fetcch song */
 .fetch-container {
   display: flex;
