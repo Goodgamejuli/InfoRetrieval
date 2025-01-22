@@ -1,10 +1,10 @@
-<div class="song-card">
+<div class="album-card">
     <hr class="description-separator">
     
-    <div class="song-card_thumbnail">
+    <div class="album-card_thumbnail">
       <img [src]="coverUrl" alt="thumbnail">
       
-      <div class="song-card_play-button">
+      <div class="album-card_play-button">
         <svg width="95" height="50" viewBox="0 0 16 16">
           <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"/>
         </svg>
@@ -12,10 +12,14 @@
       
     </div>
     
-    <div class="song-card_description">
+    <div class="album-card_description">
+      <hr class="description-separator">
+      <div class="album-card_description-artist">{{song.album || 'Album nicht verfügbar'}}</div>
+      <hr class="description-separator">
+      <div class="album-card_description-artist">{{'Release Date'}}</div>
       <hr class="description-separator">
       <div class="song-card_description-artist">{{song.artist || 'Künstler nicht verfügbar'}}</div>
-      <div class="song-card_description-artist">{{'Künstler*in'}}</div>
     </div>
-  </div>
+
+</div>  
   

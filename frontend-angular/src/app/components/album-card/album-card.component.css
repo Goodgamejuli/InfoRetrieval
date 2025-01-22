@@ -1,16 +1,16 @@
-.song-card {
+.album-card {
     width: 250px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Ändert die Ausrichtung */
+    justify-content: flex-start; 
     align-items: center;
     background-color: #202020;
     border-radius: 20px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    padding: 20px; /* Füge Padding hinzu, um Platz zu schaffen */
+    padding: 20px; 
 }
 
-.song-card_title {
+.album-card_title {
     font-size: 14px;
     font-weight: bold;
     letter-spacing: 0.3px;
@@ -22,34 +22,34 @@
     height: 40px;
 }
 
-.song-card_description {
+.album-card_description {
     width: 100%; 
     text-align: left; 
     margin-top: 10px;
 }
 
-.song-card_description-artist,
-.song-card_description-album,
-.song-card_description-genre,
-.song-card_description-release {
+.album-card_description-artist,
+.album-card_description-album,
+.album-card_description-genre,
+.album-card_description-release {
     font-size: 12px;
     color: grey;
     margin-top: 10px;
 }
 
-.song-card_thumbnail {
+.album-card_thumbnail {
     position: relative; 
     width: 200px;       
     height: auto;
 }
 
-.song-card_thumbnail img {
+.album-card_thumbnail img {
 display: block;
 width: 100%;
 height: auto;
 }
   
-.song-card_play-button {
+.album-card_play-button {
 position: absolute;
 top: 80%;
 left: 80%;
@@ -68,7 +68,7 @@ cursor: pointer;
 }
  
 
-.song-card_play-button:hover {
+.album-card_play-button:hover {
     background-color: #7cd69c;
 }
 
