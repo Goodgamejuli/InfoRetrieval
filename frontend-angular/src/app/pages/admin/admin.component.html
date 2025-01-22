@@ -4,3 +4,41 @@
         Diese Seite wird genutzt, um administratorische Einstellungen direkt im Frontend ausführen zu können. 
     </h2>
 </div>
+
+<div class="content">
+
+    <div class="fetch-container">
+        <h2>Songs eines Artists fetchen</h2>
+        
+        <!-- Eingabefeld und Button -->
+        <div class="input-section">
+          <input type="text" [(ngModel)]="artistToFetch" placeholder="Enter Artist Name" />
+          <button (click)="fetchSongsOfArtist()">Fetch Songs</button>
+        </div>
+        
+        <!-- Checkboxen -->
+        <div class="checkbox-section">
+          <div class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="useSpotifyApi" id="checkbox1" />
+            <label for="checkbox1">Spotify-API nutzen</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="useMusicBrainzApi" id="checkbox2" />
+            <label for="checkbox2">MusicBrainz-API nutzen</label>
+          </div>
+        </div>
+      </div>
+
+
+    <div class="button-container">
+        <h2>Weitere nützliche Funktionen aus dem Backend</h2>
+        <div class="button-container-row">
+          <div class="button">Open Search neu aufsetzen</div>
+          <div class="button">Datenbank neu aufsetzen</div>
+        </div>
+        <div class="button-container-row">
+          <div class="button">Not used</div>
+          <div class="button">Not used</div>
+        </div>
+      </div>
+</div>
