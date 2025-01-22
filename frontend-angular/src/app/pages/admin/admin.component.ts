@@ -1,5 +1,6 @@
-import { Component, NgModule } from '@angular/core';
+import { Component, inject, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { OpenSearchService } from '../../services/opensearch.service';
 
 @Component({
   selector: 'app-admin',
@@ -8,9 +9,22 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './admin.component.css'
 })
 export class AdminComponent {
+  opensearchService = inject(OpenSearchService);
+
+  // Checking if backend is available
+  isSimpleSearchReachable: boolean = false;
+  isBackendReachable: boolean = false;
+
+  
+  // Fetching songs of artist
   artistToFetch: string = '';
   useSpotifyApi: boolean = true;
   useMusicBrainzApi: boolean = true;
+
+  checkReachabilityOfBackends() {
+    this.opensearchService.checkIfBackendIsReachable().then(result => this.isBackendReachable = result);
+    console.log("backend Reachable:" + this.isBackendReachable);
+  }
 
   fetchSongsOfArtist() {
     if(this.artistToFetch == '' 

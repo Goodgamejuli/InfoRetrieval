@@ -48,7 +48,21 @@ export class OpenSearchService {
                     console.error('Error findingsongs: ', err);
                 }
             });
-
-        
     }
+
+    public async checkIfBackendIsReachable(): Promise<boolean> {
+        try {
+            const response = await fetch('http://localhost:9200', { 
+                method: 'GET',
+                mode: 'no-cors' 
+            });
+            console.log("Erreichbar");
+            return true; // Erfolgreich
+        } catch (error) {
+            console.log("Nicht erreichbar");
+            return false; // Fehlgeschlagen
+        }
+    }
+
+
 }

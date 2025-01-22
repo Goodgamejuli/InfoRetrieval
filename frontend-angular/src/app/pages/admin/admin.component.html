@@ -7,6 +7,25 @@
 
 <div class="content">
 
+    <div class="localhost-container">
+        <h2>Erreichbarkeit des Backends prüfen!</h2>
+        <div class="button" (click)="checkReachabilityOfBackends()">Prüfen</div>
+
+        <div class="localhost-result-section">
+            @if (isBackendReachable) {
+                <div class="status-reachable">
+                    Das Backend ist erreichbar! ✅
+                </div>
+            }
+            @else {
+                <div class="status-not-reachable">
+                    Currently Not Working! ❌
+                </div>
+            }
+            
+        </div>
+    </div>
+
     <div class="fetch-container">
         <h2>Songs eines Artists fetchen</h2>
         
