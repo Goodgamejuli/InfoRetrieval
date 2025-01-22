@@ -7,4 +7,5 @@ export interface SongDTO {
     genre: string[];
     id: string;
     embed: string;
+    cover: string;
 }
