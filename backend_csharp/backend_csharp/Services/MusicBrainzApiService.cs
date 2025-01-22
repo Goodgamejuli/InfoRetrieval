@@ -36,10 +36,17 @@ public static class MusicBrainzApiService
             recordingDates.Add(recording.Id.ToString(), recording.FirstReleaseDate);
         }
 
-        OpenSearchService.CrawlSongData[] output = new OpenSearchService.CrawlSongData[tracks.Count];
+        List <OpenSearchService.CrawlSongData> output = [];
 
         for (var i = 0; i < tracks.Count; i++)
-            output[i] = CreateCrawlSongData(query, artist, tracks[i], recordingDates);
+        {
+            IWork track = tracks[i];
+            
+            if ((track.Title ?? string.Empty).Contains('(') && (track.Title ?? string.Empty).Contains(')'))
+                continue;
+            
+            output.Add(CreateCrawlSongData(query, artist, tracks[i], recordingDates));
+        }
 
         return output.ToArray();
     }

@@ -12,6 +12,8 @@ namespace backend_csharp.Models.Database
         /// <summary> This id must be the same as the OpenSearchSongDocument-Id </summary>
         public string Id { get; set; }
         
+        public string Title { get; set; }
+        
         public string AlbumId { get; set; }
         
         public string? Embed  { get; set; }

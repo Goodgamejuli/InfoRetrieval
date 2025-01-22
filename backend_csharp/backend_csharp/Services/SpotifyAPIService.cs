@@ -52,6 +52,9 @@ public class SpotifyApiService
 
             foreach (SimpleTrack song in songs)
             {
+                if (song.Name.Contains('(') && song.Name.Contains(')'))
+                    continue;
+                
                 output.Add(
                     new OpenSearchService.CrawlSongData
                     {

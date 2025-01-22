@@ -66,19 +66,25 @@ public class OpenSearchController(DatabaseService databaseService)
             Album album = await databaseService.TryInsertOrGetExistingAlbum(
                 new Album {Id = albumId, Name = osDocument.AlbumTitle, ArtistId = artist.Id, CoverUrl = data.Item5});
 
-            DatabaseSong? dbSong = await databaseService.InsertSongIntoDatabase(
-                new DatabaseSong {Id = osDocument.Id, Embed = osDocument.GenerateSongEmbed(), AlbumId = album.Id});
-
-            if (dbSong == null)
-                continue;
+            var songData = await databaseService.TryInsertOrGetExistingSong(
+                new DatabaseSong
+                {
+                    Id = osDocument.Id,
+                    Title = osDocument.Title,
+                    Embed = osDocument.GenerateSongEmbed(),
+                    AlbumId = album.Id
+                });
 
             Console.WriteLine("Song was added to the database!");
             
             await OpenSearchService.Instance.IndexNewSong(osDocument);
+
+            if (songData.Item2 != null)
+                await OpenSearchService.Instance.RemoveSong(songData.Item2);
             
             Console.WriteLine("Song was added to openSearch!");
 
-            output.Add(new SongDto(osDocument, dbSong));
+            output.Add(new SongDto(osDocument, songData.Item1));
         }
 
         return output.ToArray();

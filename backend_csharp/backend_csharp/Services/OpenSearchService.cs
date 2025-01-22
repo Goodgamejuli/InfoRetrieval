@@ -160,7 +160,7 @@ public class OpenSearchService
                                               }).
                                           Query(search).
                                           Fuzziness(Fuzziness.Auto))
-                           ))));
+                           ))).Sort(s => s.Descending(SortSpecialField.Score)));
 
         if (songs == null || songs.Documents.Count == 0)
             return null;
@@ -168,8 +168,6 @@ public class OpenSearchService
         Console.WriteLine($"Found {songs.Documents!.Count} song(s)");
 
         List <OpenSearchSongDocument> output = songs.Documents.ToList();
-
-        output.Sort();
 
         return output.ToArray();
     }
@@ -274,4 +272,15 @@ public class OpenSearchService
     public static OpenSearchService Instance => s_instance ??= new OpenSearchService();
 
     #endregion
+
+    public async Task RemoveSong(string id)
+    {
+        DeleteResponse? deleteResponse =
+            await _client.DeleteAsync <OpenSearchSongDocument>(id, d => d.Index(IndexName));
+
+        Console.WriteLine(
+            deleteResponse.IsValid
+                ? $"Document with the id [{id}] was removed from open search!"
+                : $"Document with the id [{id}] could not be removed from open search: {deleteResponse.ServerError?.Error?.Reason}!");
+    }
 }
