@@ -157,7 +157,7 @@ public class DatabaseController(DatabaseService service) : ControllerBase
     #region DB_Albums
 
     [HttpGet("GetAlbum")]
-    public async Task <ActionResult <Album>> GetAllDatabaseAlbum(string id)
+    public async Task <ActionResult <Album>> GetDatabaseAlbum(string id)
     {
         Album? album = await service.GetAlbum(id);
 
