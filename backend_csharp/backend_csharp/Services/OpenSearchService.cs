@@ -125,7 +125,7 @@ public class OpenSearchService
     }
 
     // ReSharper disable once CognitiveComplexity
-    public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(string query, string search, int hitCount)
+    public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(string query, string search, int hitCount, float minScoreThreshold)
     {
         if (string.IsNullOrEmpty(search))
             return null;
@@ -168,11 +168,22 @@ public class OpenSearchService
         if (songs == null)
             return null;
 
-        Console.WriteLine($"Found {songs.Documents!.Count} song(s)");
+        List <OpenSearchSongDocument> filteredSongs = [];
 
-        List <OpenSearchSongDocument> output = songs.Documents.ToList();
+        IHit <OpenSearchSongDocument>[] hits = songs.Hits.ToArray();
+        OpenSearchSongDocument[] documents = songs.Documents.ToArray();
+        
+        for (var i = 0; i < songs.Documents.Count; i++)
+        {
+            if (hits[i].Score < minScoreThreshold)
+                continue;
+            
+            filteredSongs.Add(documents[i]);
+        }
+        
+        Console.WriteLine($"Found {filteredSongs.Count} song(s)");
 
-        return output.ToArray();
+        return filteredSongs.ToArray();
     }
 
     #endregion
