@@ -1,0 +1,207 @@
+.admin-header {
+    width: 90%;
+    height: 150px;
+    background: #0F0F0F;
+    position: fixed;
+    top: 0;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    justify-content: space-evenly;
+    gap: 20px;
+    color: lightgray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.admin-header h1 {
+  display: block; /* Stellt sicher, dass die Elemente als Block angezeigt werden */
+  padding: 0; /* Entfernt unerwünschte Innenabstände */
+  max-width: 75%;
+  font-weight: bold;
+  margin-top: 10px;
+  font-size: 30px;
+}
+.admin-header h2 {
+  display: block; /* Stellt sicher, dass die Elemente als Block angezeigt werden */
+  padding: 0; /* Entfernt unerwünschte Innenabstände */
+  max-width: 75%;
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+.content {
+  margin-top: 200px;
+}
+
+.localhost-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%;
+  box-sizing: border-box;
+  background: #2c2c2c; 
+  border-radius: 25px;
+  padding: 20px;
+  margin: 50px;
+}
+
+.localhost-container h2 {
+  color: lightgray;
+  margin-bottom: 25px;
+}
+
+.localhost-result-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 20px;
+  margin-right: 20px;
+  border: 3px solid lightgray;
+  padding: 10px;
+  width: 400px;
+  border-radius: 20px;
+  margin-top: 30px;
+}
+
+.status-not-reachable {
+  color: lightgray;
+  margin-bottom: 25px;
+}
+
+.status-reachable {
+  color: lightgray;
+  margin-bottom: 25px;
+}
+
+/* Fetcch song */
+.fetch-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%;
+  box-sizing: border-box;
+  background: #2c2c2c; 
+  border-radius: 25px;
+  padding: 20px;
+  margin: 50px;
+}
+
+.fetch-container h2 {
+  color: lightgray;
+  margin-bottom: 25px;
+}
+
+.input-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.input-section input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 400px;
+  background: lightgray;
+  color: black;
+}
+
+.input-section button {
+  padding: 10px 20px;
+  border: 1px solid black;
+  border-radius: 25px;
+  background-color: lightgray;
+  cursor: pointer;
+  color: black;
+  font-weight: bold;
+}
+
+.input-section button:hover {
+  background-color: rgb(32, 32, 32);
+  color: rgb(9, 185, 9);
+}
+
+.checkbox-section {
+  display: flex;
+  justify-content: space-around;
+}
+
+.checkbox-item input[type="checkbox"] {
+  appearance: none; /* Entfernt das Standarddesign */
+  -webkit-appearance: none; /* Für Safari */
+  width: 25px; /* Breite */
+  height: 25px; /* Höhe */
+  border: 2px solid black; /* Rahmen */
+  border-radius: 50%; /* Macht die Checkbox rund */
+  outline: none; /* Entfernt den Standard-Fokus-Stil */
+  cursor: pointer;
+  background-color: lightgray; /* Hintergrundfarbe */
+  margin-bottom: 20px;
+}
+
+.checkbox-item input[type="checkbox"]:checked {
+  background-color: rgb(9, 185, 9); /* Grün, wenn angeklickt */
+  border-color: rgb(9, 185, 9);
+}
+
+.checkbox-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 20px;
+  margin-right: 20px;
+  border: 3px solid lightgray;
+  padding: 10px;
+  width: 400px;
+  border-radius: 20px;
+}
+
+.checkbox-item label {
+  color: lightgray;
+}
+
+
+/* Additional Buttons */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%;
+  box-sizing: border-box;
+  background: #2c2c2c; 
+  border-radius: 25px;
+  padding: 20px;
+  margin: 50px;
+}
+
+.button-container h2 {
+  color: lightgray;
+  margin-bottom: 25px;
+}
+
+.button-container-row {
+  display: flex;
+  justify-content: space-between;
+  width: 80%; /* Breite der Buttons-Reihe */
+  margin: 20px 0; /* Abstand zwischen den Reihen */
+}
+
+.button {
+  background-color: lightgray;
+  padding: 13px;
+  border-radius: 25px;
+  color: black;
+  font-weight: bold;
+  width: 500px;
+  text-align: center;
+}
+
+.button:hover {
+  cursor: pointer;
+  background-color: rgb(32, 32, 32);
+  color: rgb(9, 185, 9);
+}
