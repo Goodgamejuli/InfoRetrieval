@@ -2,7 +2,7 @@
     <hr class="description-separator">
     
     <div class="artist-card_thumbnail">
-      <img [src]="coverUrl" alt="thumbnail">
+      <img [src]="coverUrl" alt="/assets/songs/song_placeholder.png">
       
       <div class="artist-card_play-button">
         <svg width="95" height="50" viewBox="0 0 16 16">
@@ -14,7 +14,7 @@
     
     <div class="artist-card_description">
       <hr class="description-separator">
-      <div class="song-card_description-artist">{{song.artist || 'Künstler nicht verfügbar'}}</div>
+      <div class="song-card_description-artist">{{artist || 'Künstler nicht verfügbar'}}</div>
     </div>
 
 </div>  
