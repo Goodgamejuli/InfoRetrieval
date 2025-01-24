@@ -1,5 +1,6 @@
 .artist-card {
     width: 250px;
+    height: 500px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start; 
@@ -8,6 +9,8 @@
     border-radius: 20px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     padding: 20px; 
+    position: relative;
+    margin: 5px;
 }
 
 .artist-card_title {
@@ -38,7 +41,6 @@
 }
 
 .artist-card_thumbnail {
-    position: relative; 
     width: 200px;       
     height: auto;
 }
@@ -49,26 +51,27 @@ width: 100%;
 height: auto;
 }
   
-.artist-card_play-button {
-position: absolute;
-top: 80%;
-left: 80%;
-transform: translate(-50%, -50%);
-z-index: 2;
+.artist-card_discover-button {
+    position: absolute;
+    bottom: 25px;
+    background-color: #1ED760;
+    border-radius: 25px;
+    width: 75%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
 
-background-color: #1ED760;
-border-radius: 50%;
-width: 50px;
-height: 50px;
-
-display: flex;
-justify-content: center;
-align-items: center;
-cursor: pointer;
+.artist-card_discover-button a {
+    color: black;
+    font-size: 14px;
+    font-weight: bold;
 }
  
 
-.artist-card_play-button:hover {
+.artist-card_discover-button:hover {
     background-color: #7cd69c;
 }
 

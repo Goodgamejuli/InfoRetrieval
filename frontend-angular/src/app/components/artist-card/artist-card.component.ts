@@ -12,6 +12,7 @@ import { SongDTO } from '../../models/songDto';
 export class ArtistCardComponent {
   
   @Input() public artist!: string;
+  @Input() public genre!: string;
 
   @Input() public coverUrl!: string;
 

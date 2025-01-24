@@ -10,13 +10,10 @@ import { SongDTO } from '../../models/songDto';
   styleUrl: './album-card.component.css'
 })
 export class AlbumCardComponent {
-  @Input() public playlistThumbnail!: string;
   @Input() public title!: string;
-  @Input() public description!: string;
-  @Input() public id!: string | number;
-  @Input() public link!: string;
+  @Input() public release!: string;
+  @Input() public artist!: string;
 
-  @Input() public song!: SongDTO;
 
   @Input() public coverUrl!: string;
 
@@ -24,22 +21,6 @@ export class AlbumCardComponent {
   {
     //TODO: delete and set via api-call
     this.coverUrl = "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228";
-  }
-
-  onNavigateToSong() {
-    this.songDataService.songData.next({
-      
-    });
-
-    this.router.navigateByUrl(`/song/${this.id}`, {
-      state: {
-      thumbnail: this.playlistThumbnail,
-      title: this.title,
-      description: this.description,
-      link: this.link,
-      id: this.id
-      },
-    });
   }
 
 }

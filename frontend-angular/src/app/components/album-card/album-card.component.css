@@ -1,5 +1,6 @@
 .album-card {
     width: 250px;
+    height: 500px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start; 
@@ -8,6 +9,8 @@
     border-radius: 20px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     padding: 20px; 
+    position: relative;
+    margin: 5px;
 }
 
 .album-card_title {
@@ -22,16 +25,13 @@
     height: 40px;
 }
 
-.album-card_description {
+.album-card_description-div {
     width: 100%; 
     text-align: left; 
     margin-top: 10px;
 }
 
-.album-card_description-artist,
-.album-card_description-album,
-.album-card_description-genre,
-.album-card_description-release {
+.album-card_description{
     font-size: 12px;
     color: grey;
     margin-top: 10px;
@@ -49,26 +49,27 @@ width: 100%;
 height: auto;
 }
   
-.album-card_play-button {
-position: absolute;
-top: 80%;
-left: 80%;
-transform: translate(-50%, -50%);
-z-index: 2;
+.album-card_discover-button {
+    position: absolute;
+    bottom: 25px;
+    background-color: #1ED760;
+    border-radius: 25px;
+    width: 75%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
 
-background-color: #1ED760;
-border-radius: 50%;
-width: 50px;
-height: 50px;
-
-display: flex;
-justify-content: center;
-align-items: center;
-cursor: pointer;
+.album-card_discover-button a {
+    color: black;
+    font-size: 14px;
+    font-weight: bold;
 }
  
 
-.album-card_play-button:hover {
+.album-card_discover-button:hover {
     background-color: #7cd69c;
 }
 

@@ -1,5 +1,6 @@
 .song-card {
     width: 250px;
+    height: 500px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start; /* Ändert die Ausrichtung */
@@ -8,6 +9,8 @@
     border-radius: 20px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     padding: 20px; /* Füge Padding hinzu, um Platz zu schaffen */
+    position: relative;
+    margin: 5px;
 }
 
 .song-card_title {
@@ -44,27 +47,22 @@
 }
 
 .song-card_thumbnail img {
-display: block;
-width: 100%;
-height: auto;
+    display: block;
+    width: 100%;
+    height: auto;
 }
   
 .song-card_play-button {
-position: absolute;
-top: 80%;
-left: 80%;
-transform: translate(-50%, -50%);
-z-index: 2;
-
-background-color: #1ED760;
-border-radius: 50%;
-width: 50px;
-height: 50px;
-
-display: flex;
-justify-content: center;
-align-items: center;
-cursor: pointer;
+    position: absolute;
+    bottom: 25px;
+    background-color: #1ED760;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }
  
 
