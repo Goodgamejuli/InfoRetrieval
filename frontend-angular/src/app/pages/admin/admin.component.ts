@@ -1,4 +1,4 @@
-import { Component, inject, NgModule } from '@angular/core';
+import { Component, inject, NgModule, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OpenSearchService } from '../../services/opensearch.service';
 
@@ -8,7 +8,7 @@ import { OpenSearchService } from '../../services/opensearch.service';
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
-export class AdminComponent {
+export class AdminComponent implements OnInit{
   opensearchService = inject(OpenSearchService);
 
   // Checking if backend is available
@@ -20,6 +20,11 @@ export class AdminComponent {
   artistToFetch: string = '';
   useSpotifyApi: boolean = true;
   useMusicBrainzApi: boolean = true;
+
+  ngOnInit(): void {
+    this.checkReachabilityOfBackends();
+  }
+  
 
   checkReachabilityOfBackends() {
     this.opensearchService.checkIfBackendIsReachable().then(result => this.isBackendReachable = result);

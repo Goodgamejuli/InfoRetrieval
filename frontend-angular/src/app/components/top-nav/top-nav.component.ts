@@ -73,5 +73,9 @@ export class TopNavComponent {
     // Search for Artists if selected
     if(this.selectedFilterOptions.includes('artist'))
       this.opensearchService.searchForArtist(this.searchValue);
+
+    // Search for albums if selected
+    if(this.selectedFilterOptions.includes('album'))
+      this.opensearchService.searchForAlbums(this.searchValue);
   }
 }

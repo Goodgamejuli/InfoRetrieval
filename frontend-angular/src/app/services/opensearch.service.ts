@@ -4,6 +4,7 @@ import { environment } from "../../environments/environment.development";
 import { map, Observable } from "rxjs";
 import { SongDTO } from "../models/songDto";
 import { ArtistDto } from "../models/artistDto";
+import { AlbumDto } from "../models/albumDto";
 
 @Injectable({
     providedIn: 'root',
@@ -17,6 +18,7 @@ export class OpenSearchService {
 
     public songs: SongDTO[] = [];
     public artists: ArtistDto[] = [];
+    public albums: AlbumDto[] = [];
 
     public get(): Observable<any> {
         return this.http.get(this.openSearchApiUrl);
@@ -97,6 +99,29 @@ export class OpenSearchService {
                 },
                 error: (err) => {
                     console.error('Error finding artists: ', err);
+                }
+            });
+    }
+
+    public searchForAlbums(
+        searchValue: string,
+        maxHitCount: number = 10
+    ) {
+        //Define params
+        const params = new HttpParams()
+        .set('search', searchValue)
+        .set('maxHitCount', maxHitCount)
+
+        this.http.get<AlbumDto[]>(`${this.openSearchApiUrl}/FindAlbums`, {params})
+            .subscribe( {
+                next: (albums) => {
+                    if(albums.length == 0)
+                        console.log("Kein album gefunden!");
+                    this.albums = albums;
+                    console.log(this.artists);
+                },
+                error: (err) => {
+                    console.error('Error finding album: ', err);
                 }
             });
     }

@@ -31,5 +31,13 @@ namespace backend_csharp.Helper
                 Id = artist.Id, Name = artist.Name, CoverUrl = artist.CoverUrl, Genre = genre
             };
         }
+
+        public static AlbumResponseDto ToAlbumResponseDto(this Album album, string artist, string releaseDate)
+        {
+            return new AlbumResponseDto
+            {
+                Id = album.Id, Name = album.Name, ArtistName = artist, CoverUrl = album.CoverUrl, ReleaseDate = releaseDate
+            };
+        }
     }
 }

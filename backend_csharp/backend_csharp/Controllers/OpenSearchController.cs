@@ -162,6 +162,17 @@ public class OpenSearchController(DatabaseService databaseService)
         return Ok(artists);
     }
 
+    [HttpGet("FindAlbums")]
+    public async Task<ActionResult<List<AlbumResponseDto>>> FindAlbums(string search, int maxHitCount)
+    {
+        var artists = await OpenSearchService.Instance.SearchForAlbum(search, maxHitCount, databaseService);
+
+        if (artists == null)
+            return BadRequest("Error while searching for Album!");
+
+        return Ok(artists);
+    }
+
     #endregion
 
     #region Private Methods

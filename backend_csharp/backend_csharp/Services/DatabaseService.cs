@@ -45,6 +45,20 @@ public class DatabaseService(DataContext dataContext)
         return await dataContext.Albums.Include(x => x.Artist).FirstOrDefaultAsync(x => x.Id.Equals(id));
     }
 
+    public async Task <Album?> GetAlbumBySong(string songId)
+    {
+        var song = await dataContext.DatabaseSongs
+                                    .Include(x => x.Album)
+                                    .ThenInclude(x => x.Artist)
+                                    .FirstOrDefaultAsync(x => x.Id.Equals(songId));
+
+        if (song == null
+            || song.Album == null)
+            return null;
+
+        return song.Album;
+    }
+
     public async Task <List <Album>> GetAllAlbums()
     {
         return await dataContext.Albums.ToListAsync();

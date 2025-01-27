@@ -227,6 +227,49 @@ public class OpenSearchService
 
     #endregion
 
+    #region Album Search
+
+    public async Task <List <AlbumResponseDto>?> SearchForAlbum(
+        string search,
+        int maxHitCount,
+        DatabaseService dbService)
+    {
+        // Finding all OpenSearchSongDocuments, where Album is fitting the search
+        var openSearchResponse = await _client.SearchAsync<OpenSearchSongDocument>(
+            x => x
+                 .Index(IndexName)
+                 .Size(maxHitCount)
+                 .Query(q => q
+                            .Match(m => m
+                                        .Field(f => f.AlbumTitle)
+                                        .Query(search)
+                                        .Fuzziness(Fuzziness.Auto)))
+                 .Sort(s => s.Descending(SortSpecialField.Score)));
+
+        if (!openSearchResponse.IsValid)
+            return null;
+
+        // Reduce multiple found albums to one
+        Dictionary<string, AlbumResponseDto> albumSortContainer = new Dictionary<string, AlbumResponseDto>();
+
+        foreach (var songResponse in openSearchResponse.Documents)
+        {
+            if (albumSortContainer.ContainsKey(songResponse.AlbumTitle))
+                continue;
+
+            var album = await dbService.GetAlbumBySong(songResponse.Id);
+
+            if (album == null || string.IsNullOrEmpty(album.Name))
+                continue;
+
+            albumSortContainer.Add(album.Name, album.ToAlbumResponseDto(songResponse.ArtistName, songResponse.ReleaseDate));
+        }
+
+        return albumSortContainer.Values.ToList();
+    }
+
+    #endregion
+
 
     #endregion
 
