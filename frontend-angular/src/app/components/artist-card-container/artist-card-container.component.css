@@ -1,0 +1,84 @@
+.playlist_card_collections {
+    display: flex;
+  flex-wrap: wrap; /* Karten umbrechen, wenn sie nicht in eine Zeile passen */
+  gap: 20px; /* Abstand zwischen den Karten */
+  justify-content: left; /* Karten gleichmäßig verteilen */
+  direction: ltr; /* Links-nach-Rechts-Ausrichtung explizit setzen */
+}
+
+#artist_card_item {
+    flex: 1 1 calc(20% - 20px); /* Jede Karte nimmt 25% der Breite abzüglich Abstand */
+  box-sizing: border-box; /* Padding und Border in die Breite einberechnen */
+  max-width: calc(20% - 20px); /* Maximale Breite pro Karte */
+}
+
+.artist-cards-container {
+    background-color: #2c2c2c; /* Dunkler Hintergrund */
+    border-radius: 10px; /* Abgerundete Ecken */
+    padding: 20px; /* Innenabstand */
+    margin: 20px auto; /* Abstand zu anderen Elementen, zentriert */
+    max-width: 1500px; /* Maximale Breite */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Schatten für Tiefeneffekt */
+  }
+  
+  /* Titel-Styling */
+  .artist-cards-container h4 {
+    margin: 0 0 15px 0; /* Abstand unterhalb des Titels */
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  /* Container für die Buttons */
+.buttons-container {
+  display: flex;
+  justify-content: center; /* Buttons zentrieren */
+  margin-top: 20px; /* Abstand oberhalb der Buttons */
+  gap: 15px; /* Abstand zwischen den Buttons */
+}
+
+/* Buttons */
+.buttons-container button {
+  background-color: #1ED760; /* Blau als Hintergrundfarbe */
+  color: white; /* Weißer Text */
+  border: none; /* Keine Umrandung */
+  border-radius: 5px; /* Abgerundete Ecken */
+  padding: 10px 20px; /* Innenabstand */
+  font-size: 16px; /* Schriftgröße */
+  display: flex;
+  align-items: center; /* Text und Icon zentrieren */
+  gap: 10px; /* Abstand zwischen Text und Icon */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover-Effekt */
+.buttons-container button:hover {
+  background-color: rgb(32, 32, 32);
+  color: rgb(9, 185, 9); /* Dunkleres Blau bei Hover */
+}
+
+/* Deaktivierter Zustand */
+.buttons-container button[disabled] {
+  background-color: #cccccc;
+}
+
+
+/* Pfeil-Icons */
+.arrow {
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+}
+
+/* Linker Pfeil */
+.arrow.left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+}
+
+/* Rechter Pfeil */
+.arrow.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}

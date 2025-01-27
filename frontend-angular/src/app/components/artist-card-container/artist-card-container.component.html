@@ -1,0 +1,20 @@
+<div class="artist-cards-container">
+    <h4 [style.color]="'white'" [style.padding]="'10px'">Artists</h4>
+    <div class="playlist_card_collections" >
+        <div id="artist_card_item" *ngFor="let artist of visibleArtists">
+            <app-artist-card
+            [artist]="artist.name"
+            [genre]="artist.genre.join(', ')"
+            [coverUrl]="artist.coverUrl"
+            ></app-artist-card>
+        </div>
+    </div>
+    <div class="buttons-container">
+        <button (click)="showLess()" [disabled]="visibleCount <= step">
+          <i class="arrow left"></i> Weniger
+        </button>
+        <button (click)="showMore()" [disabled]="visibleCount >= opensearchService.songs.length">
+          Mehr <i class="arrow right"></i>
+        </button>
+      </div>
+</div>

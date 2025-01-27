@@ -13,10 +13,11 @@ import { PlaybarService } from '../../services/playbar.service';
 import { AdminComponent } from "../admin/admin.component";
 import { ArtistCardComponent } from "../../components/artist-card/artist-card.component";
 import { AlbumCardComponent } from "../../components/album-card/album-card.component";
+import { ArtistCardContainerComponent } from "../../components/artist-card-container/artist-card-container.component";
 
 @Component({
   selector: 'app-home',
-  imports: [TopNavComponent, SongCardComponent, CommonModule, RouterModule, HttpClientModule, AsyncPipe, PlaybarComponent, SongCardContainerComponent, AdminComponent, ArtistCardComponent, AlbumCardComponent],
+  imports: [TopNavComponent, SongCardComponent, CommonModule, RouterModule, HttpClientModule, AsyncPipe, PlaybarComponent, SongCardContainerComponent, AdminComponent, ArtistCardComponent, AlbumCardComponent, ArtistCardContainerComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

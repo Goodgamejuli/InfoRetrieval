@@ -13,7 +13,7 @@ export class OpenSearchService {
     private http = inject(HttpClient);
     private openSearchApiUrl = environment.apiURL + '/api/OpenSearch';
 
-    public minScoreThreshold: number = 1.0;
+    public minScoreThreshold: number = 0.10;
 
     public songs: SongDTO[] = [];
     public artists: ArtistDto[] = [];
