@@ -49,6 +49,8 @@ namespace backend_csharp.Models
             
             // 3. Found songs should be alphabetically sorted
 
+            // TODO: Ist das noch aktuell?
+
             if (other == null)
                 return -1;
 
