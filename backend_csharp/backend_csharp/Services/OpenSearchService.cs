@@ -1,7 +1,9 @@
 using backend_csharp.Helper;
 using backend_csharp.Models;
+using backend_csharp.Models.Database;
 using MetaBrainz.MusicBrainz;
 using OpenSearch.Client;
+using System.Runtime.CompilerServices;
 
 namespace backend_csharp.Services;
 
@@ -166,7 +168,7 @@ public class OpenSearchService
                                           Fuzziness(Fuzziness.Auto))
                            ))).Sort(s => s.Descending(SortSpecialField.Score)));
 
-        if (songs == null)
+        if (songs == null || !songs.IsValid)
             return null;
 
         List <OpenSearchSongDocument> filteredSongs = [];
@@ -266,6 +268,47 @@ public class OpenSearchService
         }
 
         return albumSortContainer.Values.ToList();
+    }
+
+    public async Task <List <SongDto>> FindMatchingSongsInAlbum(
+        string albumTitle, 
+        DatabaseService dbService,
+        float minScoreThreshold = 1,
+        string? search = null)
+    {
+        var openSearchResponse = await _client.SearchAsync <OpenSearchSongDocument>(
+            s => s.Index(IndexName).
+                   Query(
+                       q => q.Bool(
+                           b => b.Must(
+                                      f => f.Term(
+                                          t => t.Field(ff => ff.AlbumTitle.Suffix("keyword")).Value(albumTitle)
+                                      )
+                                  ))));
+
+        if (openSearchResponse == null || !openSearchResponse.IsValid)
+            return null;
+
+        List<SongDto> filteredSongs = new List <SongDto>();
+
+        IHit<OpenSearchSongDocument>[] hits = openSearchResponse.Hits.ToArray();
+        OpenSearchSongDocument[] documents = openSearchResponse.Documents.ToArray();
+
+        for (var i = 0; i < openSearchResponse.Documents.Count; i++)
+        {
+            // Return if threshold wasn't hit
+            if (hits[i].Score < minScoreThreshold)
+                continue;
+
+            DatabaseSong? dbSong = await dbService.GetSong(documents[i].Id);
+
+            if (dbSong == null)
+                continue;
+
+            filteredSongs.Add(new SongDto(documents[i], dbSong));
+        }
+
+        return filteredSongs;
     }
 
     #endregion
