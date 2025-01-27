@@ -89,11 +89,32 @@ public class OpenSearchService
 
         try
         {
-            CreateIndexResponse? response = await _client.Indices.CreateAsync(
-                IndexName,
-                x => x.Map <OpenSearchSongDocument>(
-                    xx
-                        => xx.AutoMap()));
+            // Creating an Index for the song document
+            var response = await _client.Indices.CreateAsync(IndexName, c => c
+                .Map<OpenSearchSongDocument>(m => m
+                    .Properties(p => p
+                        // Indexing title as Text but a keyword-search is also possible
+                        .Text(t => t
+                            .Name(n => n.Title)
+                            .Fields(f => f.Keyword(k => k.Name("keyword")))
+                        )
+                        .Text(t => t
+                            .Name(n => n.AlbumTitle)
+                            .Fields(f => f.Keyword(k => k.Name("keyword")))
+                        )
+                        .Text(t => t
+                            .Name(n => n.ArtistName)
+                            .Fields(f => f.Keyword(k => k.Name("keyword")))
+                        )
+                        .Text(t => t.Name(n => n.Lyrics))
+                        .Date(d => d // Feld als Datum definieren
+                            .Name(n => n.ReleaseDate)
+                            .Format("yyyy-MM-dd") // Optional: Datumsformat
+                        )
+                        .Keyword(k => k.Name(n => n.Genre)) // Genre bleibt ein Keyword
+            )
+        )
+    );
 
             return response.DebugInformation;
         }
@@ -280,11 +301,21 @@ public class OpenSearchService
             s => s.Index(IndexName).
                    Query(
                        q => q.Bool(
-                           b => b.Must(
+                           b => b.Filter( // Filter --> value must be fitting
                                       f => f.Term(
-                                          t => t.Field(ff => ff.AlbumTitle.Suffix("keyword")).Value(albumTitle)
+                                          t => t.Field(ff => ff
+                                                             .AlbumTitle.Suffix("keyword")).Value(albumTitle)
                                       )
-                                  ))));
+                                  )
+                                  .Must(m => search != null ? m
+                                        .MultiMatch(mm => mm
+                                            .Fields(f => f
+                                                .Field(ff => ff.Title)
+                                            )
+                                            .Query(search)
+                                            .Fuzziness(Fuzziness.Auto) 
+                                        ) : null
+                           ))));
 
         if (openSearchResponse == null || !openSearchResponse.IsValid)
             return null;
