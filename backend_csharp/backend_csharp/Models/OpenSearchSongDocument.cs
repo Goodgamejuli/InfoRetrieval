@@ -1,4 +1,5 @@
-﻿using OpenSearch.Client;
+﻿using backend_csharp.Models.Database;
+using OpenSearch.Client;
 
 namespace backend_csharp.Models
 {
@@ -27,6 +28,14 @@ namespace backend_csharp.Models
 
         [Keyword]
         public List <string> Genre { get; set; }
+
+        public string? GenerateSongEmbed()
+        {
+            if (Id.StartsWith("mbid_"))
+                return null;
+
+            return $"https://open.spotify.com/embed/track/{Id}?utm_source=generator";
+        }
 
         public int CompareTo(OpenSearchSongDocument? other)
         {

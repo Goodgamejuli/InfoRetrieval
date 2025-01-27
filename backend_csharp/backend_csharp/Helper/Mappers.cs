@@ -23,19 +23,5 @@ namespace backend_csharp.Helper
                 Id = Guid.NewGuid(), UserId = simpleSong.UserId, DatabaseSongId = simpleSong.DatabaseSongId
             };
         }
-
-        public static SongDto ToSongDto(this OpenSearchSongDocument openSearchSongDocument)
-        {
-            return new SongDto()
-            {
-                Album = openSearchSongDocument.AlbumTitle,
-                Artist = openSearchSongDocument.ArtistName,
-                Genre = openSearchSongDocument.Genre,
-                Lyrics = openSearchSongDocument.Lyrics,
-                Release = openSearchSongDocument.ReleaseDate,
-                Id = openSearchSongDocument.Id,
-                Title = openSearchSongDocument.Title
-            };
-        }
     }
 }

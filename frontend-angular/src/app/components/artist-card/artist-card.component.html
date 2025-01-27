@@ -1,0 +1,19 @@
+<div class="artist-card">
+
+  <div class="artist-card_title">{{artist || 'Künstler nicht verfügbar'}}</div>
+    
+    <div class="artist-card_thumbnail">
+      <img [src]="coverUrl" alt="/assets/songs/song_placeholder.png">
+    </div>
+    
+    <div class="artist-card_description">
+      <div class="artist-card_description-genre">{{genre || 'Genre nicht verfügbar'}}</div>
+      <hr class="description-separator">
+    </div>
+
+    <div class="artist-card_discover-button">
+      <a>Discover Artist</a>
+    </div>
+
+</div>  
+  

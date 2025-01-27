@@ -17,9 +17,10 @@ export class TopNavComponent {
   public isSearchFieldVisible: boolean = false;
 
   filterOptions = [
-    { label: 'Song', value: 'song' },
-    { label: 'Künstler', value: 'künstler' },
+    { label: 'Song', value: 'title' },
     { label: 'Album', value: 'album' },
+    { label: 'Künstler', value: 'artist' },
+    { label: 'Lyrics', value: 'lyrics' },
     { label: 'Genre', value: 'genre' },
   ];
 
@@ -51,13 +52,22 @@ export class TopNavComponent {
     }
   }
 
+  // OnClick-function if the search button is pressed
   search() {
-    console.log("searchValue: ", this.searchValue);
+    var query = "";
 
-    this.opensearchService.getSongTest();
-  }
+    this.selectedFilterOptions.forEach(selectedFilter => {
+      query += selectedFilter + ";";
+    });
 
-  onTestClick() {
-    this.opensearchService.getSongTest();
+    console.log(query);
+
+    // If there are no given query parameters, search with all parameters
+    if(query=="") {
+      this.opensearchService.searchForSongs(this.searchValue);
+      return;
+    }
+
+    this.opensearchService.searchForSongs(this.searchValue, query);
   }
 }

@@ -95,3 +95,4 @@ Thumbs.db
 .idea/
 *.DS_Store
 *.log
+backend_csharp/database.db

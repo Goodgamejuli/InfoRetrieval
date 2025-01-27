@@ -1,5 +1,4 @@
-﻿using backend_csharp.Models;
-using MetaBrainz.MusicBrainz;
+﻿using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.Interfaces.Browses;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 using MetaBrainz.MusicBrainz.Interfaces.Searches;
@@ -10,9 +9,10 @@ public static class MusicBrainzApiService
 {
     #region Public Methods
 
-    public static async Task <List <OpenSearchSongDocument>?> GetAllTracksOfArtistAsOpenSearchDocument(
-        string artistName)
+    public static async Task <List<OpenSearchService.CrawlSongData>?> CrawlAllSongsOfArtist(string artistName)
     {
+        Console.WriteLine("Crawling songs from musicBrainz...");
+        
         var query = new Query("InfoManagement", "0.0.1", "tiogiras@gmail.com");
 
         IArtist? artist = await query.QueryArtist(artistName);
@@ -27,80 +27,109 @@ public static class MusicBrainzApiService
             return null;
 
         Dictionary <string, PartialDate> recordingDates = new();
-        
+
         foreach (IRecording recording in recordings)
         {
             if (recording.FirstReleaseDate == null)
                 continue;
-            
+
             recordingDates.Add(recording.Id.ToString(), recording.FirstReleaseDate);
         }
-        
-        List <OpenSearchSongDocument> output = [];
+
+        List <OpenSearchService.CrawlSongData> output = [];
 
         for (var i = 0; i < tracks.Count; i++)
         {
-            try
-            {
-                Console.WriteLine($"Generating track {i}/{tracks.Count}");
+            IWork track = tracks[i];
             
-                IWork track = tracks[i];
-                
-                output.Add(await CreateOpenSearchTrack(query, artist, track, recordingDates));
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Skipped entry caused by invalid mbid");
-            }
-        }
+            if ((track.Title ?? string.Empty).Contains('(') && (track.Title ?? string.Empty).Contains(')'))
+                continue;
 
-        return output;
+            OpenSearchService.CrawlSongData? data = await CreateCrawlSongData(query, artist, tracks[i], recordingDates);
+            
+            if (data != null)
+                output.Add(data);
+        }
+        
+        return output.Count > 0 ? output : null;
     }
-    
+
     #endregion
 
     #region Private Methods
 
-    private static async Task<OpenSearchSongDocument> CreateOpenSearchTrack(Query query, IArtist artist, IWork track, Dictionary <string, PartialDate> recordings)
+    private static async Task<OpenSearchService.CrawlSongData?> CreateCrawlSongData(
+        Query query,
+        IArtist artist,
+        IWork track,
+        Dictionary <string, PartialDate> recordingDates)
     {
-        var releaseDate = GetFirstReleaseDateForTrack(track, recordings, out Guid releaseRecording);
-        
-        var spotifyId = await SpotifyAPIService.Instance.GetSpotifyIdOfSong(track.Title, artist.Name);
-        
-        var osSong = new OpenSearchSongDocument
+        PartialDate? releaseDate = GetFirstReleaseDateForTrack(track, recordingDates, out Guid releaseRecording);
+
+        string[]? genres = null;
+
+        if (track.Genres is {Count: > 0})
         {
-            Id = string.IsNullOrEmpty(spotifyId) ? $"mbid_{track.Id}" : spotifyId,
-            AlbumTitle = GetAlbumTitleOfRecording(query, releaseRecording),
-            ArtistName = artist.Name ?? "Unknown Artist",
-            Lyrics = "",
-            Title = track.Title ?? "Unknown Title",
-            ReleaseDate = releaseDate,
-            Genre = track.Genres != null
-                ? track.Genres.Select(genre => genre.Name ?? "Unknown Genre").ToList()
-                : []
-        };
+            genres = new string[track.Genres.Count];
 
-        return osSong;
-    }
+            for (var j = 0; j < track.Genres.Count; j++)
+            {
+                IGenre genre = track.Genres[j];
 
-    private static string GetAlbumTitleOfRecording(Query query, Guid releaseRecording)
-    {
-        IRecording recording = query.LookupRecording(releaseRecording, Include.Releases);
+                if (!string.IsNullOrEmpty(genre.Name))
+                    genres[j] = genre.Name;
+            }
+        }
 
-        IRelease? release = recording.Releases?.FirstOrDefault(release => release.Date == recording.FirstReleaseDate);
+        var albumTitle = await GetAlbumTitleOfRecording(query, releaseRecording);
+
+        if (string.IsNullOrEmpty(albumTitle))
+            return null;
         
-        return release?.Title ?? "Unknown Album";
+        return new OpenSearchService.CrawlSongData
+        {
+            id = $"mbid_{track.Id.ToString()}",
+            title = track.Title,
+            albumId = $"mbid_{releaseRecording.ToString()}",
+            albumTitle = albumTitle,
+            artistId = $"mbid_{artist.Id.ToString()}",
+            artistName = artist.Name,
+            genres = genres,
+            releaseDate = releaseDate
+        };
     }
 
-    private static string GetFirstReleaseDateForTrack(IWork track, Dictionary <string, PartialDate> recordingDates, out Guid releaseRecording)
+    private static async Task<string?> GetAlbumTitleOfRecording(Query query, Guid releaseRecording)
+    {
+        try
+        {
+            IRecording recording = await query.LookupRecordingAsync(releaseRecording, Include.Releases);
+            
+            IRelease? release = recording.Releases?.FirstOrDefault(release => release.Date == recording.FirstReleaseDate);
+
+            return release?.Title;
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Could not get recording due to invalid mbid returning null");
+            
+            return null;
+        }
+    }
+
+    private static PartialDate? GetFirstReleaseDateForTrack(
+        IWork track,
+        Dictionary <string, PartialDate> recordingDates,
+        out Guid releaseRecording)
     {
         releaseRecording = Guid.Empty;
-        
+
         if (track.Relationships == null)
-            return "";
+            return null;
 
         Guid[] recordings = track.Relationships.Where(rel => rel.Recording != null).
-                                  Select(relationship => relationship.Recording!.Id).ToArray();
+                                  Select(relationship => relationship.Recording!.Id).
+                                  ToArray();
 
         PartialDate? firstReleaseDate = null;
 
@@ -116,53 +145,17 @@ public static class MusicBrainzApiService
             releaseRecording = recording;
         }
 
-        return firstReleaseDate?.ToString() ?? "";
+        return firstReleaseDate;
     }
 
-    private static async Task <IArtist?> QueryArtist(this Query query, string artistName)
-    {
-        // Queries all artists corresponding to the artist name but only picks the one with the highest score
-        ISearchResults <ISearchResult <IArtist>> artists = await query.FindArtistsAsync(artistName, 1, simple: true);
-
-        return artists.TotalResults == 0 ? null : artists.Results[0].Item;
-    }
-
-    private static async Task <IReadOnlyList <IWork>?> QueryAllTracks(this Query query, IArtist artist)
-    {
-        List <IWork> allTracks = [];
-        
-        var offset = 0;
-
-        IBrowseResults<IWork> works;
-        do
-        {
-            if (offset > 0)
-                Console.WriteLine($"...{offset}");
-            
-            works = await query.BrowseArtistWorksAsync(
-                artist.Id,
-                100,
-                offset,
-                Include.RecordingRelationships | Include.Genres);
-            
-            allTracks.AddRange(works.Results);
-            offset += works.Results.Count;
-        }
-        while (works.Results.Count > 0);
-        
-        Console.WriteLine($"Queried {allTracks.Count} tracks");
-        
-        return allTracks.Count > 0 ? allTracks : null;
-    }
-    
     private static async Task <IReadOnlyList <IRecording>?> QueryAllRecordings(this Query query, IArtist artist)
     {
         List <IRecording> allRecordings = [];
-        
+
         var offset = 0;
 
-        IBrowseResults<IRecording> recordings;
-        
+        IBrowseResults <IRecording> recordings;
+
         do
         {
             if (offset > 0)
@@ -172,15 +165,54 @@ public static class MusicBrainzApiService
                 artist.Id,
                 100,
                 offset);
-            
+
             allRecordings.AddRange(recordings.Results);
             offset += recordings.Results.Count;
         }
         while (recordings.Results.Count > 0);
-        
+
         Console.WriteLine($"Queried {allRecordings.Count} recordings");
         
+        Console.WriteLine("This could take a while...");
+
         return allRecordings.Count > 0 ? allRecordings : null;
+    }
+
+    private static async Task <IReadOnlyList <IWork>?> QueryAllTracks(this Query query, IArtist artist)
+    {
+        List <IWork> allTracks = [];
+
+        var offset = 0;
+
+        IBrowseResults <IWork> works;
+
+        do
+        {
+            if (offset > 0)
+                Console.WriteLine($"...{offset}");
+
+            works = await query.BrowseArtistWorksAsync(
+                artist.Id,
+                100,
+                offset,
+                Include.RecordingRelationships | Include.Genres);
+
+            allTracks.AddRange(works.Results);
+            offset += works.Results.Count;
+        }
+        while (works.Results.Count > 0);
+
+        Console.WriteLine($"Queried {allTracks.Count} tracks");
+
+        return allTracks.Count > 0 ? allTracks : null;
+    }
+
+    private static async Task <IArtist?> QueryArtist(this Query query, string artistName)
+    {
+        // Queries all artists corresponding to the artist name but only picks the one with the highest score
+        ISearchResults <ISearchResult <IArtist>> artists = await query.FindArtistsAsync(artistName, 1, simple: true);
+
+        return artists.TotalResults == 0 ? null : artists.Results[0].Item;
     }
 
     #endregion

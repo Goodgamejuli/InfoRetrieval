@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_csharp.Database;
 
@@ -10,9 +11,11 @@ using backend_csharp.Database;
 namespace backend_csharp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250120141411_AddEmbed")]
+    partial class AddEmbed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -32,63 +35,15 @@ namespace backend_csharp.Migrations
                     b.ToTable("DatabaseSongPlaylist");
                 });
 
-            modelBuilder.Entity("backend_csharp.Models.Database.Album", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ArtistId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CoverUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArtistId");
-
-                    b.ToTable("Albums");
-                });
-
-            modelBuilder.Entity("backend_csharp.Models.Database.Artist", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CoverUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Artists");
-                });
-
             modelBuilder.Entity("backend_csharp.Models.Database.DatabaseSong", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("AlbumId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Embed")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("AlbumId");
 
                     b.ToTable("DatabaseSongs");
                 });
@@ -101,9 +56,6 @@ namespace backend_csharp.Migrations
 
                     b.Property<string>("DatabaseSongId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("LastListenedTo")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -176,28 +128,6 @@ namespace backend_csharp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("backend_csharp.Models.Database.Album", b =>
-                {
-                    b.HasOne("backend_csharp.Models.Database.Artist", "Artist")
-                        .WithMany("Albums")
-                        .HasForeignKey("ArtistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Artist");
-                });
-
-            modelBuilder.Entity("backend_csharp.Models.Database.DatabaseSong", b =>
-                {
-                    b.HasOne("backend_csharp.Models.Database.Album", "Album")
-                        .WithMany("Songs")
-                        .HasForeignKey("AlbumId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Album");
-                });
-
             modelBuilder.Entity("backend_csharp.Models.Database.LastListenedSong", b =>
                 {
                     b.HasOne("backend_csharp.Models.Database.DatabaseSong", "DatabaseSong")
@@ -207,7 +137,7 @@ namespace backend_csharp.Migrations
                         .IsRequired();
 
                     b.HasOne("backend_csharp.Models.Database.User", "User")
-                        .WithMany("LastListenedSongs")
+                        .WithMany("LastListenedSong")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -228,16 +158,6 @@ namespace backend_csharp.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("backend_csharp.Models.Database.Album", b =>
-                {
-                    b.Navigation("Songs");
-                });
-
-            modelBuilder.Entity("backend_csharp.Models.Database.Artist", b =>
-                {
-                    b.Navigation("Albums");
-                });
-
             modelBuilder.Entity("backend_csharp.Models.Database.DatabaseSong", b =>
                 {
                     b.Navigation("LastListenedSongs");
@@ -245,7 +165,7 @@ namespace backend_csharp.Migrations
 
             modelBuilder.Entity("backend_csharp.Models.Database.User", b =>
                 {
-                    b.Navigation("LastListenedSongs");
+                    b.Navigation("LastListenedSong");
 
                     b.Navigation("Playlists");
                 });
