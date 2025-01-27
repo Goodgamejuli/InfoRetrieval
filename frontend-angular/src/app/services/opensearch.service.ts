@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../environments/environment.development";
 import { map, Observable } from "rxjs";
 import { SongDTO } from "../models/songDto";
+import { ArtistDto } from "../models/artistDto";
 
 @Injectable({
     providedIn: 'root',
@@ -10,14 +11,15 @@ import { SongDTO } from "../models/songDto";
 
 export class OpenSearchService {
     private http = inject(HttpClient);
-    private apiURL = environment.apiURL + '/api/OpenSearch';
+    private openSearchApiUrl = environment.apiURL + '/api/OpenSearch';
 
-    public minScoreThreshold: number = 0.0;
+    public minScoreThreshold: number = 1.0;
 
-    public Songs: SongDTO[] = [];
+    public songs: SongDTO[] = [];
+    public artists: ArtistDto[] = [];
 
     public get(): Observable<any> {
-        return this.http.get(this.apiURL);
+        return this.http.get(this.openSearchApiUrl);
     }
 
 
@@ -34,7 +36,7 @@ export class OpenSearchService {
 
         console.log(params.toString());
 
-        var results = this.http.post<SongDTO>(`${this.apiURL}/CrawlAllSongsOfArtist`,{}, {params})
+        var results = this.http.post<SongDTO>(`${this.openSearchApiUrl}/CrawlAllSongsOfArtist`,{}, {params})
             .subscribe({
                 next: () => {
                     console.log("songs crawled")
@@ -51,7 +53,7 @@ export class OpenSearchService {
         hitCount: number = 10
     ){
         if(searchValue == null || searchValue == "") {
-            this.Songs = [];
+            this.songs = [];
             return;
         }
 
@@ -62,18 +64,39 @@ export class OpenSearchService {
         .set('hitCount', hitCount.toString())
         .set('minScoreThreshold', this.minScoreThreshold);
 
-        console.log(params.toString());
-
-        var results = this.http.get<SongDTO[]>(`${this.apiURL}/FindSongs`, {params})
+        var results = this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongs`, {params})
             .subscribe({
                 next: (songs) => {
                     if(songs.length == 0)
-                        console.log("kein song gefunden!")
+                        console.log("kein song gefunden!");
 
-                    this.Songs = songs;
+                    this.songs = songs;
                 },
                 error: (err) => {
                     console.error('Error findingsongs: ', err);
+                }
+            });
+    }
+
+    public searchForArtist(
+        searchValue: string,
+        maxHitCount: number = 10
+    ) {
+        //Define params
+        const params = new HttpParams()
+        .set('search', searchValue)
+        .set('maxHitCount', maxHitCount)
+
+        this.http.get<ArtistDto[]>(`${this.openSearchApiUrl}/FindArtists`, {params})
+            .subscribe( {
+                next: (artists) => {
+                    if(artists.length == 0)
+                        console.log("Kein artist gefunden!");
+                    this.artists = artists;
+                    console.log(this.artists);
+                },
+                error: (err) => {
+                    console.error('Error finding artists: ', err);
                 }
             });
     }

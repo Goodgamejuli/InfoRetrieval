@@ -1,4 +1,4 @@
-export interface SongDTO {
+export type SongDTO = {
     title: string;
     lyrics: string;
     album: string;

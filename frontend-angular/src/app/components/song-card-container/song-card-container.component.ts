@@ -18,12 +18,12 @@ export class SongCardContainerComponent {
 
   // Getter, um die sichtbaren Songs basierend auf visibleCount zu ermitteln
   get visibleSongs() {
-    return this.opensearchService.Songs.slice(0, this.visibleCount);
+    return this.opensearchService.songs.slice(0, this.visibleCount);
   }
 
   // Mehr anzeigen
   showMore() {
-    if (this.visibleCount < this.opensearchService.Songs.length) {
+    if (this.visibleCount < this.opensearchService.songs.length) {
       this.visibleCount += this.step;
     }
   }

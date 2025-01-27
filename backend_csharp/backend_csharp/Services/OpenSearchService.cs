@@ -1,3 +1,4 @@
+using backend_csharp.Helper;
 using backend_csharp.Models;
 using MetaBrainz.MusicBrainz;
 using OpenSearch.Client;
@@ -185,6 +186,47 @@ public class OpenSearchService
 
         return filteredSongs.ToArray();
     }
+
+    #region Artist Search
+
+    public async Task <List <ArtistResponseDto>?> SearchForArtist(string search, int maxHitCount, DatabaseService dbService)
+    {
+        // Finding all OpenSearchSongDocuments, where Artists is fitting the search
+        var openSearchResponse = await _client.SearchAsync<OpenSearchSongDocument>(
+            x => x
+                 .Index(IndexName)
+                 .Size(maxHitCount)
+                 .Query(q => q
+                            .Match(m => m
+                                        .Field(f => f.ArtistName)
+                                        .Query(search)
+                                        .Fuzziness(Fuzziness.Auto)))
+                 .Sort(s => s.Descending(SortSpecialField.Score)));
+
+        if (!openSearchResponse.IsValid)
+            return null;
+
+        // Reduce multiple found artists to one
+        Dictionary <string, ArtistResponseDto> artistSortContainer = new Dictionary <string, ArtistResponseDto>();
+
+        foreach (var songResponse in openSearchResponse.Documents)
+        {
+            if(artistSortContainer.ContainsKey(songResponse.ArtistName))
+                continue;
+
+            var artist = await dbService.GetArtistBySong(songResponse.Id);
+
+            if(artist == null)
+                continue;
+
+            artistSortContainer.Add(artist.Name, artist.ToArtistsResponseDto(songResponse.Genre));
+        }
+
+        return artistSortContainer.Values.ToList();
+    }
+
+    #endregion
+
 
     #endregion
 

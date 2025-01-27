@@ -85,6 +85,20 @@ public class DatabaseService(DataContext dataContext)
         return await dataContext.Artists.FirstOrDefaultAsync(x => x.Id.Equals(id));
     }
 
+    public async Task <Artist?> GetArtistBySong(string songId)
+    {
+        var song = await dataContext.DatabaseSongs.Include(x => x.Album).
+                                     ThenInclude(x => x.Artist).
+                                     FirstOrDefaultAsync(x => x.Id.Equals(songId));
+
+        if(song == null 
+           || song.Album == null
+           || song.Album.Artist == null)
+            return null;
+
+        return song.Album.Artist;
+    }
+
     #region UserSpecific
 
     public async Task <bool> InsertUserToDatabase(SimpleUser simpleUser)

@@ -23,5 +23,13 @@ namespace backend_csharp.Helper
                 Id = Guid.NewGuid(), UserId = simpleSong.UserId, DatabaseSongId = simpleSong.DatabaseSongId
             };
         }
+
+        public static ArtistResponseDto ToArtistsResponseDto(this Artist artist, List <string> genre)
+        {
+            return new ArtistResponseDto
+            {
+                Id = artist.Id, Name = artist.Name, CoverUrl = artist.CoverUrl, Genre = genre
+            };
+        }
     }
 }

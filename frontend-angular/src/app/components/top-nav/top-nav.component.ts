@@ -69,5 +69,9 @@ export class TopNavComponent {
     }
 
     this.opensearchService.searchForSongs(this.searchValue, query);
+
+    // Search for Artists if selected
+    if(this.selectedFilterOptions.includes('artist'))
+      this.opensearchService.searchForArtist(this.searchValue);
   }
 }
