@@ -440,13 +440,18 @@ public class OpenSearchService
         return albumSortContainer.Values.ToList();
     }
 
-    public async Task <List <SongDto>> FindMatchingSongsInAlbum(
+    public async Task <List <SongDto>?> FindMatchingSongsInAlbum(
         string albumTitle,
         DatabaseService dbService,
-        float minScoreThreshold = 1,
-        string? search = null)
+        string search,
+        float minScoreThreshold)
     {
-        ISearchResponse <OpenSearchSongDocument>? openSearchResponse =
+        if (string.IsNullOrEmpty(albumTitle) || string.IsNullOrEmpty(search))
+            return null;
+
+        search = search.ToLower();
+        
+        ISearchResponse <OpenSearchSongDocument> openSearchResponse =
             await _client.SearchAsync <OpenSearchSongDocument>(
                 s => s.Index(IndexName).
                        Query(
@@ -457,18 +462,27 @@ public class OpenSearchService
                                           )
                                       ).
                                       Must(
-                                          m => search != null
-                                              ? m.MultiMatch(
-                                                  mm => mm.Fields(
-                                                               f => f.Field(ff => ff.Title)
-                                                           ).
-                                                           Query(search).
-                                                           Fuzziness(Fuzziness.Auto)
-                                              )
-                                              : null
+                                          m =>
+                                          {
+                                              if (search.Contains('*') || search.Contains('?'))
+                                              {
+                                                  m.Wildcard(
+                                                      w => w.Field(f => f.Title).
+                                                             Value(search));
+                                              }
+                                              else
+                                              {
+                                                  m.Match(
+                                                      mm => mm.Field(f => f.Title).
+                                                               Query(search).
+                                                               Fuzziness(Fuzziness.Auto));
+                                              }
+
+                                              return m;
+                                          }
                                       ))));
 
-        if (openSearchResponse == null || !openSearchResponse.IsValid)
+        if (openSearchResponse is not {IsValid: true})
             return null;
 
         List <SongDto> filteredSongs = new();
