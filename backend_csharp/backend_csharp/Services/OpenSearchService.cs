@@ -3,7 +3,6 @@ using backend_csharp.Models;
 using backend_csharp.Models.Database;
 using MetaBrainz.MusicBrainz;
 using OpenSearch.Client;
-using System.Runtime.CompilerServices;
 
 namespace backend_csharp.Services;
 
@@ -44,7 +43,7 @@ public class OpenSearchService
         if (spotifySongData == null && mbSongData == null)
         {
             Console.WriteLine("Failed: No data provided!");
-            
+
             return null;
         }
 
@@ -53,7 +52,7 @@ public class OpenSearchService
         if (string.IsNullOrEmpty(id))
         {
             Console.WriteLine("Failed: Missing song id!");
-            
+
             return null;
         }
 
@@ -90,31 +89,32 @@ public class OpenSearchService
         try
         {
             // Creating an Index for the song document
-            var response = await _client.Indices.CreateAsync(IndexName, c => c
-                .Map<OpenSearchSongDocument>(m => m
-                    .Properties(p => p
-                        // Indexing title as Text but a keyword-search is also possible
-                        .Text(t => t
-                            .Name(n => n.Title)
-                            .Fields(f => f.Keyword(k => k.Name("keyword")))
-                        )
-                        .Text(t => t
-                            .Name(n => n.AlbumTitle)
-                            .Fields(f => f.Keyword(k => k.Name("keyword")))
-                        )
-                        .Text(t => t
-                            .Name(n => n.ArtistName)
-                            .Fields(f => f.Keyword(k => k.Name("keyword")))
-                        )
-                        .Text(t => t.Name(n => n.Lyrics))
-                        .Date(d => d // Feld als Datum definieren
-                            .Name(n => n.ReleaseDate)
-                            .Format("yyyy-MM-dd") // Optional: Datumsformat
-                        )
-                        .Keyword(k => k.Name(n => n.Genre)) // Genre bleibt ein Keyword
-            )
-        )
-    );
+            CreateIndexResponse? response = await _client.Indices.CreateAsync(
+                IndexName,
+                c => c.Map <OpenSearchSongDocument>(
+                    m => m.Properties(
+                        p => p
+
+                             // Indexing title as Text but a keyword-search is also possible
+                             .Text(
+                                 t => t.Name(n => n.Title).Fields(f => f.Keyword(k => k.Name("keyword")))
+                             ).
+                             Text(
+                                 t => t.Name(n => n.AlbumTitle).Fields(f => f.Keyword(k => k.Name("keyword")))
+                             ).
+                             Text(
+                                 t => t.Name(n => n.ArtistName).Fields(f => f.Keyword(k => k.Name("keyword")))
+                             ).
+                             Text(t => t.Name(n => n.Lyrics)).
+                             Date(
+                                 d => d // Feld als Datum definieren
+                                      .Name(n => n.ReleaseDate).
+                                      Format("yyyy-MM-dd") // Optional: Datumsformat
+                             ).
+                             Keyword(k => k.Name(n => n.Genre)) // Genre bleibt ein Keyword
+                    )
+                )
+            );
 
             return response.DebugInformation;
         }
@@ -148,11 +148,68 @@ public class OpenSearchService
         Console.WriteLine(response.DebugInformation);
     }
 
+    public async Task RemoveSong(string id)
+    {
+        DeleteResponse? deleteResponse =
+            await _client.DeleteAsync <OpenSearchSongDocument>(id, d => d.Index(IndexName));
+
+        Console.WriteLine(
+            deleteResponse.IsValid
+                ? $"Document with the id [{id}] was removed from open search!"
+                : $"Document with the id [{id}] could not be removed from open search: {
+                    deleteResponse.ServerError?.Error?.Reason}!");
+    }
+
+    #region Artist Search
+
+    public async Task <List <ArtistResponseDto>?> SearchForArtist(
+        string search,
+        int maxHitCount,
+        DatabaseService dbService)
+    {
+        // Finding all OpenSearchSongDocuments, where Artists is fitting the search
+        ISearchResponse <OpenSearchSongDocument>? openSearchResponse =
+            await _client.SearchAsync <OpenSearchSongDocument>(
+                x => x.Index(IndexName).
+                       Size(maxHitCount).
+                       Query(q => q.Match(m => m.Field(f => f.ArtistName).Query(search).Fuzziness(Fuzziness.Auto))).
+                       Sort(s => s.Descending(SortSpecialField.Score)));
+
+        if (!openSearchResponse.IsValid)
+            return null;
+
+        // Reduce multiple found artists to one
+        Dictionary <string, ArtistResponseDto> artistSortContainer = new();
+
+        foreach (OpenSearchSongDocument? songResponse in openSearchResponse.Documents)
+        {
+            if (artistSortContainer.ContainsKey(songResponse.ArtistName))
+                continue;
+
+            Artist? artist = await dbService.GetArtistBySong(songResponse.Id);
+
+            if (artist == null)
+                continue;
+
+            artistSortContainer.Add(artist.Name, artist.ToArtistsResponseDto(songResponse.Genre));
+        }
+
+        return artistSortContainer.Values.ToList();
+    }
+
+    #endregion
+
     // ReSharper disable once CognitiveComplexity
-    public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(string query, string search, int hitCount, float minScoreThreshold)
+    public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(
+        string query,
+        string search,
+        int hitCount,
+        float minScoreThreshold)
     {
         if (string.IsNullOrEmpty(search))
             return null;
+
+        search = search.ToLower();
 
         var queries = query.Split(";");
 
@@ -167,27 +224,68 @@ public class OpenSearchService
                    Query(
                        q => q.Bool(
                            b => b.Should(
-                               s => s.MultiMatch(
-                                   m => m.Fields(
-                                              f =>
-                                              {
-                                                  if (titleBoost > 0)
-                                                      f.Field(ff => ff.Title, titleBoost);
+                               s =>
+                               {
+                                   if (search.Contains('*') || search.Contains('?'))
+                                   {
+                                       if (titleBoost > 0)
+                                       {
+                                           s.Wildcard(
+                                               w => w.Field(ff => ff.Title).Value(search).Boost(titleBoost));
+                                       }
 
-                                                  if (albumBoost > 0)
-                                                      f.Field(ff => ff.AlbumTitle, albumBoost);
+                                       if (albumBoost > 0)
+                                       {
+                                           s.Wildcard(
+                                               w => w.Field(ff => ff.AlbumTitle).
+                                                      Value(search).
+                                                      Boost(albumBoost));
+                                       }
 
-                                                  if (artistBoost > 0)
-                                                      f.Field(ff => ff.ArtistName, artistBoost);
+                                       if (artistBoost > 0)
+                                       {
+                                           s.Wildcard(
+                                               w => w.Field(ff => ff.ArtistName).
+                                                      Value(search).
+                                                      Boost(artistBoost));
+                                       }
 
-                                                  if (lyricsBoost > 0)
-                                                      f.Field(ff => ff.Lyrics, lyricsBoost);
+                                       if (lyricsBoost > 0)
+                                       {
+                                           s.Wildcard(
+                                               w => w.Field(ff => ff.Lyrics).
+                                                      Value(search).
+                                                      Boost(lyricsBoost));
+                                       }
+                                   }
+                                   else
+                                   {
+                                       s.MultiMatch(
+                                           m => m.Fields(
+                                                      f =>
+                                                      {
+                                                          if (titleBoost > 0)
+                                                              f.Field(ff => ff.Title, titleBoost);
 
-                                                  return f;
-                                              }).
-                                          Query(search).
-                                          Fuzziness(Fuzziness.Auto))
-                           ))).Sort(s => s.Descending(SortSpecialField.Score)));
+                                                          if (albumBoost > 0)
+                                                              f.Field(ff => ff.AlbumTitle, albumBoost);
+
+                                                          if (artistBoost > 0)
+                                                              f.Field(ff => ff.ArtistName, artistBoost);
+
+                                                          if (lyricsBoost > 0)
+                                                              f.Field(ff => ff.Lyrics, lyricsBoost);
+
+                                                          return f;
+                                                      }).
+                                                  Query(search).
+                                                  Fuzziness(Fuzziness.Auto));
+                                   }
+
+                                   return s;
+                               }
+                           ))).
+                   Sort(s => s.Descending(SortSpecialField.Score)));
 
         if (songs == null || !songs.IsValid)
             return null;
@@ -196,154 +294,19 @@ public class OpenSearchService
 
         IHit <OpenSearchSongDocument>[] hits = songs.Hits.ToArray();
         OpenSearchSongDocument[] documents = songs.Documents.ToArray();
-        
+
         for (var i = 0; i < songs.Documents.Count; i++)
         {
             if (hits[i].Score < minScoreThreshold)
                 continue;
-            
+
             filteredSongs.Add(documents[i]);
         }
-        
+
         Console.WriteLine($"Found {filteredSongs.Count} song(s)");
 
         return filteredSongs.ToArray();
     }
-
-    #region Artist Search
-
-    public async Task <List <ArtistResponseDto>?> SearchForArtist(string search, int maxHitCount, DatabaseService dbService)
-    {
-        // Finding all OpenSearchSongDocuments, where Artists is fitting the search
-        var openSearchResponse = await _client.SearchAsync<OpenSearchSongDocument>(
-            x => x
-                 .Index(IndexName)
-                 .Size(maxHitCount)
-                 .Query(q => q
-                            .Match(m => m
-                                        .Field(f => f.ArtistName)
-                                        .Query(search)
-                                        .Fuzziness(Fuzziness.Auto)))
-                 .Sort(s => s.Descending(SortSpecialField.Score)));
-
-        if (!openSearchResponse.IsValid)
-            return null;
-
-        // Reduce multiple found artists to one
-        Dictionary <string, ArtistResponseDto> artistSortContainer = new Dictionary <string, ArtistResponseDto>();
-
-        foreach (var songResponse in openSearchResponse.Documents)
-        {
-            if(artistSortContainer.ContainsKey(songResponse.ArtistName))
-                continue;
-
-            var artist = await dbService.GetArtistBySong(songResponse.Id);
-
-            if(artist == null)
-                continue;
-
-            artistSortContainer.Add(artist.Name, artist.ToArtistsResponseDto(songResponse.Genre));
-        }
-
-        return artistSortContainer.Values.ToList();
-    }
-
-    #endregion
-
-    #region Album Search
-
-    public async Task <List <AlbumResponseDto>?> SearchForAlbum(
-        string search,
-        int maxHitCount,
-        DatabaseService dbService)
-    {
-        // Finding all OpenSearchSongDocuments, where Album is fitting the search
-        var openSearchResponse = await _client.SearchAsync<OpenSearchSongDocument>(
-            x => x
-                 .Index(IndexName)
-                 .Size(maxHitCount)
-                 .Query(q => q
-                            .Match(m => m
-                                        .Field(f => f.AlbumTitle)
-                                        .Query(search)
-                                        .Fuzziness(Fuzziness.Auto)))
-                 .Sort(s => s.Descending(SortSpecialField.Score)));
-
-        if (!openSearchResponse.IsValid)
-            return null;
-
-        // Reduce multiple found albums to one
-        Dictionary<string, AlbumResponseDto> albumSortContainer = new Dictionary<string, AlbumResponseDto>();
-
-        foreach (var songResponse in openSearchResponse.Documents)
-        {
-            if (albumSortContainer.ContainsKey(songResponse.AlbumTitle))
-                continue;
-
-            var album = await dbService.GetAlbumBySong(songResponse.Id);
-
-            if (album == null || string.IsNullOrEmpty(album.Name))
-                continue;
-
-            albumSortContainer.Add(album.Name, album.ToAlbumResponseDto(songResponse.ArtistName, songResponse.ReleaseDate));
-        }
-
-        return albumSortContainer.Values.ToList();
-    }
-
-    public async Task <List <SongDto>> FindMatchingSongsInAlbum(
-        string albumTitle, 
-        DatabaseService dbService,
-        float minScoreThreshold = 1,
-        string? search = null)
-    {
-        var openSearchResponse = await _client.SearchAsync <OpenSearchSongDocument>(
-            s => s.Index(IndexName).
-                   Query(
-                       q => q.Bool(
-                           b => b.Filter( // Filter --> value must be fitting
-                                      f => f.Term(
-                                          t => t.Field(ff => ff
-                                                             .AlbumTitle.Suffix("keyword")).Value(albumTitle)
-                                      )
-                                  )
-                                  .Must(m => search != null ? m
-                                        .MultiMatch(mm => mm
-                                            .Fields(f => f
-                                                .Field(ff => ff.Title)
-                                            )
-                                            .Query(search)
-                                            .Fuzziness(Fuzziness.Auto) 
-                                        ) : null
-                           ))));
-
-        if (openSearchResponse == null || !openSearchResponse.IsValid)
-            return null;
-
-        List<SongDto> filteredSongs = new List <SongDto>();
-
-        IHit<OpenSearchSongDocument>[] hits = openSearchResponse.Hits.ToArray();
-        OpenSearchSongDocument[] documents = openSearchResponse.Documents.ToArray();
-
-        for (var i = 0; i < openSearchResponse.Documents.Count; i++)
-        {
-            // Return if threshold wasn't hit
-            if (hits[i].Score < minScoreThreshold)
-                continue;
-
-            DatabaseSong? dbSong = await dbService.GetSong(documents[i].Id);
-
-            if (dbSong == null)
-                continue;
-
-            filteredSongs.Add(new SongDto(documents[i], dbSong));
-        }
-
-        return filteredSongs;
-    }
-
-    #endregion
-
 
     #endregion
 
@@ -438,6 +401,100 @@ public class OpenSearchService
 
     #endregion
 
+    #region Album Search
+
+    public async Task <List <AlbumResponseDto>?> SearchForAlbum(
+        string search,
+        int maxHitCount,
+        DatabaseService dbService)
+    {
+        // Finding all OpenSearchSongDocuments, where Album is fitting the search
+        ISearchResponse <OpenSearchSongDocument>? openSearchResponse =
+            await _client.SearchAsync <OpenSearchSongDocument>(
+                x => x.Index(IndexName).
+                       Size(maxHitCount).
+                       Query(q => q.Match(m => m.Field(f => f.AlbumTitle).Query(search).Fuzziness(Fuzziness.Auto))).
+                       Sort(s => s.Descending(SortSpecialField.Score)));
+
+        if (!openSearchResponse.IsValid)
+            return null;
+
+        // Reduce multiple found albums to one
+        Dictionary <string, AlbumResponseDto> albumSortContainer = new();
+
+        foreach (OpenSearchSongDocument? songResponse in openSearchResponse.Documents)
+        {
+            if (albumSortContainer.ContainsKey(songResponse.AlbumTitle))
+                continue;
+
+            Album? album = await dbService.GetAlbumBySong(songResponse.Id);
+
+            if (album == null || string.IsNullOrEmpty(album.Name))
+                continue;
+
+            albumSortContainer.Add(
+                album.Name,
+                album.ToAlbumResponseDto(songResponse.ArtistName, songResponse.ReleaseDate));
+        }
+
+        return albumSortContainer.Values.ToList();
+    }
+
+    public async Task <List <SongDto>> FindMatchingSongsInAlbum(
+        string albumTitle,
+        DatabaseService dbService,
+        float minScoreThreshold = 1,
+        string? search = null)
+    {
+        ISearchResponse <OpenSearchSongDocument>? openSearchResponse =
+            await _client.SearchAsync <OpenSearchSongDocument>(
+                s => s.Index(IndexName).
+                       Query(
+                           q => q.Bool(
+                               b => b.Filter( // Filter --> value must be fitting
+                                          f => f.Term(
+                                              t => t.Field(ff => ff.AlbumTitle.Suffix("keyword")).Value(albumTitle)
+                                          )
+                                      ).
+                                      Must(
+                                          m => search != null
+                                              ? m.MultiMatch(
+                                                  mm => mm.Fields(
+                                                               f => f.Field(ff => ff.Title)
+                                                           ).
+                                                           Query(search).
+                                                           Fuzziness(Fuzziness.Auto)
+                                              )
+                                              : null
+                                      ))));
+
+        if (openSearchResponse == null || !openSearchResponse.IsValid)
+            return null;
+
+        List <SongDto> filteredSongs = new();
+
+        IHit <OpenSearchSongDocument>[] hits = openSearchResponse.Hits.ToArray();
+        OpenSearchSongDocument[] documents = openSearchResponse.Documents.ToArray();
+
+        for (var i = 0; i < openSearchResponse.Documents.Count; i++)
+        {
+            // Return if threshold wasn't hit
+            if (hits[i].Score < minScoreThreshold)
+                continue;
+
+            DatabaseSong? dbSong = await dbService.GetSong(documents[i].Id);
+
+            if (dbSong == null)
+                continue;
+
+            filteredSongs.Add(new SongDto(documents[i], dbSong));
+        }
+
+        return filteredSongs;
+    }
+
+    #endregion
+
     #region Singleton
 
     private static OpenSearchService? s_instance;
@@ -445,15 +502,4 @@ public class OpenSearchService
     public static OpenSearchService Instance => s_instance ??= new OpenSearchService();
 
     #endregion
-
-    public async Task RemoveSong(string id)
-    {
-        DeleteResponse? deleteResponse =
-            await _client.DeleteAsync <OpenSearchSongDocument>(id, d => d.Index(IndexName));
-
-        Console.WriteLine(
-            deleteResponse.IsValid
-                ? $"Document with the id [{id}] was removed from open search!"
-                : $"Document with the id [{id}] could not be removed from open search: {deleteResponse.ServerError?.Error?.Reason}!");
-    }
 }
