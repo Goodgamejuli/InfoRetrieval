@@ -124,7 +124,7 @@ public class OpenSearchController(DatabaseService databaseService)
     [HttpGet("FindSongs")]
     public async Task <ActionResult <SongDto[]>> FindSongs(
         string search,
-        string query = "title;album;artist;lyrics;genre",
+        string query = "title;album;artist;lyrics",
         string? genreSearch = null,
         int hitCount = 10,
         float minScoreThreshold = 0.5f)

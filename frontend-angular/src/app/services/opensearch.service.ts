@@ -52,6 +52,7 @@ export class OpenSearchService {
     public searchForSongs(
         searchValue: string,
         query: string = 'title;album;artist;lyrics',
+        genreSearch: string | null = null,
         hitCount: number = 10
     ){
         if(searchValue == null || searchValue == "") {
@@ -60,11 +61,24 @@ export class OpenSearchService {
         }
 
         // Define URL-Parameters
-        const params = new HttpParams()
-        .set('search', searchValue)
-        .set('query', query)
-        .set('hitCount', hitCount.toString())
-        .set('minScoreThreshold', this.minScoreThreshold);
+        var params;
+        if(genreSearch == null) {
+            params = new HttpParams()
+                .set('search', searchValue)
+                .set('query', query)
+                .set('hitCount', hitCount.toString())
+                .set('minScoreThreshold', this.minScoreThreshold);
+        }
+        else {
+            params = new HttpParams()
+                .set('search', searchValue)
+                .set('query', query)
+                .set('genreSearch', genreSearch)
+                .set('hitCount', hitCount.toString())
+                .set('minScoreThreshold', this.minScoreThreshold);
+        }
+
+        
 
         var results = this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongs`, {params})
             .subscribe({

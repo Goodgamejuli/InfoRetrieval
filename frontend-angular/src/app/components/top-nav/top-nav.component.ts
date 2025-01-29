@@ -70,13 +70,10 @@ export class TopNavComponent {
 
     console.log(query);
 
-    // If there are no search value, search with all parameters
-    if(this.searchValue=="") {
+    // Clear old values
       this.opensearchService.songs = [];
       this.opensearchService.albums = [];
       this.opensearchService.artists = [];
-      return;
-    }
 
     // Search for songs if selected
     // Search for songs of album if selected
@@ -88,8 +85,13 @@ export class TopNavComponent {
       this.opensearchService.searchForSongsOfArtist(this.filterOptions[2].inputValue, this.searchValue, 1);
     }
     // Search for songs
-    else if(this.selectedFilterOptions.includes('title') || this.selectedFilterOptions.includes('lyrics'))
+    else if(this.selectedFilterOptions.includes('title') || this.selectedFilterOptions.includes('lyrics')) {
+      if(this.filterOptions[1].inputValue != null && this.filterOptions[4].inputValue != '') 
+        this.opensearchService.searchForSongs(this.searchValue, query, this.filterOptions[4].inputValue);
+      else
       this.opensearchService.searchForSongs(this.searchValue, query);
+    }
+      
 
     // Search for Artists if selected
     if(this.selectedFilterOptions.includes('artist'))
