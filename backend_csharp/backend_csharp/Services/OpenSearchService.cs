@@ -298,6 +298,7 @@ public class OpenSearchService
     public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(
         string query,
         string search,
+        string? genreSearch,
         int hitCount,
         float minScoreThreshold)
     {
@@ -315,9 +316,9 @@ public class OpenSearchService
         var albumBoost = queries.Contains("album") ? 1.0 : -1.0;
         var artistBoost = queries.Contains("artist") ? 1.0 : -1.0;
         var lyricsBoost = queries.Contains("lyrics") ? 0.1 : -1.0;
-        var genreBoost = queries.Contains("genre") ? 0.25 : -1.0;
+        //var genreBoost = queries.Contains("genre") ? 0.25 : -1.0;
 
-        if (titleBoost < 0 && albumBoost < 0 && artistBoost < 0 && lyricsBoost < 0 && genreBoost < 0)
+        if (titleBoost < 0 && albumBoost < 0 && artistBoost < 0 && lyricsBoost < 0)
             return null;
 
         ISearchResponse <OpenSearchSongDocument>? songs = await _client.SearchAsync <OpenSearchSongDocument>(
@@ -385,17 +386,19 @@ public class OpenSearchService
                                    }
                                    
                                    return s;
-                               },
-                               s =>
-                               {
-                                   if (genreBoost <= 0)
-                                       return s;
-
-                                   s.Terms(t => t.Field(f => f.Genre).Terms(search.Split(' ')));
-                                   
-                                   return s;
-                               }
-                           ))).
+                               })
+                                 .Filter(
+                                     f =>
+                                     {
+                                         if (!string.IsNullOrWhiteSpace(genreSearch))
+                                         {
+                                             f.Terms(t => t
+                                                          .Field(ff => ff.Genre)
+                                                          .Terms(genreSearch.Split(','))); // Mehrere Genres unterstützen
+                                         }
+                                         return f; 
+                                     }
+                                ))).
                    Sort(s => s.Descending(SortSpecialField.Score)));
 
         if (songs == null || !songs.IsValid)

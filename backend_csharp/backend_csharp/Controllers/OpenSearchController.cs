@@ -125,11 +125,12 @@ public class OpenSearchController(DatabaseService databaseService)
     public async Task <ActionResult <SongDto[]>> FindSongs(
         string search,
         string query = "title;album;artist;lyrics;genre",
+        string? genreSearch = null,
         int hitCount = 10,
         float minScoreThreshold = 0.5f)
     {
         OpenSearchSongDocument[]? osSongs =
-            await OpenSearchService.Instance.SearchForTopFittingSongs(query, search, hitCount, minScoreThreshold);
+            await OpenSearchService.Instance.SearchForTopFittingSongs(query, search, genreSearch, hitCount, minScoreThreshold);
 
         if (osSongs == null)
             return BadRequest("No song was found for the given query");
