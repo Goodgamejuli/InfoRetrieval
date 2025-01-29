@@ -17,12 +17,15 @@ export class TopNavComponent {
   public isSearchFieldVisible: boolean = false;
 
   filterOptions = [
-    { label: 'Song', value: 'title' },
-    { label: 'Album', value: 'album' },
-    { label: 'Künstler', value: 'artist' },
-    { label: 'Lyrics', value: 'lyrics' },
-    { label: 'Genre', value: 'genre' },
+    { label: 'Song',      value: 'title',   inputValue: '', hasInput: false},
+    { label: 'Album',     value: 'album',   inputValue: '', hasInput: true},
+    { label: 'Künstler',  value: 'artist',  inputValue: '', hasInput: true},
+    { label: 'Lyrics',    value: 'lyrics',  inputValue: '', hasInput: false},
+    { label: 'Genre',     value: 'genre',   inputValue: '', hasInput: true },
+    { label: 'Datum',     value: 'date',    inputValue: '', hasInput: true },
   ];
+
+  isExpanded: boolean[] = new Array(this.filterOptions.length).fill(false);
 
   searchValue: string = '';
 
@@ -38,7 +41,12 @@ export class TopNavComponent {
     this.router.navigate(['/', 'login']);
   }
 
-  
+   // Umschalten des Inputfelds
+   toggleInput(index: number) {
+    if (this.filterOptions[index].hasInput) {
+      this.isExpanded[index] = !this.isExpanded[index];
+    }
+  }
 
   // Function to check if checkboxes-values are changing
   onCheckboxChange(event: Event): void {
@@ -62,13 +70,28 @@ export class TopNavComponent {
 
     console.log(query);
 
-    // If there are no given query parameters, search with all parameters
-    if(query=="") {
-      this.opensearchService.searchForSongs(this.searchValue);
-      return;
-    }
+    // Clear old values
+      this.opensearchService.songs = [];
+      this.opensearchService.albums = [];
+      this.opensearchService.artists = [];
 
-    this.opensearchService.searchForSongs(this.searchValue, query);
+    // Search for songs if selected
+    // Search for songs of album if selected
+    if(this.filterOptions[1].inputValue != '' && this.selectedFilterOptions.includes('title')) {
+      this.opensearchService.searchForSongsInAlbum(this.filterOptions[1].inputValue, this.searchValue, 1);
+    }
+    // Search for songs of artist
+    else if(this.filterOptions[2].inputValue != '' && this.selectedFilterOptions.includes('title')) {
+      this.opensearchService.searchForSongsOfArtist(this.filterOptions[2].inputValue, this.searchValue, 1);
+    }
+    // Search for songs
+    else if(this.selectedFilterOptions.includes('title') || this.selectedFilterOptions.includes('lyrics')) {
+      if(this.filterOptions[1].inputValue != null && this.filterOptions[4].inputValue != '') 
+        this.opensearchService.searchForSongs(this.searchValue, query, this.filterOptions[4].inputValue);
+      else
+      this.opensearchService.searchForSongs(this.searchValue, query);
+    }
+      
 
     // Search for Artists if selected
     if(this.selectedFilterOptions.includes('artist'))

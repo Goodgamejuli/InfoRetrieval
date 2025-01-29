@@ -52,6 +52,7 @@ export class OpenSearchService {
     public searchForSongs(
         searchValue: string,
         query: string = 'title;album;artist;lyrics',
+        genreSearch: string | null = null,
         hitCount: number = 10
     ){
         if(searchValue == null || searchValue == "") {
@@ -60,11 +61,24 @@ export class OpenSearchService {
         }
 
         // Define URL-Parameters
-        const params = new HttpParams()
-        .set('search', searchValue)
-        .set('query', query)
-        .set('hitCount', hitCount.toString())
-        .set('minScoreThreshold', this.minScoreThreshold);
+        var params;
+        if(genreSearch == null) {
+            params = new HttpParams()
+                .set('search', searchValue)
+                .set('query', query)
+                .set('hitCount', hitCount.toString())
+                .set('minScoreThreshold', this.minScoreThreshold);
+        }
+        else {
+            params = new HttpParams()
+                .set('search', searchValue)
+                .set('query', query)
+                .set('genreSearch', genreSearch)
+                .set('hitCount', hitCount.toString())
+                .set('minScoreThreshold', this.minScoreThreshold);
+        }
+
+        
 
         var results = this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongs`, {params})
             .subscribe({
@@ -79,6 +93,8 @@ export class OpenSearchService {
                 }
             });
     }
+
+//////////////////////////////// Artist Search Stuff /////////////////////////////
 
     public searchForArtist(
         searchValue: string,
@@ -103,6 +119,44 @@ export class OpenSearchService {
             });
     }
 
+    public searchForSongsOfArtist(
+        artist: string,
+        search: string | null,
+        minScoreThreshold: number
+    ) {
+        //Define params
+
+        var params;
+        if(search == null) {
+            params = new HttpParams()
+            .set('artist', artist)
+            .set('minScoreThreshold', minScoreThreshold)
+
+        } else {
+            params = new HttpParams()
+            .set('artist', artist)
+            .set('search', search)
+            .set('minScoreThreshold', minScoreThreshold)
+        }
+
+        params.set('minScoreThreshold', minScoreThreshold)
+
+        this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongsOfArtist`, {params})
+            .subscribe( {
+                next: (songs) => {
+                    if(songs.length == 0)
+                        console.log("Kein passender Song gefunden!");
+                    this.songs = songs;
+                    console.log(this.songs);
+                },
+                error(err) {
+                    console.error('Error finding songs in album: ', err);
+                },
+            })
+    }
+
+
+//////////////////////////////// Album Search Stuff /////////////////////////////
     public searchForAlbums(
         searchValue: string,
         maxHitCount: number = 10
@@ -124,6 +178,42 @@ export class OpenSearchService {
                     console.error('Error finding album: ', err);
                 }
             });
+    }
+
+    public searchForSongsInAlbum(
+        albumTitle: string,
+        search: string | null,
+        minScoreThreshold: number
+    ) {
+        //Define params
+
+        var params;
+        if(search == null) {
+            params = new HttpParams()
+            .set('albumTitle', albumTitle)
+            .set('minScoreThreshold', minScoreThreshold)
+
+        } else {
+            params = new HttpParams()
+            .set('albumTitle', albumTitle)
+            .set('search', search)
+            .set('minScoreThreshold', minScoreThreshold)
+        }
+
+        params.set('minScoreThreshold', minScoreThreshold)
+
+        this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongsInAlbum`, {params})
+            .subscribe( {
+                next: (songs) => {
+                    if(songs.length == 0)
+                        console.log("Kein passender Song gefunden!");
+                    this.songs = songs;
+                    console.log(this.songs);
+                },
+                error(err) {
+                    console.error('Error finding songs in album: ', err);
+                },
+            })
     }
 
 

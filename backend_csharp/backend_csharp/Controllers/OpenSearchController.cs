@@ -186,12 +186,13 @@ public class OpenSearchController(DatabaseService databaseService)
     [HttpGet("FindSongs")]
     public async Task <ActionResult <SongDto[]>> FindSongs(
         string search,
-        string query = "title;album;artist;lyrics;genre",
+        string query = "title;album;artist;lyrics",
+        string? genreSearch = null,
         int hitCount = 10,
         float minScoreThreshold = 0.5f)
     {
         OpenSearchSongDocument[]? osSongs =
-            await OpenSearchService.Instance.SearchForTopFittingSongs(query, search, hitCount, minScoreThreshold);
+            await OpenSearchService.Instance.SearchForTopFittingSongs(query, search, genreSearch, hitCount, minScoreThreshold);
 
         if (osSongs == null)
             return BadRequest("No song was found for the given query");
@@ -213,18 +214,48 @@ public class OpenSearchController(DatabaseService databaseService)
         return Ok(output);
     }
 
-    /// <summary>
-    ///     This method returns all songs from the openSearch instance as a dto that are the most fitting for the criteria in
-    ///     the specified album
-    /// </summary>
-    /// <param name="albumTitle"> Name of the target album </param>
-    /// <param name="search"> Search criteria for the target artists </param>
-    /// <param name="minScoreThreshold"> Minimum value the score needs to have for the element to be marked as a hit </param>
+    [HttpGet("FindArtists")]
+    public async Task <ActionResult <List <ArtistResponseDto>>> FindArtists(string search, int maxHitCount)
+    {
+        var artists = await OpenSearchService.Instance.SearchForArtist(search, maxHitCount, databaseService);
+
+        if (artists == null)
+            return BadRequest("Error while searching for Artist!");
+
+        return Ok(artists);
+    }
+
+    [HttpGet("FindSongsOfArtist")]
+    public async Task <ActionResult <List <SongDto>>> FindSongsOfArtist(
+        string artist,
+        string? search,
+        float minScoreThreshold)
+    {
+        List<SongDto>? songs = await OpenSearchService.Instance.FindMatchingSongsOfArtist(
+            artist,
+            databaseService,
+            search,
+            minScoreThreshold);
+
+        if (songs == null)
+            return BadRequest("Error while searching for songs of artist!");
+
+        return Ok(songs);
+    }
+
+    [HttpGet("FindAlbums")]
+    public async Task<ActionResult<List<AlbumResponseDto>>> FindAlbums(string search, int maxHitCount)
+    {
+        List <AlbumResponseDto>? artists = await OpenSearchService.Instance.SearchForAlbum(search, maxHitCount, databaseService);
+
+        if (artists == null)
+            return BadRequest("Error while searching for Album!");
+
+        return Ok(artists);
+    }
+
     [HttpGet("FindSongsInAlbum")]
-    public async Task <ActionResult <List <SongDto>>> FindSongsInAlbum(
-        string albumTitle,
-        string search,
-        float minScoreThreshold = 1)
+    public async Task <ActionResult <List <SongDto>>> FindSongsInAlbum(string albumTitle, string? search, float minScoreThreshold)
     {
         List <SongDto>? songs = await OpenSearchService.Instance.FindMatchingSongsInAlbum(
             albumTitle,

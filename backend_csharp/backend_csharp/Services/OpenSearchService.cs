@@ -246,6 +246,80 @@ public class OpenSearchService
         return artistSortContainer.Values.ToList();
     }
 
+    public async Task<List<SongDto>?> FindMatchingSongsOfArtist(
+        string artist,
+        DatabaseService dbService,
+        string? search,
+        float minScoreThreshold)
+    {
+        if (string.IsNullOrEmpty(artist))
+            return null;
+
+        search = search?.ToLower();
+
+        ISearchResponse<OpenSearchSongDocument> openSearchResponse =
+            await _client.SearchAsync<OpenSearchSongDocument>(
+                s => s.Index(IndexName)
+                      .Size(100)
+                      .Query(
+                           q => q.Bool(
+                               b => b.Filter( // Filter --> value must be fitting
+                                          f => f.Term(
+                                              t => t.Field(ff => ff.ArtistName.Suffix("keyword")).Value(artist)
+                                          )
+                                      ).
+                                      Must(
+                                          m =>
+                                          {
+                                              // Early return if u want to find all songs of album
+                                              if (string.IsNullOrEmpty(search))
+                                              {
+                                                  return null;
+                                              }
+
+                                              if (search.Contains('*') || search.Contains('?'))
+                                              {
+                                                  m.Wildcard(
+                                                      w => w.Field(f => f.Title).
+                                                             Value(search));
+                                              }
+                                              else
+                                              {
+                                                  m.Match(
+                                                      mm => mm.Field(f => f.Title).
+                                                               Query(search).
+                                                               Fuzziness(Fuzziness.Auto));
+                                              }
+
+                                              return m;
+                                          }
+                                      ))));
+
+        if (openSearchResponse is not { IsValid: true })
+            return null;
+
+        List<SongDto> filteredSongs = new();
+
+        IHit<OpenSearchSongDocument>[] hits = openSearchResponse.Hits.ToArray();
+        OpenSearchSongDocument[] documents = openSearchResponse.Documents.ToArray();
+
+        for (var i = 0; i < openSearchResponse.Documents.Count; i++)
+        {
+            // Return if threshold wasn't hit
+            if (hits[i].Score < minScoreThreshold)
+                continue;
+
+            DatabaseSong? dbSong = await dbService.GetSong(documents[i].Id);
+
+            if (dbSong == null)
+                continue;
+
+            filteredSongs.Add(new SongDto(documents[i], dbSong));
+        }
+
+        return filteredSongs;
+    }
+
     #endregion
 
     /// <summary>
@@ -260,6 +334,7 @@ public class OpenSearchService
     public async Task <OpenSearchSongDocument[]?> SearchForTopFittingSongs(
         string query,
         string search,
+        string? genreSearch,
         int hitCount,
         float minScoreThreshold)
     {
@@ -277,9 +352,9 @@ public class OpenSearchService
         var albumBoost = queries.Contains("album") ? 1.0 : -1.0;
         var artistBoost = queries.Contains("artist") ? 1.0 : -1.0;
         var lyricsBoost = queries.Contains("lyrics") ? 0.1 : -1.0;
-        var genreBoost = queries.Contains("genre") ? 0.25 : -1.0;
+        //var genreBoost = queries.Contains("genre") ? 0.25 : -1.0;
 
-        if (titleBoost < 0 && albumBoost < 0 && artistBoost < 0 && lyricsBoost < 0 && genreBoost < 0)
+        if (titleBoost < 0 && albumBoost < 0 && artistBoost < 0 && lyricsBoost < 0)
             return null;
 
         ISearchResponse <OpenSearchSongDocument>? songs = await _client.SearchAsync <OpenSearchSongDocument>(
@@ -348,17 +423,19 @@ public class OpenSearchService
                                    }
 
                                    return s;
-                               },
-                               s =>
-                               {
-                                   if (genreBoost <= 0)
-                                       return s;
-
-                                   s.Terms(t => t.Field(f => f.Genre).Terms(search.Split(' ')));
-
-                                   return s;
-                               }
-                           ))).
+                               })
+                                 .Filter(
+                                     f =>
+                                     {
+                                         if (!string.IsNullOrWhiteSpace(genreSearch))
+                                         {
+                                             f.Terms(t => t
+                                                          .Field(ff => ff.Genre)
+                                                          .Terms(genreSearch.Split(','))); // Mehrere Genres unterst�tzen
+                                         }
+                                         return f; 
+                                     }
+                                ))).
                    Sort(s => s.Descending(SortSpecialField.Score)));
 
         if (songs is not {IsValid: true})
@@ -589,13 +666,13 @@ public class OpenSearchService
     public async Task <List <SongDto>?> FindMatchingSongsInAlbum(
         string albumTitle,
         DatabaseService dbService,
-        string search,
+        string? search,
         float minScoreThreshold)
     {
-        if (string.IsNullOrEmpty(albumTitle) || string.IsNullOrEmpty(search))
+        if (string.IsNullOrEmpty(albumTitle) )
             return null;
 
-        search = search.ToLower();
+        search = search?.ToLower();
 
         ISearchResponse <OpenSearchSongDocument> openSearchResponse =
             await _client.SearchAsync <OpenSearchSongDocument>(
@@ -610,6 +687,12 @@ public class OpenSearchService
                                       Must(
                                           m =>
                                           {
+                                              // Early return if u want to find all songs of album
+                                              if (string.IsNullOrEmpty(search))
+                                              {
+                                                  return null;
+                                              }
+
                                               if (search.Contains('*') || search.Contains('?'))
                                               {
                                                   m.Wildcard(
