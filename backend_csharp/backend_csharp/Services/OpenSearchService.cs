@@ -234,10 +234,17 @@ public class OpenSearchService
 
         var queries = query.Split(";");
 
+        if (queries.Length == 0)
+            return null;
+
         var titleBoost = queries.Contains("title") ? 1.5 : -1.0;
         var albumBoost = queries.Contains("album") ? 1.0 : -1.0;
         var artistBoost = queries.Contains("artist") ? 1.0 : -1.0;
-        var lyricsBoost = queries.Contains("lyrics") ? 0.25 : -1.0;
+        var lyricsBoost = queries.Contains("lyrics") ? 0.1 : -1.0;
+        var genreBoost = queries.Contains("genre") ? 0.25 : -1.0;
+
+        if (titleBoost < 0 && albumBoost < 0 && artistBoost < 0 && lyricsBoost < 0 && genreBoost < 0)
+            return null;
 
         ISearchResponse <OpenSearchSongDocument>? songs = await _client.SearchAsync <OpenSearchSongDocument>(
             x => x.Index(IndexName).
@@ -296,13 +303,22 @@ public class OpenSearchService
 
                                                           if (lyricsBoost > 0)
                                                               f.Field(ff => ff.Lyrics, lyricsBoost);
-
+                                                          
                                                           return f;
                                                       }).
                                                   Query(search).
-                                                  Fuzziness(Fuzziness.Auto));
+                                                  Fuzziness(Fuzziness.Auto).MinimumShouldMatch(1));
                                    }
+                                   
+                                   return s;
+                               },
+                               s =>
+                               {
+                                   if (genreBoost <= 0)
+                                       return s;
 
+                                   s.Terms(t => t.Field(f => f.Genre).Terms(search.Split(' ')));
+                                   
                                    return s;
                                }
                            ))).
@@ -310,8 +326,6 @@ public class OpenSearchService
 
         if (songs == null || !songs.IsValid)
             return null;
-
-        Console.WriteLine(songs.DebugInformation);
 
         List <OpenSearchSongDocument> filteredSongs = [];
 
