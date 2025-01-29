@@ -17,12 +17,12 @@ export class TopNavComponent {
   public isSearchFieldVisible: boolean = false;
 
   filterOptions = [
-    { label: 'Song',      value: 'title',   inputValue: ''},
-    { label: 'Album',     value: 'album',   inputValue: '' },
-    { label: 'Künstler',  value: 'artist',  inputValue: '' },
-    { label: 'Lyrics',    value: 'lyrics',  inputValue: '' },
-    { label: 'Genre',     value: 'genre',   inputValue: '' },
-    { label: 'Datum',     value: 'date',   inputValue: '' },
+    { label: 'Song',      value: 'title',   inputValue: '', hasInput: false},
+    { label: 'Album',     value: 'album',   inputValue: '', hasInput: true},
+    { label: 'Künstler',  value: 'artist',  inputValue: '', hasInput: true},
+    { label: 'Lyrics',    value: 'lyrics',  inputValue: '', hasInput: false},
+    { label: 'Genre',     value: 'genre',   inputValue: '', hasInput: true },
+    { label: 'Datum',     value: 'date',    inputValue: '', hasInput: true },
   ];
 
   isExpanded: boolean[] = new Array(this.filterOptions.length).fill(false);
@@ -43,7 +43,9 @@ export class TopNavComponent {
 
    // Umschalten des Inputfelds
    toggleInput(index: number) {
-    this.isExpanded[index] = !this.isExpanded[index];
+    if (this.filterOptions[index].hasInput) {
+      this.isExpanded[index] = !this.isExpanded[index];
+    }
   }
 
   // Function to check if checkboxes-values are changing
@@ -68,14 +70,25 @@ export class TopNavComponent {
 
     console.log(query);
 
-    // If there are no given query parameters, search with all parameters
-    if(query=="") {
-      this.opensearchService.searchForSongs(this.searchValue);
+    // If there are no search value, search with all parameters
+    if(this.searchValue=="") {
+      this.opensearchService.songs = [];
+      this.opensearchService.albums = [];
+      this.opensearchService.artists = [];
       return;
     }
 
     // Search for songs if selected
-    if(this.selectedFilterOptions.includes('title') || this.selectedFilterOptions.includes('lyrics'))
+    // Search for songs of album if selected
+    if(this.filterOptions[1].inputValue != '' && this.selectedFilterOptions.includes('title')) {
+      this.opensearchService.searchForSongsInAlbum(this.filterOptions[1].inputValue, this.searchValue, 1);
+    }
+    // Search for songs of artist
+    else if(this.filterOptions[2].inputValue != '' && this.selectedFilterOptions.includes('title')) {
+      this.opensearchService.searchForSongsOfArtist(this.filterOptions[2].inputValue, this.searchValue, 1);
+    }
+    // Search for songs
+    else if(this.selectedFilterOptions.includes('title') || this.selectedFilterOptions.includes('lyrics'))
       this.opensearchService.searchForSongs(this.searchValue, query);
 
     // Search for Artists if selected

@@ -26,12 +26,12 @@
             </label>
 
             <!-- Button zum Aufklappen -->
-            <button class="toggle-button" (click)="toggleInput(i)">
+            <button *ngIf="item.hasInput" class="toggle-button" (click)="toggleInput(i)">
               {{ isExpanded[i] ? '▲' : '▼' }}
             </button>
 
             <!-- Inputfeld, das nur sichtbar ist, wenn isExpanded[i] true ist -->
-            <div *ngIf="isExpanded[i]" class="input-container">
+            <div *ngIf="item.hasInput && isExpanded[i]" class="input-container">
               <input
                 type="text"
                 class="specific-search"
