@@ -40,17 +40,17 @@
 
             <!-- Content to show -->
             <!-- Song cards -->
-            <div class="card-container_div">
+            <div class="card-container_div" *ngIf="opensearchService.songs.length > 0">
                 <app-song-card-container></app-song-card-container>
             </div>
 
             <!-- Artist Cards -->
-            <div class="card-container_div">
+            <div class="card-container_div" *ngIf="opensearchService.artists.length > 0">
                 <app-artist-card-container></app-artist-card-container>
             </div>
 
             <!-- Album Cards -->
-            <div class="card-container_div">
+            <div class="card-container_div" *ngIf="opensearchService.albums.length > 0">
                 <app-album-card-container></app-album-card-container>
             </div>
 
