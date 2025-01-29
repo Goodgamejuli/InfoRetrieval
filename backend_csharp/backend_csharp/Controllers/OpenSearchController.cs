@@ -162,6 +162,24 @@ public class OpenSearchController(DatabaseService databaseService)
         return Ok(artists);
     }
 
+    [HttpGet("FindSongsOfArtist")]
+    public async Task <ActionResult <List <SongDto>>> FindSongsOfArtist(
+        string artist,
+        string? search,
+        float minScoreThreshold)
+    {
+        List<SongDto>? songs = await OpenSearchService.Instance.FindMatchingSongsOfArtist(
+            artist,
+            databaseService,
+            search,
+            minScoreThreshold);
+
+        if (songs == null)
+            return BadRequest("Error while searching for songs of artist!");
+
+        return Ok(songs);
+    }
+
     [HttpGet("FindAlbums")]
     public async Task<ActionResult<List<AlbumResponseDto>>> FindAlbums(string search, int maxHitCount)
     {

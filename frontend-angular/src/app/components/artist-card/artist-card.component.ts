@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { SongDataService } from '../../services/song-data.service';
 import { SongDTO } from '../../models/songDto';
+import { OpenSearchService } from '../../services/opensearch.service';
 
 @Component({
   selector: 'app-artist-card',
@@ -10,6 +11,7 @@ import { SongDTO } from '../../models/songDto';
   styleUrl: './artist-card.component.css'
 })
 export class ArtistCardComponent {
+  opensearchService = inject(OpenSearchService);
   
   @Input() public artist!: string;
   @Input() public genre!: string;
@@ -17,5 +19,9 @@ export class ArtistCardComponent {
   @Input() public coverUrl!: string;
 
   constructor() { }
+
+  findSongsOfArtist() {
+    this.opensearchService.searchForSongsOfArtist(this.artist, null, 0);
+  }
 
 }

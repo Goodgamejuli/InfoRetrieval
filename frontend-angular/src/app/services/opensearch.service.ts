@@ -80,6 +80,8 @@ export class OpenSearchService {
             });
     }
 
+//////////////////////////////// Artist Search Stuff /////////////////////////////
+
     public searchForArtist(
         searchValue: string,
         maxHitCount: number = 10
@@ -101,6 +103,42 @@ export class OpenSearchService {
                     console.error('Error finding artists: ', err);
                 }
             });
+    }
+
+    public searchForSongsOfArtist(
+        artist: string,
+        search: string | null,
+        minScoreThreshold: number
+    ) {
+        //Define params
+
+        var params;
+        if(search == null) {
+            params = new HttpParams()
+            .set('artist', artist)
+            .set('minScoreThreshold', minScoreThreshold)
+
+        } else {
+            params = new HttpParams()
+            .set('artist', artist)
+            .set('search', search)
+            .set('minScoreThreshold', minScoreThreshold)
+        }
+
+        params.set('minScoreThreshold', minScoreThreshold)
+
+        this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongsOfArtist`, {params})
+            .subscribe( {
+                next: (songs) => {
+                    if(songs.length == 0)
+                        console.log("Kein passender Song gefunden!");
+                    this.songs = songs;
+                    console.log(this.songs);
+                },
+                error(err) {
+                    console.error('Error finding songs in album: ', err);
+                },
+            })
     }
 
 
