@@ -500,13 +500,13 @@ public class OpenSearchService
     public async Task <List <SongDto>?> FindMatchingSongsInAlbum(
         string albumTitle,
         DatabaseService dbService,
-        string search,
+        string? search,
         float minScoreThreshold)
     {
-        if (string.IsNullOrEmpty(albumTitle) || string.IsNullOrEmpty(search))
+        if (string.IsNullOrEmpty(albumTitle) )
             return null;
 
-        search = search.ToLower();
+        search = search?.ToLower();
 
         ISearchResponse <OpenSearchSongDocument> openSearchResponse =
             await _client.SearchAsync <OpenSearchSongDocument>(
@@ -521,6 +521,12 @@ public class OpenSearchService
                                       Must(
                                           m =>
                                           {
+                                              // Early return if u want to find all songs of album
+                                              if (string.IsNullOrEmpty(search))
+                                              {
+                                                  return null;
+                                              }
+
                                               if (search.Contains('*') || search.Contains('?'))
                                               {
                                                   m.Wildcard(

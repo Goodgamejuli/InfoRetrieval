@@ -74,7 +74,9 @@ export class TopNavComponent {
       return;
     }
 
-    this.opensearchService.searchForSongs(this.searchValue, query);
+    // Search for songs if selected
+    if(this.selectedFilterOptions.includes('title') || this.selectedFilterOptions.includes('lyrics'))
+      this.opensearchService.searchForSongs(this.searchValue, query);
 
     // Search for Artists if selected
     if(this.selectedFilterOptions.includes('artist'))

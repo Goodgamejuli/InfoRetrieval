@@ -174,7 +174,7 @@ public class OpenSearchController(DatabaseService databaseService)
     }
 
     [HttpGet("FindSongsInAlbum")]
-    public async Task <ActionResult <List <SongDto>>> FindSongsInAlbum(string albumTitle, string search, float minScoreThreshold = 1 )
+    public async Task <ActionResult <List <SongDto>>> FindSongsInAlbum(string albumTitle, string? search, float minScoreThreshold)
     {
         List <SongDto>? songs = await OpenSearchService.Instance.FindMatchingSongsInAlbum(
             albumTitle,
