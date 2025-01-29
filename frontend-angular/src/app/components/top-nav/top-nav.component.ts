@@ -22,6 +22,7 @@ export class TopNavComponent {
     { label: 'Künstler',  value: 'artist',  inputValue: '' },
     { label: 'Lyrics',    value: 'lyrics',  inputValue: '' },
     { label: 'Genre',     value: 'genre',   inputValue: '' },
+    { label: 'Datum',     value: 'date',   inputValue: '' },
   ];
 
   isExpanded: boolean[] = new Array(this.filterOptions.length).fill(false);
