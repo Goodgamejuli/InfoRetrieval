@@ -17,12 +17,14 @@ export class TopNavComponent {
   public isSearchFieldVisible: boolean = false;
 
   filterOptions = [
-    { label: 'Song', value: 'title' },
-    { label: 'Album', value: 'album' },
-    { label: 'Künstler', value: 'artist' },
-    { label: 'Lyrics', value: 'lyrics' },
-    { label: 'Genre', value: 'genre' },
+    { label: 'Song',      value: 'title',   inputValue: ''},
+    { label: 'Album',     value: 'album',   inputValue: '' },
+    { label: 'Künstler',  value: 'artist',  inputValue: '' },
+    { label: 'Lyrics',    value: 'lyrics',  inputValue: '' },
+    { label: 'Genre',     value: 'genre',   inputValue: '' },
   ];
+
+  isExpanded: boolean[] = new Array(this.filterOptions.length).fill(false);
 
   searchValue: string = '';
 
@@ -38,7 +40,10 @@ export class TopNavComponent {
     this.router.navigate(['/', 'login']);
   }
 
-  
+   // Umschalten des Inputfelds
+   toggleInput(index: number) {
+    this.isExpanded[index] = !this.isExpanded[index];
+  }
 
   // Function to check if checkboxes-values are changing
   onCheckboxChange(event: Event): void {
