@@ -20,7 +20,7 @@ namespace backend_csharp.Models
         [Text]
         public string AlbumTitle { get; set; }
 
-        [Keyword]
+        [Date]
         public string ReleaseDate { get; set; }
 
         [Text]

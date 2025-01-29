@@ -109,6 +109,7 @@ public class OpenSearchService
                              Date(
                                  d => d // Feld als Datum definieren
                                       .Name(n => n.ReleaseDate).
+                                      Fields(f => f.Keyword(k => k.Name("keyword"))).
                                       Format("yyyy-MM-dd") // Optional: Datumsformat
                              ).
                              Keyword(k => k.Name(n => n.Genre)) // Genre bleibt ein Keyword
@@ -167,12 +168,32 @@ public class OpenSearchService
         int maxHitCount,
         DatabaseService dbService)
     {
+        search = search.ToLower();
+
         // Finding all OpenSearchSongDocuments, where Artists is fitting the search
         ISearchResponse <OpenSearchSongDocument>? openSearchResponse =
             await _client.SearchAsync <OpenSearchSongDocument>(
                 x => x.Index(IndexName).
                        Size(maxHitCount).
-                       Query(q => q.Match(m => m.Field(f => f.ArtistName).Query(search).Fuzziness(Fuzziness.Auto))).
+                       Query(
+                           q => q.Bool(
+                               b => b.Should(
+                                   s =>
+                                   {
+                                       if (search.Contains('*') || search.Contains('?'))
+                                       {
+                                           s.Wildcard(
+                                               w => w.Field(ff => ff.ArtistName).
+                                                      Value(search));
+                                       }
+                                       else
+                                       {
+                                           s.Match(
+                                               m => m.Field(f => f.ArtistName).Query(search).Fuzziness(Fuzziness.Auto));
+                                       }
+
+                                       return s;
+                                   }))).
                        Sort(s => s.Descending(SortSpecialField.Score)));
 
         if (!openSearchResponse.IsValid)
@@ -289,6 +310,8 @@ public class OpenSearchService
 
         if (songs == null || !songs.IsValid)
             return null;
+
+        Console.WriteLine(songs.DebugInformation);
 
         List <OpenSearchSongDocument> filteredSongs = [];
 
@@ -408,12 +431,32 @@ public class OpenSearchService
         int maxHitCount,
         DatabaseService dbService)
     {
+        search = search.ToLower();
+
         // Finding all OpenSearchSongDocuments, where Album is fitting the search
         ISearchResponse <OpenSearchSongDocument>? openSearchResponse =
             await _client.SearchAsync <OpenSearchSongDocument>(
                 x => x.Index(IndexName).
                        Size(maxHitCount).
-                       Query(q => q.Match(m => m.Field(f => f.AlbumTitle).Query(search).Fuzziness(Fuzziness.Auto))).
+                       Query(
+                           q => q.Bool(
+                               b => b.Should(
+                                   s =>
+                                   {
+                                       if (search.Contains('*') || search.Contains('?'))
+                                       {
+                                           s.Wildcard(
+                                               w => w.Field(ff => ff.AlbumTitle).
+                                                      Value(search));
+                                       }
+                                       else
+                                       {
+                                           s.Match(
+                                               m => m.Field(f => f.AlbumTitle).Query(search).Fuzziness(Fuzziness.Auto));
+                                       }
+
+                                       return s;
+                                   }))).
                        Sort(s => s.Descending(SortSpecialField.Score)));
 
         if (!openSearchResponse.IsValid)
@@ -450,7 +493,7 @@ public class OpenSearchService
             return null;
 
         search = search.ToLower();
-        
+
         ISearchResponse <OpenSearchSongDocument> openSearchResponse =
             await _client.SearchAsync <OpenSearchSongDocument>(
                 s => s.Index(IndexName).
