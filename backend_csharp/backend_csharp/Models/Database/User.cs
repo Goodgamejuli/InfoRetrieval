@@ -1,15 +1,18 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace backend_csharp.Models.Database;
 
-namespace backend_csharp.Models.Database
+/// <summary>
+///     This model defines a user that registered in the app
+/// </summary>
+public class User
 {
-    public class User
-    {
-        public Guid Id { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
+    public Guid Id {get; set;}
 
-        // Relationships
-        public ICollection <LastListenedSong> LastListenedSongs { get; set; } = new List<LastListenedSong>();
-        public ICollection<Playlist> Playlists { get; set; } = new List<Playlist>();
-    }
+    public string Username {get; set;}
+
+    public string Password {get; set;}
+
+    // Relationships
+    public ICollection <LastListenedSong> LastListenedSongs {get; set;} = new List <LastListenedSong>();
+
+    public ICollection <Playlist> Playlists {get; set;} = new List <Playlist>();
 }
