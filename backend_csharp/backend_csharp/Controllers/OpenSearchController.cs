@@ -261,4 +261,30 @@ public class OpenSearchController(DatabaseService databaseService)
     }
 
     #endregion
+
+    [HttpPost("createTest")]
+    public async Task <ActionResult> CreateIndexTest()
+    {
+        await OpenSearchService.Instance.CreateIndexTest();
+
+        return Ok();
+    }
+
+    [HttpPost("addDataTest")]
+    public async Task <ActionResult> AddDataTest()
+    {
+        await OpenSearchService.Instance.AddDocuments();
+        return Ok();
+    }
+
+    [HttpGet("SearchTest")]
+    public async Task <ActionResult <Song>> SearchTest(DateTime currentNumber)
+    {
+        var result = await OpenSearchService.Instance.SearchByDate(currentNumber);
+
+        if(result == null)
+            return NotFound();
+
+        return Ok(result);
+    }
 }
