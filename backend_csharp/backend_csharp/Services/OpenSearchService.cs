@@ -334,6 +334,7 @@ public class OpenSearchService
         string query,
         string search,
         string? genreSearch,
+        string? dateSearch,
         int hitCount,
         float minScoreThreshold)
     {
@@ -341,6 +342,8 @@ public class OpenSearchService
             return null;
 
         search = search.ToLower();
+
+        DateSearch? dateSearchObject = dateSearch?.ConvertStringToDateSearch();
 
         var queries = query.Split(";");
 
@@ -432,6 +435,17 @@ public class OpenSearchService
                                                           .Field(ff => ff.Genre)
                                                           .Terms(genreSearch.Split(','))); // Mehrere Genres unterst�tzen
                                          }
+
+                                         if (dateSearchObject != null 
+                                             && dateSearchObject.StartDate != null
+                                             && dateSearchObject.EndDate != null)
+                                         {
+                                             f.Range(r => r
+                                                          .Field(ff => ff.ReleaseDate)
+                                                          .GreaterThanOrEquals(dateSearchObject.StartDate.Value)
+                                                          .LessThanOrEquals(dateSearchObject.EndDate.Value));
+                                         }
+
                                          return f; 
                                      }
                                 ))).

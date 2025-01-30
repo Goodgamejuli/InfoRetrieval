@@ -188,11 +188,12 @@ public class OpenSearchController(DatabaseService databaseService)
         string search,
         string query = "title;album;artist;lyrics",
         string? genreSearch = null,
+        string? dateSearch = null,
         int hitCount = 10,
         float minScoreThreshold = 0.5f)
     {
         OpenSearchSongDocument[]? osSongs =
-            await OpenSearchService.Instance.SearchForTopFittingSongs(query, search, genreSearch, hitCount, minScoreThreshold);
+            await OpenSearchService.Instance.SearchForTopFittingSongs(query, search,  genreSearch, dateSearch, hitCount, minScoreThreshold);
 
         if (osSongs == null)
             return BadRequest("No song was found for the given query");
