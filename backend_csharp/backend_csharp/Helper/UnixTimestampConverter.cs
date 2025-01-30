@@ -42,17 +42,61 @@ public static class UnixTimestampConverter
             if (dates.Length != 2)
                 return null;
 
-            DateTime? starDateTime = dates[0].ConvertStringToDateTime();
+            DateTime? startDateTime = dates[0].ConvertStringToDateTime();
             DateTime? endDateTime = dates[1].ConvertStringToDateTime();
 
-            if(starDateTime == null || endDateTime == null) return null;
+            if(startDateTime == null || endDateTime == null) return null;
 
             return new DateSearch()
             {
                 IsRange = true,
-                StartDate = starDateTime.Value.ToUnixTimestamp(),
+                StartDate = startDateTime.Value.ToUnixTimestamp(),
                 EndDate = endDateTime.Value.ToUnixTimestamp(),
-                ExactDate = null
+            };
+        } 
+        // Find all songs of year
+        else if (search.Length == 4)
+        {
+            DateTime? startDateTime = search.ConvertStringToDateTime();
+
+            if (startDateTime == null)
+                return null;
+
+            return new DateSearch()
+            {
+                IsRange = true,
+                StartDate = startDateTime.Value.ToUnixTimestamp(),
+                EndDate = startDateTime.Value.ToUnixTimestamp() + 31536000, // Adding seconds of a year
+            };
+        }
+        // Find all songs of month of a year
+        else if(search.Length == 7)
+        {
+            DateTime? startDateTime = search.ConvertStringToDateTime();
+
+            if (startDateTime == null)
+                return null;
+
+            return new DateSearch()
+            {
+                IsRange = true,
+                StartDate = startDateTime.Value.ToUnixTimestamp(),
+                EndDate = startDateTime.Value.ToUnixTimestamp() + 2592000, // Adding seconds of a month with 30 days
+            };
+        }
+        // Find all songs of day 
+        else if (search.Length == 10)
+        {
+            DateTime? startDateTime = search.ConvertStringToDateTime();
+
+            if (startDateTime == null)
+                return null;
+
+            return new DateSearch()
+            {
+                IsRange = true,
+                StartDate = startDateTime.Value.ToUnixTimestamp(),
+                EndDate = startDateTime.Value.ToUnixTimestamp() + 86400, // Adding seconds of a day
             };
         }
 
@@ -94,7 +138,6 @@ public class DateSearch
     public bool IsRange;
     public long? StartDate;
     public long? EndDate;
-    public long? ExactDate;
 }
 
 //public async Task CreateIndexTest()
