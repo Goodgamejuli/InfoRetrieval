@@ -214,17 +214,6 @@ public class OpenSearchController(DatabaseService databaseService)
         return Ok(output);
     }
 
-    [HttpGet("FindArtists")]
-    public async Task <ActionResult <List <ArtistResponseDto>>> FindArtists(string search, int maxHitCount)
-    {
-        var artists = await OpenSearchService.Instance.SearchForArtist(search, maxHitCount, databaseService);
-
-        if (artists == null)
-            return BadRequest("Error while searching for Artist!");
-
-        return Ok(artists);
-    }
-
     [HttpGet("FindSongsOfArtist")]
     public async Task <ActionResult <List <SongDto>>> FindSongsOfArtist(
         string artist,
@@ -243,17 +232,6 @@ public class OpenSearchController(DatabaseService databaseService)
         return Ok(songs);
     }
 
-    [HttpGet("FindAlbums")]
-    public async Task<ActionResult<List<AlbumResponseDto>>> FindAlbums(string search, int maxHitCount)
-    {
-        List <AlbumResponseDto>? artists = await OpenSearchService.Instance.SearchForAlbum(search, maxHitCount, databaseService);
-
-        if (artists == null)
-            return BadRequest("Error while searching for Album!");
-
-        return Ok(artists);
-    }
-
     [HttpGet("FindSongsInAlbum")]
     public async Task <ActionResult <List <SongDto>>> FindSongsInAlbum(string albumTitle, string? search, float minScoreThreshold)
     {
@@ -265,6 +243,17 @@ public class OpenSearchController(DatabaseService databaseService)
 
         if (songs == null)
             return BadRequest("Error while searching for songs in album!");
+
+        return Ok(songs);
+    }
+
+    [HttpGet("FindSongsByDate")]
+    public async Task <ActionResult <List <SongDto>>> FindSongsByDate(string dateSearch)
+    {
+        List <SongDto>? songs = await OpenSearchService.Instance.FindSongsAccordingToDate(dateSearch, databaseService);
+
+        if (songs == null)
+            return BadRequest("Error while searching for date of songs");
 
         return Ok(songs);
     }

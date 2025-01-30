@@ -1,4 +1,5 @@
-﻿using backend_csharp.Models.Database;
+﻿using backend_csharp.Helper;
+using backend_csharp.Models.Database;
 
 namespace backend_csharp.Models;
 
@@ -15,7 +16,7 @@ public class SongDto(OpenSearchSongDocument song, DatabaseSong dbEntry)
 
     public string Album {get; set;} = song.AlbumTitle;
 
-    public string Release {get; set;} = song.ReleaseDate;
+    public string Release {get; set;} = song.ReleaseDate.ToDateOnly().ToString();
 
     public string Artist {get; set;} = song.ArtistName;
 

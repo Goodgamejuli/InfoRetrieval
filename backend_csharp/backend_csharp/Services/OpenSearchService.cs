@@ -118,13 +118,12 @@ public class OpenSearchService
                                  t => t.Name(n => n.ArtistName).Fields(f => f.Keyword(k => k.Name("keyword")))
                              ).
                              Text(t => t.Name(n => n.Lyrics)).
-                             Date(
-                                 d => d // Feld als Datum definieren
+                             Number(
+                                 d => d 
                                       .Name(n => n.ReleaseDate).
-                                      Fields(f => f.Keyword(k => k.Name("keyword"))).
-                                      Format("yyyy-MM-dd") // Optional: Datumsformat
+                                      Type(NumberType.Long)
                              ).
-                             Keyword(k => k.Name(n => n.Genre)) // Genre bleibt ein Keyword
+                             Keyword(k => k.Name(n => n.Genre))
                     )
                 )
             );
@@ -547,7 +546,7 @@ public class OpenSearchService
     /// </summary>
     /// <param name="spotifySongData"> Target spotify data </param>
     /// <param name="mbSongData"> Target musicBrainz data </param>
-    private static string GenerateOsdReleaseDate(CrawlSongData? spotifySongData, CrawlSongData? mbSongData)
+    private static long GenerateOsdReleaseDate(CrawlSongData? spotifySongData, CrawlSongData? mbSongData)
     {
         var validSpotify = spotifySongData is {releaseDate: not null};
         var validMb = mbSongData is {releaseDate: not null};
@@ -559,14 +558,14 @@ public class OpenSearchService
                 PartialDate spotifyDate = spotifySongData!.releaseDate!;
                 PartialDate mbDate = mbSongData!.releaseDate!;
 
-                return spotifyDate < mbDate ? spotifyDate.ToString() : mbDate.ToString();
+                return spotifyDate < mbDate ? spotifyDate.ToUnixTimestamp() : mbDate.ToUnixTimestamp();
             }
 
             case true:
-                return spotifySongData!.releaseDate!.ToString();
+                return spotifySongData!.releaseDate!.ToUnixTimestamp();
         }
 
-        return validMb ? mbSongData!.releaseDate!.ToString() : "";
+        return validMb ? mbSongData!.releaseDate!.ToUnixTimestamp() : 0;
     }
 
     /// <summary>
@@ -648,7 +647,7 @@ public class OpenSearchService
 
             albumSortContainer.Add(
                 album.Name,
-                album.ToAlbumResponseDto(songResponse.ArtistName, songResponse.ReleaseDate));
+                album.ToAlbumResponseDto(songResponse.ArtistName, songResponse.ReleaseDate.ToDateOnly().ToString()));
         }
 
         return albumSortContainer.Values.ToList();
@@ -725,6 +724,50 @@ public class OpenSearchService
             if (hits[i].Score < minScoreThreshold)
                 continue;
 
+            DatabaseSong? dbSong = await dbService.GetSong(documents[i].Id);
+
+            if (dbSong == null)
+                continue;
+
+            filteredSongs.Add(new SongDto(documents[i], dbSong));
+        }
+
+        return filteredSongs;
+    }
+
+    #endregion
+
+    #region Date Search
+
+    public async Task <List <SongDto>?> FindSongsAccordingToDate(string date, DatabaseService dbService)
+    {
+        if(string.IsNullOrEmpty(date)) return null;
+
+        var dateSearch = date.ConvertStringToDateSearch();
+
+        if(dateSearch == null) return null;
+
+        var openSearchResponse = await _client.SearchAsync<OpenSearchSongDocument>(s => s
+                                                                       .Index(IndexName)
+                                                                       .Query(q => q
+                                                                                  .Range(r => r
+                                                                                             .Field(f => f.ReleaseDate) 
+                                                                                             .GreaterThanOrEquals(dateSearch.StartDate)
+                                                                                             .LessThanOrEquals(dateSearch.EndDate)
+                                                                                  )
+                                                                       )
+                    );
+
+        if (openSearchResponse is not { IsValid: true })
+            return null;
+
+        List<SongDto> filteredSongs = new();
+
+        IHit<OpenSearchSongDocument>[] hits = openSearchResponse.Hits.ToArray();
+        OpenSearchSongDocument[] documents = openSearchResponse.Documents.ToArray();
+
+        for (var i = 0; i < openSearchResponse.Documents.Count; i++)
+        {
             DatabaseSong? dbSong = await dbService.GetSong(documents[i].Id);
 
             if (dbSong == null)

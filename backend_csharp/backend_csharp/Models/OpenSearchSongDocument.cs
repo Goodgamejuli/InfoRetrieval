@@ -19,8 +19,8 @@ public class OpenSearchSongDocument
     [Text]
     public string AlbumTitle {get; set;}
 
-    [Date]
-    public string ReleaseDate {get; set;}
+    [Number]
+    public long ReleaseDate {get; set;}
 
     [Text]
     public string ArtistName {get; set;}
