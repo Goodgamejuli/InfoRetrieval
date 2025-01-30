@@ -53,6 +53,7 @@ export class OpenSearchService {
         searchValue: string,
         query: string = 'title;album;artist;lyrics',
         genreSearch: string | null = null,
+        dateSearch: string | null = null,
         hitCount: number = 10
     ){
         if(searchValue == null || searchValue == "") {
@@ -61,24 +62,17 @@ export class OpenSearchService {
         }
 
         // Define URL-Parameters
-        var params;
-        if(genreSearch == null) {
-            params = new HttpParams()
-                .set('search', searchValue)
-                .set('query', query)
-                .set('hitCount', hitCount.toString())
-                .set('minScoreThreshold', this.minScoreThreshold);
-        }
-        else {
-            params = new HttpParams()
-                .set('search', searchValue)
-                .set('query', query)
-                .set('genreSearch', genreSearch)
-                .set('hitCount', hitCount.toString())
-                .set('minScoreThreshold', this.minScoreThreshold);
-        }
-
+        let params = new HttpParams()
+            .set('search', searchValue)
+            .set('query', query)
+            .set('hitCount', hitCount.toString())
+            .set('minScoreThreshold', this.minScoreThreshold);
         
+            if(genreSearch) 
+                params = params.set('genreSearch', genreSearch)
+
+            if(dateSearch)
+                params = params.set('dateSearch', dateSearch)
 
         var results = this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongs`, {params})
             .subscribe({
@@ -126,20 +120,12 @@ export class OpenSearchService {
     ) {
         //Define params
 
-        var params;
-        if(search == null) {
-            params = new HttpParams()
+        let params = new HttpParams()
             .set('artist', artist)
             .set('minScoreThreshold', minScoreThreshold)
-
-        } else {
-            params = new HttpParams()
-            .set('artist', artist)
-            .set('search', search)
-            .set('minScoreThreshold', minScoreThreshold)
-        }
-
-        params.set('minScoreThreshold', minScoreThreshold)
+        
+        if(search) 
+            params = params.set('search', search)
 
         this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongsOfArtist`, {params})
             .subscribe( {
@@ -163,8 +149,8 @@ export class OpenSearchService {
     ) {
         //Define params
         const params = new HttpParams()
-        .set('search', searchValue)
-        .set('maxHitCount', maxHitCount)
+            .set('search', searchValue)
+            .set('maxHitCount', maxHitCount)
 
         this.http.get<AlbumDto[]>(`${this.openSearchApiUrl}/FindAlbums`, {params})
             .subscribe( {
@@ -187,20 +173,12 @@ export class OpenSearchService {
     ) {
         //Define params
 
-        var params;
-        if(search == null) {
-            params = new HttpParams()
+        let params = new HttpParams()
             .set('albumTitle', albumTitle)
             .set('minScoreThreshold', minScoreThreshold)
 
-        } else {
-            params = new HttpParams()
-            .set('albumTitle', albumTitle)
-            .set('search', search)
-            .set('minScoreThreshold', minScoreThreshold)
-        }
-
-        params.set('minScoreThreshold', minScoreThreshold)
+        if(search) 
+            params = params.set('search', search)
 
         this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongsInAlbum`, {params})
             .subscribe( {

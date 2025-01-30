@@ -86,10 +86,17 @@ export class TopNavComponent {
     }
     // Search for songs
     else if(this.selectedFilterOptions.includes('title') || this.selectedFilterOptions.includes('lyrics')) {
-      if(this.filterOptions[1].inputValue != null && this.filterOptions[4].inputValue != '') 
-        this.opensearchService.searchForSongs(this.searchValue, query, this.filterOptions[4].inputValue);
-      else
-      this.opensearchService.searchForSongs(this.searchValue, query);
+      let genreSearch: string | null = null;
+      let dateSearch: string | null = null;
+
+      if(this.filterOptions[4].inputValue != '') 
+        genreSearch = this.filterOptions[4].inputValue;
+
+      if(this.filterOptions[5].inputValue != '')
+        dateSearch = this.filterOptions[5].inputValue;
+
+        this.opensearchService.searchForSongs(this.searchValue, query, genreSearch, dateSearch);
+
     }
       
 
