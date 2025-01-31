@@ -65,7 +65,7 @@ export class TopNavComponent {
     var query = "";
 
     this.selectedFilterOptions.forEach(selectedFilter => {
-      query += selectedFilter + ";";
+        query += selectedFilter + ";";
     });
 
     console.log(query);
@@ -74,6 +74,7 @@ export class TopNavComponent {
       this.opensearchService.songs = [];
       this.opensearchService.albums = [];
       this.opensearchService.artists = [];
+      this.opensearchService.topSongs = [];
 
     // Search for songs if selected
     // Search for songs of album if selected
@@ -96,9 +97,19 @@ export class TopNavComponent {
         dateSearch = this.filterOptions[5].inputValue;
 
         this.opensearchService.searchForSongs(this.searchValue, query, genreSearch, dateSearch);
-
     }
-      
+
+    // Top fitting search
+    let genreSearch: string | null = null;
+    let dateSearch: string | null = null;
+
+    if(this.filterOptions[4].inputValue != '') 
+      genreSearch = this.filterOptions[4].inputValue;
+
+    if(this.filterOptions[5].inputValue != '')
+      dateSearch = this.filterOptions[5].inputValue;
+
+      this.opensearchService.searchForTopResults(this.searchValue, genreSearch, dateSearch);
 
     // Search for Artists if selected
     if(this.selectedFilterOptions.includes('artist'))

@@ -14,10 +14,6 @@
         <div class="home-container_side-bar-item" (click)="onAdminClick()">
             <a>Admin</a>
         </div>
-        <!--Own Library-->
-        <div class="home-container_side-bar-item" (click)="onNavigate('library')">
-            <a>Your Library</a>
-        </div>
 
         <!--div class="button" (click)="onTestClick()">
             <h1>Song hinzufügen</h1> 
@@ -39,9 +35,14 @@
             </div>
 
             <!-- Content to show -->
+            <!-- Top Fitting Song Card-->
+            <div class="card-container_div" *ngIf="opensearchService.topSongs.length > 0">
+                <app-song-card-container [isTopResults]=true></app-song-card-container>
+            </div>
+
             <!-- Song cards -->
             <div class="card-container_div" *ngIf="opensearchService.songs.length > 0">
-                <app-song-card-container></app-song-card-container>
+                <app-song-card-container [isTopResults]=false></app-song-card-container>
             </div>
 
             <!-- Artist Cards -->

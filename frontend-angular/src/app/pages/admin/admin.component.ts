@@ -21,6 +21,10 @@ export class AdminComponent implements OnInit{
   useSpotifyApi: boolean = true;
   useMusicBrainzApi: boolean = true;
 
+  // Settable values
+  minScoreThreshold: number = this.opensearchService.minScoreThreshold;
+  resultSize: number = this.opensearchService.resultSize;
+
   ngOnInit(): void {
     this.checkReachabilityOfBackends();
   }
@@ -43,5 +47,19 @@ export class AdminComponent implements OnInit{
     console.log('Use Spotify MusicBrainzAPI:', this.useMusicBrainzApi);
 
     this.opensearchService.crawlAllSongsOfArtist(this.artistToFetch, this.useSpotifyApi, this.useMusicBrainzApi);
+  }
+
+  setMinScoreThreshold() {
+    if(this.minScoreThreshold < 0)
+      this.opensearchService.minScoreThreshold = 0;
+    else
+      this.opensearchService.minScoreThreshold = this.minScoreThreshold;
+  }
+
+  setResultSize() {
+    if(this.resultSize < 0)
+      this.opensearchService.resultSize = 0;
+    else
+      this.opensearchService.resultSize = this.resultSize;
   }
 }

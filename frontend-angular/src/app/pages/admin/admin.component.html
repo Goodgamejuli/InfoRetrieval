@@ -59,6 +59,21 @@
         </div>
       </div>
 
+      <div class="fetch-container">
+        <h2> Werte einstellen </h2>
+        
+        <!-- Eingabefeld und Button -->
+        <div class="input-section">
+          <input type="number" [(ngModel)]="minScoreThreshold" placeholder="Minimum Score Threshold einstellen" />
+          <button (click)="setMinScoreThreshold()">Apply</button>
+        </div>
+
+        <div class="input-section">
+          <input type="number" [(ngModel)]="resultSize" placeholder="Maximale Results einstellen" />
+          <button (click)="setResultSize()">Apply</button>
+        </div>
+      </div>
+
 
     <div class="button-container">
         <h2>Weitere nützliche Funktionen aus dem Backend</h2>

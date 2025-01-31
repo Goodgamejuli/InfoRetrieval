@@ -27,6 +27,10 @@ export class AlbumCardComponent {
   }
 
   findSongsOfAlbum() {
+    this.opensearchService.topSongs = [];
+    this.opensearchService.artists = [];
+    this.opensearchService.songs = [];
+    
     this.opensearchService.searchForSongsInAlbum(this.title, null, 0);
   }
 

@@ -422,8 +422,7 @@ public class OpenSearchService
                                                           return f;
                                                       }).
                                                   Query(search).
-                                                  Fuzziness(Fuzziness.Auto).
-                                                  MinimumShouldMatch(1));
+                                                  Fuzziness(Fuzziness.Auto));
                                    }
 
                                    return s;
@@ -820,6 +819,7 @@ public class OpenSearchService
         ISearchResponse <OpenSearchSongDocument> openSearchResponse =
             await _client.SearchAsync <OpenSearchSongDocument>(
                 s => s.Index(IndexName).
+                      Size(100).
                        Query(
                            q => q.Bool(
                                b => b.Filter( // Filter --> value must be fitting

@@ -21,6 +21,10 @@ export class ArtistCardComponent {
   constructor() { }
 
   findSongsOfArtist() {
+    this.opensearchService.topSongs = [];
+    this.opensearchService.albums = [];
+    this.opensearchService.songs = [];
+    
     this.opensearchService.searchForSongsOfArtist(this.artist, null, 0);
   }
 
