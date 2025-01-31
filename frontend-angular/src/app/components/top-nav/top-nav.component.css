@@ -3,10 +3,9 @@
     height: 150px;
     background: #0F0F0F;
     position: fixed;
-    top: 0;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     display: flex;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     align-items: center;
     color: lightgray;
     font-weight: bold;
@@ -30,6 +29,8 @@
     justify-content: flex-end;
     align-items: center;
     gap: 20px;
+    position: absolute;
+    right: 400px;
 }
 
 .top-nav_auth_login {
@@ -53,6 +54,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-left: 250px;
 }
 
 /* Dropdown für die Suchkategorie */
@@ -82,7 +84,6 @@ input.search::placeholder {
     font-weight: 500;
 }
 
-/* Button "Los!" */
 .search-button {
     border: none;
     border-radius: 20px;
@@ -93,6 +94,12 @@ input.search::placeholder {
     cursor: pointer;
     background-color: white;
     color: black;
+}
+
+.search-button:hover {
+    cursor: pointer;
+    background-color: rgb(32, 32, 32);
+    color: rgb(9, 185, 9);
 }
 
 /* Der Button zum Hinzufügen */
@@ -134,5 +141,35 @@ input.search::placeholder {
     display: flex;
     align-self: center;
     flex-direction: row; /* Checkboxen horizontal anordnen */
-    gap: 15px; /* Abstand zwischen den Checkboxen */
+    gap: 55px; /* Abstand zwischen den Checkboxen */
   }
+
+  .toggle-button {
+    margin-left: 10px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: white;
+  }
+
+  .input-container {
+  margin-left: 20px;
+  margin-top: 5px;
+}
+
+ .specific-search{
+    position: absolute;
+    border: none;
+    width: 120px;
+    border-radius: 20px;
+    height: 20px;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: bold;
+ }
+
+.specific-search::placeholder {
+    color: gray;
+    font-weight: 500;
+}

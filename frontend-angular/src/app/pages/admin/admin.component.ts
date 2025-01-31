@@ -1,4 +1,4 @@
-import { Component, inject, NgModule } from '@angular/core';
+import { Component, inject, NgModule, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OpenSearchService } from '../../services/opensearch.service';
 
@@ -8,7 +8,7 @@ import { OpenSearchService } from '../../services/opensearch.service';
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
-export class AdminComponent {
+export class AdminComponent implements OnInit{
   opensearchService = inject(OpenSearchService);
 
   // Checking if backend is available
@@ -20,6 +20,15 @@ export class AdminComponent {
   artistToFetch: string = '';
   useSpotifyApi: boolean = true;
   useMusicBrainzApi: boolean = true;
+
+  // Settable values
+  minScoreThreshold: number = this.opensearchService.minScoreThreshold;
+  resultSize: number = this.opensearchService.resultSize;
+
+  ngOnInit(): void {
+    this.checkReachabilityOfBackends();
+  }
+  
 
   checkReachabilityOfBackends() {
     this.opensearchService.checkIfBackendIsReachable().then(result => this.isBackendReachable = result);
@@ -38,5 +47,19 @@ export class AdminComponent {
     console.log('Use Spotify MusicBrainzAPI:', this.useMusicBrainzApi);
 
     this.opensearchService.crawlAllSongsOfArtist(this.artistToFetch, this.useSpotifyApi, this.useMusicBrainzApi);
+  }
+
+  setMinScoreThreshold() {
+    if(this.minScoreThreshold < 0)
+      this.opensearchService.minScoreThreshold = 0;
+    else
+      this.opensearchService.minScoreThreshold = this.minScoreThreshold;
+  }
+
+  setResultSize() {
+    if(this.resultSize < 0)
+      this.opensearchService.resultSize = 0;
+    else
+      this.opensearchService.resultSize = this.resultSize;
   }
 }

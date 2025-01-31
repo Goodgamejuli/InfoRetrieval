@@ -15,7 +15,7 @@
       
         <!-- Filteroptionen -->
         <div class="filter-container">
-          <div *ngFor="let item of filterOptions">
+          <div *ngFor="let item of filterOptions, let i = index">
             <label>
               <input
                 type="checkbox"
@@ -24,13 +24,29 @@
               />
               {{ item.label }}
             </label>
+
+            <!-- Button zum Aufklappen -->
+            <button *ngIf="item.hasInput" class="toggle-button" (click)="toggleInput(i)">
+              {{ isExpanded[i] ? '▲' : '▼' }}
+            </button>
+
+            <!-- Inputfeld, das nur sichtbar ist, wenn isExpanded[i] true ist -->
+            <div *ngIf="item.hasInput && isExpanded[i]" class="input-container">
+              <input
+                type="text"
+                class="specific-search"
+                [(ngModel)]="item.inputValue"
+                placeholder="Wert eingeben..."
+                />
           </div>
         </div>
       </div>
-    
+      </div>
+    <!--
       <div class="top-nav_auth">
         <div class="top-nav_auth_sign-up">Sign up</div>
         <div class="top-nav_auth_login" (click)="onNavigateToLogin()">Login</div>
-      </div>
+      </div> -->
   </div>
+
   

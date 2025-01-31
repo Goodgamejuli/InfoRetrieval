@@ -3,6 +3,9 @@ using SpotifyAPI.Web;
 
 namespace backend_csharp.Services;
 
+/// <summary>
+///     This class handles all functionality related to the spotify api
+/// </summary>
 public class SpotifyApiService
 {
     // Client_ID and Client_Secret are important to connect to my created spotifyAPI-Project
@@ -27,10 +30,16 @@ public class SpotifyApiService
 
     #region Public Methods
 
+    /// <summary>
+    ///     This method crawls all songs for the specified artist from the spotify api
+    /// </summary>
+    /// <param name="artistName"> Name of the target artist </param>
+
+    // ReSharper disable once CognitiveComplexity
     public async Task <OpenSearchService.CrawlSongData[]?> CrawlAllSongsOfArtist(string artistName)
     {
         Console.WriteLine("Crawling songs from spotify...");
-        
+
         FullArtist? artist = await SearchForArtist(artistName);
 
         if (artist == null)
@@ -50,26 +59,22 @@ public class SpotifyApiService
             if (songs is not {Count: > 0})
                 continue;
 
-            foreach (SimpleTrack song in songs)
-            {
-                if (song.Name.Contains('(') && song.Name.Contains(')'))
-                    continue;
-                
-                output.Add(
-                    new OpenSearchService.CrawlSongData
-                    {
-                        id = song.Id,
-                        title = song.Name,
-                        albumId = album.Id,
-                        albumTitle = album.Name,
-                        albumCoverUrl = album.Images[0].Url,
-                        artistId = artist.Id,
-                        artistName = artist.Name,
-                        artistCoverUrl = artist.Images[0].Url,
-                        genres = artist.Genres.ToArray(),
-                        releaseDate = new PartialDate(album.ReleaseDate)
-                    });
-            }
+            output.AddRange(
+                from song in songs
+                where !song.Name.Contains('(') || !song.Name.Contains(')')
+                select new OpenSearchService.CrawlSongData
+                {
+                    id = song.Id,
+                    title = song.Name,
+                    albumId = album.Id,
+                    albumTitle = album.Name,
+                    albumCoverUrl = album.Images[0].Url,
+                    artistId = artist.Id,
+                    artistName = artist.Name,
+                    artistCoverUrl = artist.Images[0].Url,
+                    genres = artist.Genres.ToArray(),
+                    releaseDate = new PartialDate(album.ReleaseDate)
+                });
         }
 
         return output.ToArray();
@@ -79,6 +84,10 @@ public class SpotifyApiService
 
     #region Private Methods
 
+    /// <summary>
+    ///     This method uses the spotify api to get all albums of a specific artist
+    /// </summary>
+    /// <param name="artist"> Target artist </param>
     private async Task <FullAlbum[]?> GetAlbumsOfArtist(FullArtist artist)
     {
         var artistAlbumRequest = new ArtistsAlbumsRequest();

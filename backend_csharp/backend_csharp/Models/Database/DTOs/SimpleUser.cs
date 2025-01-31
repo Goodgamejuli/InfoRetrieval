@@ -1,14 +1,13 @@
-﻿namespace backend_csharp.Models.Database.DTOs
-{
+﻿namespace backend_csharp.Models.Database.DTOs;
+
 /// <summary>
-/// DTO for an User that just holds the id (nullable), name and password
+///     This class is a data transfer object for a user that just holds the id (nullable), name and password
 /// </summary>
-    public class SimpleUser
-    {
-        public Guid? Id {get; set;} = null;
+public class SimpleUser
+{
+    public Guid? Id {get; set;} = null;
 
-        public string Username {get; set;} = "";
+    public string Username {get; set;} = "";
 
-        public string Password {get; set;} = "";
-    }
+    public string Password {get; set;} = "";
 }

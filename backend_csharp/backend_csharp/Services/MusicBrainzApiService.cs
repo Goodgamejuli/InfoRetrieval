@@ -5,14 +5,23 @@ using MetaBrainz.MusicBrainz.Interfaces.Searches;
 
 namespace backend_csharp.Services;
 
+/// <summary>
+///     This class handles all functionality related to the musicBrainz api
+/// </summary>
 public static class MusicBrainzApiService
 {
     #region Public Methods
 
-    public static async Task <List<OpenSearchService.CrawlSongData>?> CrawlAllSongsOfArtist(string artistName)
+    /// <summary>
+    ///     This method crawls all songs for the specified artist from the musicBrainz api
+    /// </summary>
+    /// <param name="artistName"> Name of the target artist </param>
+
+    // ReSharper disable once CognitiveComplexity
+    public static async Task <List <OpenSearchService.CrawlSongData>?> CrawlAllSongsOfArtist(string artistName)
     {
         Console.WriteLine("Crawling songs from musicBrainz...");
-        
+
         var query = new Query("InfoManagement", "0.0.1", "tiogiras@gmail.com");
 
         IArtist? artist = await query.QueryArtist(artistName);
@@ -28,6 +37,8 @@ public static class MusicBrainzApiService
 
         Dictionary <string, PartialDate> recordingDates = new();
 
+        // The api cannot include the relation between the song and the corresponding recordings publication date without
+        // an extra api call. To reduce the api calls we save all recordings with their corresponding publication dates for later usage
         foreach (IRecording recording in recordings)
         {
             if (recording.FirstReleaseDate == null)
@@ -38,19 +49,17 @@ public static class MusicBrainzApiService
 
         List <OpenSearchService.CrawlSongData> output = [];
 
-        for (var i = 0; i < tracks.Count; i++)
+        foreach (IWork t in tracks)
         {
-            IWork track = tracks[i];
-            
-            if ((track.Title ?? string.Empty).Contains('(') && (track.Title ?? string.Empty).Contains(')'))
+            if ((t.Title ?? string.Empty).Contains('(') && (t.Title ?? string.Empty).Contains(')'))
                 continue;
 
-            OpenSearchService.CrawlSongData? data = await CreateCrawlSongData(query, artist, tracks[i], recordingDates);
-            
+            OpenSearchService.CrawlSongData? data = await CreateCrawlSongData(query, artist, t, recordingDates);
+
             if (data != null)
                 output.Add(data);
         }
-        
+
         return output.Count > 0 ? output : null;
     }
 
@@ -58,7 +67,14 @@ public static class MusicBrainzApiService
 
     #region Private Methods
 
-    private static async Task<OpenSearchService.CrawlSongData?> CreateCrawlSongData(
+    /// <summary>
+    ///     Structure the crawled data for a song
+    /// </summary>
+    /// <param name="query"> MusicBrainz api query </param>
+    /// <param name="artist"> MusicBrainz artist of the song </param>
+    /// <param name="track"> MusicBrainz song </param>
+    /// <param name="recordingDates"> All recordings of the artist </param>
+    private static async Task <OpenSearchService.CrawlSongData?> CreateCrawlSongData(
         Query query,
         IArtist artist,
         IWork track,
@@ -85,7 +101,7 @@ public static class MusicBrainzApiService
 
         if (string.IsNullOrEmpty(albumTitle))
             return null;
-        
+
         return new OpenSearchService.CrawlSongData
         {
             id = $"mbid_{track.Id.ToString()}",
@@ -99,24 +115,37 @@ public static class MusicBrainzApiService
         };
     }
 
-    private static async Task<string?> GetAlbumTitleOfRecording(Query query, Guid releaseRecording)
+    /// <summary>
+    ///     This method uses the musicBrainz api to get the title of a recording
+    /// </summary>
+    /// <param name="query"> MusicBrainz api query </param>
+    /// <param name="releaseRecording"> ID of the target recording </param>
+    /// <returns></returns>
+    private static async Task <string?> GetAlbumTitleOfRecording(Query query, Guid releaseRecording)
     {
         try
         {
             IRecording recording = await query.LookupRecordingAsync(releaseRecording, Include.Releases);
-            
-            IRelease? release = recording.Releases?.FirstOrDefault(release => release.Date == recording.FirstReleaseDate);
+
+            IRelease? release =
+                recording.Releases?.FirstOrDefault(release => release.Date == recording.FirstReleaseDate);
 
             return release?.Title;
         }
         catch (Exception)
         {
             Console.WriteLine("Could not get recording due to invalid mbid returning null");
-            
+
             return null;
         }
     }
 
+    /// <summary>
+    ///     This method searches for the most early release date recorded for the given song
+    /// </summary>
+    /// <param name="track"> Targeted song </param>
+    /// <param name="recordingDates"> Reference to all recordings of the artist </param>
+    /// <param name="releaseRecording"> ID of the most early recording </param>
     private static PartialDate? GetFirstReleaseDateForTrack(
         IWork track,
         Dictionary <string, PartialDate> recordingDates,
@@ -148,6 +177,11 @@ public static class MusicBrainzApiService
         return firstReleaseDate;
     }
 
+    /// <summary>
+    ///     This method uses the musicBrainz api to get all recordings of an artist
+    /// </summary>
+    /// <param name="query"> MusicBrainz api query </param>
+    /// <param name="artist"> Target artist </param>
     private static async Task <IReadOnlyList <IRecording>?> QueryAllRecordings(this Query query, IArtist artist)
     {
         List <IRecording> allRecordings = [];
@@ -172,12 +206,17 @@ public static class MusicBrainzApiService
         while (recordings.Results.Count > 0);
 
         Console.WriteLine($"Queried {allRecordings.Count} recordings");
-        
+
         Console.WriteLine("This could take a while...");
 
         return allRecordings.Count > 0 ? allRecordings : null;
     }
 
+    /// <summary>
+    ///     This method uses the musicBrainz api to get all songs of an artist
+    /// </summary>
+    /// <param name="query"> MusicBrainz api query </param>
+    /// <param name="artist"> Target artist </param>
     private static async Task <IReadOnlyList <IWork>?> QueryAllTracks(this Query query, IArtist artist)
     {
         List <IWork> allTracks = [];
@@ -207,6 +246,11 @@ public static class MusicBrainzApiService
         return allTracks.Count > 0 ? allTracks : null;
     }
 
+    /// <summary>
+    ///     This method uses the musicBrainz api to find an artist by the name
+    /// </summary>
+    /// <param name="query"> MusicBrainz api query </param>
+    /// <param name="artistName"> Name of the target artist </param>
     private static async Task <IArtist?> QueryArtist(this Query query, string artistName)
     {
         // Queries all artists corresponding to the artist name but only picks the one with the highest score
