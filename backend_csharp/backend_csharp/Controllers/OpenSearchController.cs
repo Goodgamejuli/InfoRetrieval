@@ -181,10 +181,12 @@ public class OpenSearchController(DatabaseService databaseService)
     /// </summary>
     /// <param name="search"> Search criteria for the target artists </param>
     /// <param name="query"> Defines what aspects should be used to search the most fitting songs </param>
+    /// <param name="genreSearch"> Defines the search criteria if u want to additional search for a genre. Leave it null if not </param>
+    /// <param name="dateSearch"> Defines the search criteria if u want to additional search for a date. Leave it null if not</param>
     /// <param name="hitCount"> Number of max returned elements </param>
     /// <param name="minScoreThreshold"> Minimum value the score needs to have for the element to be marked as a hit </param>
-    [HttpGet("FindSongs")]
-    public async Task <ActionResult <SongDto[]>> FindSongs(
+    [HttpGet("FindTopSongs")]
+    public async Task <ActionResult <SongDto[]>> FindTopFittingSongs(
         string search,
         string query = "title;album;artist;lyrics",
         string? genreSearch = null,
@@ -194,6 +196,47 @@ public class OpenSearchController(DatabaseService databaseService)
     {
         OpenSearchSongDocument[]? osSongs =
             await OpenSearchService.Instance.SearchForTopFittingSongs(query, search,  genreSearch, dateSearch, hitCount, minScoreThreshold);
+
+        if (osSongs == null)
+            return BadRequest("No song was found for the given query");
+
+        SongDto[] output = new SongDto[osSongs.Length];
+
+        for (var i = 0; i < osSongs.Length; i++)
+        {
+            OpenSearchSongDocument osSong = osSongs[i];
+
+            DatabaseSong? dbSong = await databaseService.GetSong(osSong.Id);
+
+            if (dbSong == null)
+                return BadRequest($"The found os song with the id [{osSong.Id}] has not been added to the database!");
+
+            output[i] = new SongDto(osSong, dbSong);
+        }
+
+        return Ok(output);
+    }
+
+    /// <summary>
+    ///     This method returns all songs from the openSearch instance as a dto that are the most fitting for the criteria
+    /// </summary>
+    /// <param name="search"> Search criteria for the target artists </param>
+    /// <param name="query"> Defines what aspects should be used to search the most fitting songs </param>
+    /// <param name="genreSearch"> Defines the search criteria if u want to additional search for a genre. Leave it null if not </param>
+    /// <param name="dateSearch"> Defines the search criteria if u want to additional search for a date. Leave it null if not</param>
+    /// <param name="hitCount"> Number of max returned elements </param>
+    /// <param name="minScoreThreshold"> Minimum value the score needs to have for the element to be marked as a hit </param>
+    [HttpGet("FindSongs")]
+    public async Task<ActionResult<SongDto[]>> FindSongs(
+        string search,
+        string query = "title;lyrics",
+        string? genreSearch = null,
+        string? dateSearch = null,
+        int hitCount = 10,
+        float minScoreThreshold = 0.5f)
+    {
+        OpenSearchSongDocument[]? osSongs =
+            await OpenSearchService.Instance.SearchForSongs(query, search, genreSearch, dateSearch, hitCount, minScoreThreshold);
 
         if (osSongs == null)
             return BadRequest("No song was found for the given query");

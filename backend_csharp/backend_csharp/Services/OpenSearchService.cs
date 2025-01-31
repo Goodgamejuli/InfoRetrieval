@@ -322,10 +322,12 @@ public class OpenSearchService
     #endregion
 
     /// <summary>
-    ///     Search through the openSearch instance to find the most fitting songs
+    ///     Search through the openSearch instance to find the most fitting songs, according to all selected values (title, album , artist, lyrics)
     /// </summary>
     /// <param name="query"> Specifies what fields are included when matching the search </param>
     /// <param name="search"> Search criteria (song name) </param>
+    /// <param name="genreSearch"> Defines the search criteria if u want to additional search for a genre. Leave it null if not </param>
+    /// <param name="dateSearch"> Defines the search criteria if u want to additional search for a date. Leave it null if not</param>
     /// <param name="hitCount"> Number of search hits </param>
     /// <param name="minScoreThreshold"> Minimum score until a entry is accepted as a hit </param>
 
@@ -457,6 +459,134 @@ public class OpenSearchService
         List <OpenSearchSongDocument> filteredSongs = [];
 
         IHit <OpenSearchSongDocument>[] hits = songs.Hits.ToArray();
+        OpenSearchSongDocument[] documents = songs.Documents.ToArray();
+
+        for (var i = 0; i < songs.Documents.Count; i++)
+        {
+            if (hits[i].Score < minScoreThreshold)
+                continue;
+
+            filteredSongs.Add(documents[i]);
+        }
+
+        Console.WriteLine($"Found {filteredSongs.Count} song(s)");
+
+        return filteredSongs.ToArray();
+    }
+
+    /// <summary>
+    ///     Search through the openSearch instance to find the most fitting songs, according to all selected values (here only title or lyrics)
+    /// </summary>
+    /// <param name="query"> Specifies what fields are included when matching the search </param>
+    /// <param name="search"> Search criteria (song name) </param>
+    /// <param name="genreSearch"> Defines the search criteria if u want to additional search for a genre. Leave it null if not </param>
+    /// <param name="dateSearch"> Defines the search criteria if u want to additional search for a date. Leave it null if not</param>
+    /// <param name="hitCount"> Number of search hits </param>
+    /// <param name="minScoreThreshold"> Minimum score until a entry is accepted as a hit </param>
+
+    // ReSharper disable once CognitiveComplexity
+    public async Task<OpenSearchSongDocument[]?> SearchForSongs(
+        string query,
+        string search,
+        string? genreSearch,
+        string? dateSearch,
+        int hitCount,
+        float minScoreThreshold)
+    {
+        if (string.IsNullOrEmpty(search))
+            return null;
+
+        search = search.ToLower();
+
+        DateSearch? dateSearchObject = dateSearch?.ConvertStringToDateSearch();
+
+        var queries = query.Split(";");
+
+        if (queries.Length == 0)
+            return null;
+
+        var titleBoost = queries.Contains("title") ? 1.5 : -1.0;
+        var lyricsBoost = queries.Contains("lyrics") ? 0.1 : -1.0;
+
+        if (titleBoost < 0 && lyricsBoost < 0)
+            return null;
+
+        ISearchResponse<OpenSearchSongDocument>? songs = await _client.SearchAsync<OpenSearchSongDocument>(
+            x => x.Index(IndexName).
+                   Size(hitCount).
+                   Query(
+                       q => q.Bool(
+                           b => b.Should(
+                               s =>
+                               {
+                                   if (search.Contains('*') || search.Contains('?'))
+                                   {
+                                       if (titleBoost > 0)
+                                       {
+                                           s.Wildcard(
+                                               w => w.Field(ff => ff.Title).Value(search).Boost(titleBoost));
+                                       }
+
+                                       if (lyricsBoost > 0)
+                                       {
+                                           s.Wildcard(
+                                               w => w.Field(ff => ff.Lyrics).
+                                                      Value(search).
+                                                      Boost(lyricsBoost));
+                                       }
+                                   }
+                                   else
+                                   {
+                                       s.MultiMatch(
+                                           m => m.Fields(
+                                                      f =>
+                                                      {
+                                                          if (titleBoost > 0)
+                                                              f.Field(ff => ff.Title, titleBoost);
+
+                                                          if (lyricsBoost > 0)
+                                                              f.Field(ff => ff.Lyrics, lyricsBoost);
+
+                                                          return f;
+                                                      }).
+                                                  Query(search).
+                                                  Fuzziness(Fuzziness.Auto).
+                                                  MinimumShouldMatch(1));
+                                   }
+
+                                   return s;
+                               })
+                                 .Filter(
+                                     f =>
+                                     {
+                                         if (!string.IsNullOrWhiteSpace(genreSearch))
+                                         {
+                                             f.Terms(t => t
+                                                          .Field(ff => ff.Genre)
+                                                          .Terms(genreSearch.Split(','))); // Mehrere Genres unterst�tzen
+                                         }
+
+                                         if (dateSearchObject != null
+                                             && dateSearchObject.StartDate != null
+                                             && dateSearchObject.EndDate != null)
+                                         {
+                                             f.Range(r => r
+                                                          .Field(ff => ff.ReleaseDate)
+                                                          .GreaterThanOrEquals(dateSearchObject.StartDate.Value)
+                                                          .LessThanOrEquals(dateSearchObject.EndDate.Value));
+                                         }
+
+                                         return f;
+                                     }
+                                ))).
+                   Sort(s => s.Descending(SortSpecialField.Score)));
+
+        if (songs is not { IsValid: true })
+            return null;
+
+        List<OpenSearchSongDocument> filteredSongs = [];
+
+        IHit<OpenSearchSongDocument>[] hits = songs.Hits.ToArray();
         OpenSearchSongDocument[] documents = songs.Documents.ToArray();
 
         for (var i = 0; i < songs.Documents.Count; i++)
