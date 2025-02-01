@@ -38,7 +38,7 @@ Falls Sie noch kein OpenSearech-Container in Docker haben, können Sie unter `ht
 
 ### 2. Backend (ASP.NET Core 9) starten
 
-1. Öffne das Projekt in **Visual Studio 2022**.
+1. Öffne das Projekt in **Visual Studio 2022**. Gehen sie dafür in den backend_sharp-Ordner und öffnen Sie die Solution oder öffnen Sie dise direkt von visual Studio aus.
 2. Stelle sicher, dass das .NET 9 SDK installiert ist.
 3. Starten Sie das Projekt in Visual Studio. Beachten Sie, dass https eingestellt sein muss (sieh Bild)
    ![image](https://github.com/user-attachments/assets/a714a895-f174-40b0-bfc7-155321f45401)
@@ -46,7 +46,7 @@ Das Backend läuft nun unter `https://localhost:7238`. Falls sich nicht automati
 
 ### 3. Frontend (Angular) starten
 
-1. Navigiere in den Angular-Projektordner
+1. Navigiere in den Angular-Projektordner (frontend-angular)
 2. Dies können Sie jetzt mit Vs Code öffnen, müssen es aber nicht. Sie können auch einfach die Kommandozeile aus diesem Ordner heraus öffenen.
 3. Geben Sie in der Kommandozeile diesen Befehl an, um das Frontend local zu starten:
    ```sh
