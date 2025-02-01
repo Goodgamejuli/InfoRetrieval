@@ -1,0 +1,84 @@
+.artist-card {
+    width: 250px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    align-items: center;
+    background-color: #202020;
+    border-radius: 20px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    padding: 20px; 
+    position: relative;
+    margin: 5px;
+}
+
+.artist-card_title {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    word-spacing: 0.4px;
+    color: white;
+    margin-top: 18px;
+    text-transform: capitalize;
+    text-align: center;
+    height: 40px;
+}
+
+.artist-card_description {
+    width: 100%; 
+    text-align: left; 
+    margin-top: 10px;
+}
+
+.artist-card_description-artist,
+.artist-card_description-artist,
+.artist-card_description-genre,
+.artist-card_description-release {
+    font-size: 12px;
+    color: grey;
+    margin-top: 10px;
+}
+
+.artist-card_thumbnail {
+    width: 200px;       
+    height: auto;
+}
+
+.artist-card_thumbnail img {
+display: block;
+width: 100%;
+height: auto;
+}
+  
+.artist-card_discover-button {
+    position: absolute;
+    bottom: 25px;
+    background-color: #1ED760;
+    border-radius: 25px;
+    width: 75%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.artist-card_discover-button a {
+    color: black;
+    font-size: 14px;
+    font-weight: bold;
+}
+ 
+
+.artist-card_discover-button:hover {
+    background-color: #7cd69c;
+}
+
+.description-separator {
+    border: none;
+    border-top: 1px solid #1ED760;
+    margin: 2px 0; 
+    width: 100%;
+}
+

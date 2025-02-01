@@ -1,0 +1,52 @@
+<div class="top-nav">
+    <div class="top-nav_title">Info Retrival</div>
+  
+      <div class="top-nav_search">
+        <!-- Suchleiste mit Button -->
+        <div class="search-container">
+          <input
+            type="search"
+            class="search"
+            placeholder="What are you looking for?"
+            [(ngModel)]="searchValue"
+          />
+          <button class="search-button" (click)="search()">Suchen!</button>
+        </div>
+      
+        <!-- Filteroptionen -->
+        <div class="filter-container">
+          <div *ngFor="let item of filterOptions, let i = index">
+            <label>
+              <input
+                type="checkbox"
+                [value]="item.value"
+                (change)="onCheckboxChange($event)"
+              />
+              {{ item.label }}
+            </label>
+
+            <!-- Button zum Aufklappen -->
+            <button *ngIf="item.hasInput" class="toggle-button" (click)="toggleInput(i)">
+              {{ isExpanded[i] ? '▲' : '▼' }}
+            </button>
+
+            <!-- Inputfeld, das nur sichtbar ist, wenn isExpanded[i] true ist -->
+            <div *ngIf="item.hasInput && isExpanded[i]" class="input-container">
+              <input
+                type="text"
+                class="specific-search"
+                [(ngModel)]="item.inputValue"
+                placeholder="Wert eingeben..."
+                />
+          </div>
+        </div>
+      </div>
+      </div>
+    <!--
+      <div class="top-nav_auth">
+        <div class="top-nav_auth_sign-up">Sign up</div>
+        <div class="top-nav_auth_login" (click)="onNavigateToLogin()">Login</div>
+      </div> -->
+  </div>
+
+  

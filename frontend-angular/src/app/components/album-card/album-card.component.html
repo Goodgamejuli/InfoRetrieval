@@ -1,0 +1,20 @@
+<div class="album-card">
+  <div class="album-card_title">{{title || 'Titel nicht verfügbar'}}</div>
+    
+    <div class="album-card_thumbnail">
+      <img [src]="coverUrl" alt="thumbnail">    
+    </div>
+    
+    <div class="album-card_description-div">
+      <div class="album-card_description">{{artist || 'Album nicht verfügbar'}}</div>
+      <hr class="description-separator">
+      <div class="album-card_description">{{release || 'Release nicht verfügbar'}}</div>
+      <hr class="description-separator">
+    </div>
+
+    <div class="album-card_discover-button" (click)="findSongsOfAlbum()">
+      <a>Discover Album</a>
+    </div>
+
+</div>  
+  

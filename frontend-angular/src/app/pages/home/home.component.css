@@ -1,0 +1,71 @@
+.home-container_side-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: black;
+    height: 100vh;
+}
+
+.home-container_side-bar-item  {
+    width: 100%;
+    font-size: 18;
+    color: white;
+    margin: 10px;
+    padding-left: 18px;
+}
+
+.home-container_side-bar-item > a:hover {
+    cursor: pointer;
+    color: lightgray;
+}
+
+
+
+.button {
+    background-color: white;
+    padding: 13px;
+    border-radius: 40px;
+    color: black;
+    font-weight: bold;
+    width: 110px;
+    text-align: center;
+}
+
+.button:hover {
+    cursor: pointer;
+    background-color: rgb(32, 32, 32);
+    color: rgb(9, 185, 9);
+}
+
+.home-main_container {
+    padding: 0px;
+    background-color: #1e1e1e;
+    height: 100vh; 
+    overflow-y: auto; /* Vertikales Scrollen aktivieren */
+}
+
+.top-nav-container_div {
+    margin-bottom: 150px;
+    z-index: 100; /* Über anderen Elementen */
+    top: 0;
+    position: sticky;
+}
+
+.card-container_div {
+    margin-bottom: 100px;
+}
+
+/* Playbar */
+.playbar-container {
+    position: fixed; /* Immer am Bildschirmrand */
+    bottom: 0; /* Am unteren Bildschirmrand */
+    width: 100%;
+    background-color: #282828; 
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Schatten oberhalb der Playbar */
+    color: white;
+    align-items: center;
+    min-height: 100px;
+    padding: 10px 20px; /* Innenabstand */
+    flex: 0 0 auto; /* Höhe automatisch basierend auf Inhalt */
+  }

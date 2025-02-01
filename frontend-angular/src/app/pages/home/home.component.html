@@ -1,0 +1,68 @@
+<div class="home-container row">
+    
+
+    <div class="home-container_side-bar col-2">
+        <!--Logo-->
+        <div class="home-container_side-bar-item">
+            <img width="150" class="m-3 text-left" src="assets/spotify_light.png" alt="spotify light logo">
+        </div>
+        <!--Home Screen-->
+        <div class="home-container_side-bar-item" (click)="onHomeClick()">
+            <a>Home</a>
+        </div>
+        <!--Admin page-->
+        <div class="home-container_side-bar-item" (click)="onAdminClick()">
+            <a>Admin</a>
+        </div>
+
+        <!--div class="button" (click)="onTestClick()">
+            <h1>Song hinzufügen</h1> 
+        </div-->
+
+        <!--img src="https://d3rt1990lpmkn.cloudfront.net/cover/d45aa25bbd45872c0b1e97223af57fe94588820a"-->
+    </div>
+
+    
+    
+    <div class="home-main_container col-10">
+        @if (showAdminPage) {
+            <app-admin></app-admin>
+        }
+        @else {
+            <!-- Top Navigation -->
+            <div class="top-nav-container_div">
+                <app-top-nav></app-top-nav>
+            </div>
+
+            <!-- Content to show -->
+            <!-- Top Fitting Song Card-->
+            <div class="card-container_div" *ngIf="opensearchService.topSongs.length > 0">
+                <app-song-card-container [isTopResults]=true></app-song-card-container>
+            </div>
+
+            <!-- Song cards -->
+            <div class="card-container_div" *ngIf="opensearchService.songs.length > 0">
+                <app-song-card-container [isTopResults]=false></app-song-card-container>
+            </div>
+
+            <!-- Artist Cards -->
+            <div class="card-container_div" *ngIf="opensearchService.artists.length > 0">
+                <app-artist-card-container></app-artist-card-container>
+            </div>
+
+            <!-- Album Cards -->
+            <div class="card-container_div" *ngIf="opensearchService.albums.length > 0">
+                <app-album-card-container></app-album-card-container>
+            </div>
+
+            <!--Playbar-->
+            @if (playbarService.songToPlayUrl != null) {
+            <div class="playbar-container">
+                <app-playbar></app-playbar>
+            </div>
+        }
+    }
+    </div>
+</div>
+
+ 
