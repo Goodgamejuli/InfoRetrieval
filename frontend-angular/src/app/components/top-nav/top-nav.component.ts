@@ -76,6 +76,21 @@ export class TopNavComponent {
       this.opensearchService.artists = [];
       this.opensearchService.topSongs = [];
 
+    if(this.searchValue == null || this.searchValue == '')
+      return;
+
+    // Special Case for date or genre search!
+    if(this.selectedFilterOptions.includes('genre')) {
+      this.opensearchService.searchSongsOfGenre(this.searchValue);
+      return;
+    }
+
+    if(this.selectedFilterOptions.includes('date')) {
+      this.opensearchService.searchSongsByDate(this.searchValue);
+      return;
+    }
+    
+    
     // Search for songs if selected
     // Search for songs of album if selected
     if(this.filterOptions[1].inputValue != '' && this.selectedFilterOptions.includes('title')) {

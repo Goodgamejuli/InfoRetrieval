@@ -237,7 +237,49 @@ export class OpenSearchService {
             })
     }
 
+    ///////////////// Search for genre /////////////////////////////
+    public searchSongsOfGenre(genre: string) {
+        // Define params 
+        let params = new HttpParams()
+            .set('genre', genre)
+            .set('hitCount', this.resultSize);
 
+            this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongsByGenre`, {params})
+            .subscribe( {
+                next: (songs) => {
+                    if(songs.length == 0)
+                        console.log("Kein passender Song gefunden!");
+                    this.songs = songs;
+                    console.log(this.songs);
+                },
+                error(err) {
+                    console.error('Error finding songs of genre: ', genre, err);
+                },
+            })
+    }
+
+    ///////////////// Search for Date /////////////////////////////
+    public searchSongsByDate(date: string) {
+        // Define params 
+        let params = new HttpParams()
+            .set('dateSearch', date)
+            .set('hitCount', this.resultSize);
+
+            this.http.get<SongDTO[]>(`${this.openSearchApiUrl}/FindSongsByDate`, {params})
+            .subscribe( {
+                next: (songs) => {
+                    if(songs.length == 0)
+                        console.log("Kein passender Song gefunden!");
+                    this.songs = songs;
+                    console.log(this.songs);
+                },
+                error(err) {
+                    console.error('Error finding songs of date: ', date, err);
+                },
+            })
+    }
+
+    ///////////////// Additional /////////////////////////////
 
     public async checkIfOpenSearchIsReachable(): Promise<boolean> {
         try {
@@ -264,6 +306,32 @@ export class OpenSearchService {
             console.error("Backend nicht erreichbar.", error);
             return false;
         }
+    }
+
+    // Readds the database
+    public clearDatabase() {
+        this.http.get(`https://localhost:7238/api/Database/NewDatabase`)
+        .subscribe({
+            next: (response) => {
+              console.log('Datenbank erfolgreich erstellt:', response);
+            },
+            error: (error) => {
+              console.error('Fehler beim Erstellen der Datenbank:', error);
+            }
+          });
+    }
+
+    // Creates the openSearch index
+    public createIndex() {
+        this.http.put(`https://localhost:7238/api/OpenSearch`, null)
+        .subscribe({
+            next: (response) => {
+              console.log('OpenSearch erfolgreich aktualisiert:', response);
+            },
+            error: (error) => {
+              console.error('Fehler beim Aktualisieren von OpenSearch:', error);
+            }
+          });
     }
 
 

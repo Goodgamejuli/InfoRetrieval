@@ -74,6 +74,15 @@ public class DatabaseController(DatabaseService service) : ControllerBase
         return Ok();
     }
 
+    [HttpGet("NewDatabase")]
+    public async Task <ActionResult> AddNewDatabase()
+    {
+        if(await service.CreateDatabase())
+            return Ok("Database added!");
+
+        return BadRequest("Database couldn't get added");
+    }
+
     #endregion
 
     #region DB_Songs

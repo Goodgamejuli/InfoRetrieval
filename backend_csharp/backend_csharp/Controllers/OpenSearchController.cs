@@ -292,12 +292,23 @@ public class OpenSearchController(DatabaseService databaseService)
     }
 
     [HttpGet("FindSongsByDate")]
-    public async Task <ActionResult <List <SongDto>>> FindSongsByDate(string dateSearch)
+    public async Task <ActionResult <List <SongDto>>> FindSongsByDate(string dateSearch, int hitCount = 10)
     {
-        List <SongDto>? songs = await OpenSearchService.Instance.FindSongsAccordingToDate(dateSearch, databaseService);
+        List <SongDto>? songs = await OpenSearchService.Instance.FindSongsAccordingToDate(dateSearch, databaseService, hitCount);
 
         if (songs == null)
             return BadRequest("Error while searching for date of songs");
+
+        return Ok(songs);
+    }
+
+    [HttpGet("FindSongsByGenre")]
+    public async Task<ActionResult<List<SongDto>>> FindSongsByGenre(string genre, int hitCount = 10)
+    {
+        List<SongDto>? songs = await OpenSearchService.Instance.FindSongsAccordingToGenre(genre, databaseService, hitCount);
+
+        if (songs == null)
+            return BadRequest("Error while searching for genre of songs");
 
         return Ok(songs);
     }

@@ -52,6 +52,21 @@ public class DatabaseService(DataContext dataContext)
         await dataContext.SaveChangesAsync();
     }
 
+    public async Task<bool> CreateDatabase()
+    {
+        try
+        {
+            await dataContext.Database.EnsureDeletedAsync();
+            await dataContext.Database.MigrateAsync();
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     /// <summary>
     ///     This method returns the album with the specified id from the database
     /// </summary>

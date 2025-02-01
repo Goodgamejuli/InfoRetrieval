@@ -62,4 +62,12 @@ export class AdminComponent implements OnInit{
     else
       this.opensearchService.resultSize = this.resultSize;
   }
+
+  clearDatabase() {
+    this.opensearchService.clearDatabase();
+  }
+
+  createIndex() {
+    this.opensearchService.createIndex();
+  }
 }
