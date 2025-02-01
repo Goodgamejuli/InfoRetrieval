@@ -1,11 +1,10 @@
 # README.md
 
-## Information MAangement und Data Retrieval 
+## Music Finder
 
 ### Beschreibung
 
-Dieses Projekt ist eine ASP.NET Core 9 Web API, die mit einem Angular-Frontend interagiert. Die Backend-Anwendung verwendet OpenSearch als Such- und Analyse-Engine und wird mit Docker betrieben. Die gesamte Entwicklung erfolgt in Visual Studio.
-
+Dieses Projekt ist eine ASP.NET Core 9 Web API, die mit einem Angular-Frontend interagiert und dabei OpenSearch als Such- und Analyse-Engine verwenet. Es wurde für das Modul "Information Management und Retrieval für Digitale Medien" des Masterstudiengangs "Medieninformatik" der Hochschule Mittweida entwickelt.  Im Endeffekt nutzt das Projekt verschiedene APIs (Spotify, MusicBrainz und LyricOVH) um Daten zu verschiedenen Lieder zu crawlen und diese in Open Search zu indexieren. Über Suchanfragen, können dann bestimmte Ergebnisse aus OpenSearch wieder gewonnen werden und im Frontend angezeigt werden.
 ## Voraussetzungen
 
 ### Allgemeine Anforderungen
@@ -81,6 +80,16 @@ Um das Projekt testen zu können, müssen Sie in dem genutzen Browser mit Ihrem 
 Falls Sie das nicht Preisgeben wollen, können Sie sich auch selbst eine SptoifyAPI-App anlegen.
 Einfach hier durch die Dokumentation lesen und eine App anlegen `https://developer.spotify.com`. 
 Wenn Sie das getan haben, müssen Sie noch die AppDaten im Backend mit Ihren neuen Daten aktualiesieren. Dafür gehen Sie in die SpotifyAPIService.cs-Klasse und geben für die Variable ClientID Ihre neue ClientId und für die Variable ClientSecret Ihr neues ClientSecret an.
+
+### Crawlen von Songs
+Da Sie bei der Ersten Nutzung keine Songs in OpenSearch indexiert haben, müssen Sie sich diese zuerst crawlnen. Dies können Sie im Frontend auf der AdminSeite machen.
+![image](https://github.com/user-attachments/assets/a6878ed8-1db4-4dd6-88cd-15941d02b66f)
+Hier können Sie den Name eines Artist eingeben, woraufhin alle Songs dieses Artist gecrawlt werden, die über die Spotify-API oder MusicBrainz-API gefunden werden. Sie können auch selbst bestimmen welche der beiden APIs genutzt werden sollen.
+
+Das gleiche kann auch in Swagger ausgeführt werden, dazu müssen Sie folgende Methode ausführen:
+![image](https://github.com/user-attachments/assets/48aad84a-992d-400b-aff5-9407bf149635)
+
+
 
 ## Lizenz
 
