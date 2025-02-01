@@ -63,7 +63,7 @@ Damit das Projekt laufen kann, muss sowohl ein Index in OpenSearch als auch eine
 
 1. Datenbank neu aufsetzen
    Führen sie in Swagger diese Methode aus:
-   ![image](https://github.com/user-attachments/assets/b3f81ff5-ea38-4121-a4ae-5729466de825)
+   ![image](https://github.com/user-attachments/assets/50863595-b398-4ea1-b10b-ed17052c7343)
    Die einstellbaren Werte sollen dem default value entsprechen.
 
    Sie können auch im Frontend auf der AdminSeite den Button "Datenbank neu aufsetzen" klicken!
