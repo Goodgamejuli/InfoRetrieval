@@ -92,7 +92,7 @@ Hier können Sie den Name eines Artist eingeben, woraufhin alle Songs dieses Art
 Das gleiche kann auch in Swagger ausgeführt werden, dazu müssen Sie folgende Methode ausführen:
 ![image](https://github.com/user-attachments/assets/48aad84a-992d-400b-aff5-9407bf149635)
 
-**Wichtig, in der Conole des Backends wird ausgegeben, dass gerade Songs gecrawled werden. Bitte erst warten bis der Crawl-Prozess abgeschlossen ist und keine weiteren Conolen-Logs ausgegeben werden!!!!**
+**Wichtig, in der Console des Backends wird ausgegeben, dass gerade Songs gecrawled werden. Bitte erst warten bis der Crawl-Prozess abgeschlossen ist und keine weiteren Conolen-Logs ausgegeben werden!!!!**
 ![image](https://github.com/user-attachments/assets/20ce0cee-effa-456d-881e-268deb0512af)
 
 
