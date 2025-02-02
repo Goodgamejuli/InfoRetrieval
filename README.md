@@ -60,6 +60,7 @@ Das Backend läuft nun unter `https://localhost:7238`. Falls sich nicht automati
 ### Datenbank und OpenSearch aufsetzen
 Damit das Projekt laufen kann, muss sowohl ein Index in OpenSearch als auch eine Datenbankstruktur angelegt werden. Dies muss initial einmalig passieren oder kann auch immer wieder vorgenommen werden, wenn sie die Datenbank und OpenSearch neu aufsetzen wollen.
 **Wichtig! Es müssen immer beide Schritte ausgeführt werden. Sonst kommt es zu Problemen**
+** Falls das Projekt aus irgendwelchen Gründen nicht mehr ganz funktioniert, können diese Schritte auch nochmal ausgeführt werden!!!!**
 
 1. Datenbank neu aufsetzen
    Führen sie in Swagger diese Methode aus:
@@ -76,10 +77,12 @@ Damit das Projekt laufen kann, muss sowohl ein Index in OpenSearch als auch eine
 
 ### Verbindung zu Spotify
 Um das Projekt testen zu können, müssen Sie in dem genutzen Browser mit Ihrem Spotify account eingeloggt sein. Zudem müssen Sie als Entwickler im der Spotify genutzen SpotifyAPI hinzugefügt werden. Dafür benötige ich Ihre Spotify-Email und Nutzername. 
+* Teilseise funktioniert das auch, ohne dass der Account als Developer hinzugefügt wird. Da ist Spotify etwas eigen und es ist uns nicht ganz bewusst, wann es wie Probleme macht. Deswegen können Sie das crawlen auch zunächst ohne den vorherigen Schritt versuchen und schauen, ob es vielleicht schon ohne eine genaue Verbindung zu Spotify klappt*
 
 Falls Sie das nicht Preisgeben wollen, können Sie sich auch selbst eine SptoifyAPI-App anlegen.
 Einfach hier durch die Dokumentation lesen und eine App anlegen `https://developer.spotify.com`. 
 Wenn Sie das getan haben, müssen Sie noch die AppDaten im Backend mit Ihren neuen Daten aktualiesieren. Dafür gehen Sie in die SpotifyAPIService.cs-Klasse und geben für die Variable ClientID Ihre neue ClientId und für die Variable ClientSecret Ihr neues ClientSecret an.
+
 
 ### Crawlen von Songs
 Da Sie bei der Ersten Nutzung keine Songs in OpenSearch indexiert haben, müssen Sie sich diese zuerst crawlnen. Dies können Sie im Frontend auf der AdminSeite machen.
@@ -88,6 +91,10 @@ Hier können Sie den Name eines Artist eingeben, woraufhin alle Songs dieses Art
 
 Das gleiche kann auch in Swagger ausgeführt werden, dazu müssen Sie folgende Methode ausführen:
 ![image](https://github.com/user-attachments/assets/48aad84a-992d-400b-aff5-9407bf149635)
+
+**Wichtig, in der Conole des Backends wird ausgegeben, dass gerade Songs gecrawled werden. Bitte erst warten bis der Crawl-Prozess abgeschlossen ist und keine weiteren Conolen-Logs ausgegeben werden!!!!**
+![image](https://github.com/user-attachments/assets/20ce0cee-effa-456d-881e-268deb0512af)
+
 
 
 
