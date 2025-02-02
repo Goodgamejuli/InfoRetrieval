@@ -24,5 +24,5 @@ public class SongDto(OpenSearchSongDocument song, DatabaseSong dbEntry)
 
     public string? Embed {get; set;} = dbEntry.Embed;
 
-    public string? Cover {get; set;} = dbEntry.Album.CoverUrl;
+    public string? Cover {get; set;} = dbEntry.Album?.CoverUrl;
 }
